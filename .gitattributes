@@ -1,0 +1,2 @@
+# Keep every checkout byte-identical to the frozen candidate (LF), even on core.autocrlf=true hosts.
+* text=auto eol=lf
