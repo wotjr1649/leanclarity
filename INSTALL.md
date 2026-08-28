@@ -41,4 +41,4 @@ codex plugin add leanclarity@leanclarity
 codex plugin remove leanclarity
 ```
 
-For Codex, `codex plugin marketplace upgrade` refreshes the git snapshot and `codex plugin add` installs the refreshed version. Uninstalling removes the plugin files; the saved setting stays in the host's plugin data directory (`state.json`). LeanClarity never deletes it itself, and deleting it resets the setting to ON.
+For Claude Code, pass the scope you installed with (for example `--scope local`) to `claude plugin update` and `claude plugin uninstall`; without it they look at the user scope. For Codex, `codex plugin marketplace upgrade` refreshes the git snapshot and `codex plugin add` installs the refreshed version. Uninstalling removes the plugin files; the saved setting stays in the host's plugin data directory (`state.json`). LeanClarity never deletes it itself, and deleting it resets the setting to ON.
