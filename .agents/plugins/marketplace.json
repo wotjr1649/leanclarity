@@ -1,0 +1,21 @@
+{
+  "name": "leanclarity",
+  "interface": {
+    "displayName": "LeanClarity"
+  },
+  "plugins": [
+    {
+      "name": "leanclarity",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/wotjr1649/leanclarity.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

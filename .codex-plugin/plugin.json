@@ -1,0 +1,9 @@
+{
+  "name": "leanclarity",
+  "version": "1.0.0",
+  "description": "Default-on development guidance for the smallest correct solution and clear, actionable communication.",
+  "author": {
+    "name": "LeanClarity contributors"
+  },
+  "license": "MIT"
+}
