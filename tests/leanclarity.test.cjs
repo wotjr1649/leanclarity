@@ -498,11 +498,34 @@ test('state parser accepts exactly one boolean enabled key and rejects corrupt v
   assert.deepEqual(runtime.readState(plugin.dataRoot), { kind: 'corrupt' });
 });
 
-test('unavailable data roots and non-regular state targets are never repaired', (t) => {
+test('a missing data-root directory is absent state that only a write creates', (t) => {
   const missing = makePlugin(t);
   fs.rmdirSync(missing.dataRoot);
-  assert.deepEqual(runtime.readState(missing.dataRoot), { kind: 'unavailable' });
-  assert.equal(runtime.writeState(missing.dataRoot, true), false);
+  assert.deepEqual(runtime.readState(missing.dataRoot), { kind: 'absent', enabled: true });
+  const main = runtime.dispatch({ hook_event_name: 'SessionStart', source: 'startup' }, { env: claudeEnv(missing) });
+  assert.equal(main.hookSpecificOutput.hookEventName, 'SessionStart');
+  assert.equal(runtime.dispatch({ hook_event_name: 'UserPromptSubmit', prompt: 'leanclarity' }, { env: claudeEnv(missing) }).reason, runtime.MESSAGES.statusOn);
+  assert.equal(fs.existsSync(missing.dataRoot), false, 'reads must not create the data directory');
+
+  assert.equal(runtime.writeState(missing.dataRoot, false), true);
+  assert.equal(fs.statSync(missing.dataRoot).isDirectory(), true);
+  assert.deepEqual(fs.readdirSync(missing.dataRoot), ['state.json']);
+  assert.deepEqual(runtime.readState(missing.dataRoot), { kind: 'valid', enabled: false });
+
+  const orphan = makePlugin(t);
+  const deep = path.join(orphan.base, 'missing parent', 'plugin data');
+  assert.deepEqual(runtime.readState(deep), { kind: 'unavailable' });
+  assert.equal(runtime.writeState(deep, true), false);
+  assert.equal(fs.existsSync(path.dirname(deep)), false, 'a missing parent is never created');
+});
+
+test('unavailable data roots and non-regular state targets are never repaired', (t) => {
+  const file = makePlugin(t);
+  fs.rmdirSync(file.dataRoot);
+  fs.writeFileSync(file.dataRoot, '');
+  assert.deepEqual(runtime.readState(file.dataRoot), { kind: 'unavailable' });
+  assert.equal(runtime.writeState(file.dataRoot, true), false);
+  assert.equal(fs.lstatSync(file.dataRoot).isFile(), true);
 
   const directory = makePlugin(t);
   fs.mkdirSync(runtime.statePath(directory.dataRoot));
@@ -693,7 +716,7 @@ test('Claude and Codex manifests contain matching minimal identity metadata', ()
   for (const field of ['name', 'version', 'description', 'license']) assert.equal(claude[field], codex[field]);
   assert.equal(claude.name, 'leanclarity');
   assert.equal(claude.displayName, 'LeanClarity');
-  assert.equal(claude.version, '1.0.0');
+  assert.equal(claude.version, '1.0.1');
   assert.equal(claude.license, 'MIT');
   assert.deepEqual(claude.author, { name: 'LeanClarity contributors' });
   assert.deepEqual(codex.author, claude.author);

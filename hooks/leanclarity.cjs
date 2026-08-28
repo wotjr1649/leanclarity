@@ -136,11 +136,17 @@ function statePath(dataRoot) {
   return path.join(dataRoot, 'state.json');
 }
 
-function dataRootAvailable(dataRoot, io = fs) {
+// 'directory' | 'absent' (leaf directory missing, parent is a directory) | 'unavailable'
+function dataRootState(dataRoot, io = fs) {
   try {
-    return io.statSync(dataRoot).isDirectory();
+    return io.statSync(dataRoot).isDirectory() ? 'directory' : 'unavailable';
+  } catch (error) {
+    if (!error || error.code !== 'ENOENT') return 'unavailable';
+  }
+  try {
+    return io.statSync(path.dirname(dataRoot)).isDirectory() ? 'absent' : 'unavailable';
   } catch {
-    return false;
+    return 'unavailable';
   }
 }
 
@@ -157,7 +163,9 @@ function parseState(bytes) {
 }
 
 function readState(dataRoot, io = fs) {
-  if (!dataRootAvailable(dataRoot, io)) return { kind: 'unavailable' };
+  const root = dataRootState(dataRoot, io);
+  if (root === 'absent') return { kind: 'absent', enabled: true };
+  if (root !== 'directory') return { kind: 'unavailable' };
   const file = statePath(dataRoot);
   try {
     const stat = io.lstatSync(file);
@@ -177,6 +185,13 @@ function readState(dataRoot, io = fs) {
 
 function writeState(dataRoot, enabled, { io = fs, now = Date.now, pid = process.pid } = {}) {
   if (typeof enabled !== 'boolean') return false;
+  if (dataRootState(dataRoot, io) === 'absent') {
+    try {
+      io.mkdirSync(dataRoot, { mode: 0o700 });
+    } catch (error) {
+      if (!error || error.code !== 'EEXIST') return false;
+    }
+  }
   const current = readState(dataRoot, io);
   if (current.kind === 'unavailable') return false;
 

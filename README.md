@@ -30,7 +30,7 @@ LeanClarity applies `trim()` and `toLowerCase()` to the whole prompt, then requi
 
 ## Saved setting and context boundaries
 
-Each host owns one independent file at `<host plugin data>/state.json` with exactly one boolean key, `enabled`. Claude and Codex do not synchronize it. Deleting that host's state resets the defined default to ON.
+Each host owns one independent file at `<host plugin data>/state.json` with exactly one boolean key, `enabled`. Claude and Codex do not synchronize it. Deleting that host's state resets the defined default to ON. If the host has not created that plugin-data directory yet, the setting is still the default ON; the first `on` or `off` creates the directory and writes the file.
 
 Saved-setting changes are not retroactive:
 

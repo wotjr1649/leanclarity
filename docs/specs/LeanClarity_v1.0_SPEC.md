@@ -6,7 +6,7 @@
 |---|---|
 | 문서 종류 | Normative Product and Runtime Specification |
 | 제품 계보 | LeanClarity |
-| 문서 버전 | 1.0 |
+| 문서 버전 | 1.1 (section 19 개정 이력 참조) |
 | 설계 상태 | SPEC GO |
 | 구현 상태 | NOT VERIFIED |
 | Host 통합 상태 | NOT VERIFIED |
@@ -298,6 +298,8 @@ Schema는 정확히 하나의 boolean setting을 표현한다.
 
 유효한 plugin-data root에서 `state.json`이 없으면 Saved setting은 defined default `ON`이다. Runtime은 이것을 “first run”이라고 추론하지 않는다. 사용자가 plugin-data를 삭제하면 설정은 ON으로 reset된다.
 
+Host가 제공한 data root의 마지막 디렉터리가 아직 존재하지 않더라도 그 부모 디렉터리가 존재하면 state는 absent(defined default `ON`)로 취급한다. Lifecycle event는 그 디렉터리를 만들지 않으며, `leanclarity on`/`leanclarity off`만 write 직전에 그 디렉터리를 생성한다. 부모 디렉터리도 없거나, data root가 디렉터리가 아닌 경로이거나, stat이 실패하면 data root는 unavailable이다. Runtime이 생성하는 디렉터리는 이 host-provided data root 하나뿐이다.
+
 ### 7.2 command grammar
 
 사용자 command surface는 다음 세 plain prompt뿐이다.
@@ -483,12 +485,13 @@ Malformed JSON, invalid UTF-8, unknown/missing key, invalid value, directory/sym
 
 `leanclarity on/off`는 다음 효과를 보장한다.
 
-1. host-provided data root와 같은 directory에 task-owned temp file을 exclusive-create한다.
-2. complete canonical JSON을 UTF-8로 쓴다.
-3. 필요한 handle close/flush를 완료한다.
-4. native same-directory replace로 `state.json`을 교체한다.
-5. target을 다시 읽고 requested boolean과 schema를 검증한다.
-6. 전 단계가 성공했을 때만 success status를 표시한다.
+1. data root의 마지막 디렉터리가 없고 부모 디렉터리가 있으면 그 디렉터리를 생성한다. 이미 존재하면 그대로 진행하고, 생성 실패는 오류다.
+2. host-provided data root와 같은 directory에 task-owned temp file을 exclusive-create한다.
+3. complete canonical JSON을 UTF-8로 쓴다.
+4. 필요한 handle close/flush를 완료한다.
+5. native same-directory replace로 `state.json`을 교체한다.
+6. target을 다시 읽고 requested boolean과 schema를 검증한다.
+7. 전 단계가 성공했을 때만 success status를 표시한다.
 
 Windows의 실제 Node `rename/replace` 경로는 integration test로 증명한다. Implementation은 target을 먼저 delete하여 atomicity를 흉내 내지 않는다. Temp create/write/sync/close가 replace 전에 실패하면 기존 target은 변경하지 않고 존재하는 task-owned temp만 정리한다. Native replace가 실패하면 성공을 보고하지 않는다. Replace 후 readback이 실패하면 target 결과를 추측하거나 rollback을 주장하지 않고 오류를 보고한다.
 
@@ -499,9 +502,10 @@ Concurrent commands에는 global ordering이나 lock을 제공하지 않는다. 
 | Condition | Main SessionStart | SubagentStart | Exact command | Ordinary prompt |
 |---|---|---|---|---|
 | State absent under valid data root | default ON 처리 | default ON 처리 | status ON 또는 requested write | 영향 없음 |
+| Data root leaf directory absent, parent directory present | default ON 처리; 디렉터리 생성 없음 | default ON 처리; 디렉터리 생성 없음 | status ON 또는 디렉터리 생성 후 requested write | 영향 없음 |
 | State readable regular but invalid | no injection | no injection | status error; on/off는 replace/readback으로 repair 가능 | 영향 없음 |
 | State unreadable/non-regular | no injection | no injection | error + block; 자동 repair 없음 | 영향 없음 |
-| Data root unavailable | no injection | no injection | error + block | 영향 없음 |
+| Data root unavailable (variables missing/invalid, parent directory absent, non-directory path, stat failure) | no injection | no injection | error + block; 디렉터리 생성 없음 | 영향 없음 |
 | Engineering invalid | Main 전체 no injection | no injection | state command에는 영향 없음 | 영향 없음 |
 | Guidance invalid | Main 전체 no injection | 해당 없음 | state command에는 영향 없음 | 영향 없음 |
 | Runtime/input error | no injection | no injection | recognized command면 가능한 bounded error + block; command 판별 전이면 host fail-open | 영향 없음 |
@@ -538,6 +542,7 @@ Runtime은 context가 길다는 이유로 policy를 truncate, summarize, partial
 
 - prompt text는 exact comparison 외에 path, command 또는 code로 해석하지 않는다.
 - fixed policy/state path 외의 input-derived path를 만들지 않는다.
+- runtime이 생성하는 directory는 host-provided data root 하나뿐이며 `on`/`off` write 직전에만 생성한다.
 - plugin root에는 mutable state를 쓰지 않는다.
 - host/global config, repository, home fallback 또는 upstream clone을 수정하지 않는다.
 - Runtime은 prompt, transcript, cwd, session ID, model, state content, environment dump를 log/persist/echo하지 않는다.
@@ -567,6 +572,7 @@ README는 다음을 실제 behavior와 일치하게 설명한다.
 - exact normalization과 near-match behavior
 - Saved setting, new hook context, existing context, clean boundary
 - state 삭제 시 default ON reset
+- host가 data root 디렉터리를 미리 만들지 않아도 default ON이 유지되고 첫 `on`/`off`가 디렉터리를 생성함
 - corrupt state와 policy failure
 - Main/Subagent 차이
 - Windows release-validated와 macOS/Linux portable-by-design 범위
@@ -684,7 +690,7 @@ Paired ON/OFF evaluation 없이 README/release note에서 base host 대비 개�
 | `LCL-RUN-001` | Node CommonJS stdlib-only runtime이며 prohibited API가 없다. | import/static scan |
 | `LCL-INPUT-001` | bounded strict input과 no-sensitive-data use를 지킨다. | process tests |
 | `LCL-OUTPUT-001` | stdout는 empty 또는 one valid event-correct JSON이다. | process + host tests |
-| `LCL-STATE-001` | plugin-data one-file state, strict validity와 verified atomic replace를 지킨다. | state + Windows integration tests |
+| `LCL-STATE-001` | plugin-data one-file state, strict validity와 verified atomic replace를 지키고, 누락된 data root leaf 디렉터리는 `on`/`off` write 시에만 생성한다. | state + Windows integration tests |
 | `LCL-FAIL-001` | ordinary prompt fail-open과 control-command failure contract를 지킨다. | failure matrix |
 | `LCL-MEASURE-001` | correct deduplicated context를 측정하고 runtime truncation 없이 host limits를 통과한다. | measurement + host evidence |
 | `LCL-SEC-001` | no execution, egress, logging, global mutation 또는 control bypass다. | adversarial/static tests |
@@ -728,3 +734,10 @@ GO evidence의 각 requirement row는 최소 `Requirement`, `Applicability ratio
 - [Node.js — `TextDecoder`](https://nodejs.org/api/util.html#class-utiltextdecoder)
 - `D:\AI_DEV\_refs\ponytail` at `2ed6c52c9d7e5e56942508591085fd45dea277d3`
 - `D:\AI_DEV\_refs\i-have-adhd` at `cbe69fb83c08a37cf54d5ec9ec6bb88c8bc9973c`
+
+## 19. 개정 이력
+
+| 문서 버전 | 날짜 | 변경 |
+|---|---|---|
+| 1.0 | 2026-08-28 | 최초 SPEC GO |
+| 1.1 | 2026-08-29 | Section 7.1, 10.2, 10.3, 12.2, 13.2, 16(`LCL-STATE-001`): Codex CLI `0.150.1`이 `PLUGIN_DATA` 디렉터리를 사전 생성하지 않음을 실제 host에서 관찰(GO evidence의 Codex host results). 부모 디렉터리가 존재하는 누락 data root를 absent(default ON)로 취급하고 `on`/`off` write 직전에만 생성하도록 계약 변경. Plugin version `1.0.1`. 다른 normative 변경 없음. |
