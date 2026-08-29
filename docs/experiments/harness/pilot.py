@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -169,7 +170,8 @@ def prepare_workspace(case: dict, tag: str) -> Path:
     return ws
 
 
-def build_command(host: str, arm: str, case: dict, response_file: Path, home: str | None):
+def build_command(host: str, arm: str, case: dict, response_file: Path, home: str | None,
+                  debug_file: Path | None = None):
     """Return the host command and its environment.
 
     ``home`` overrides the isolated profile. The isolated profile is the primary
@@ -183,8 +185,15 @@ def build_command(host: str, arm: str, case: dict, response_file: Path, home: st
             "claude", "-p", case["prompt"],
             "--model", CLAUDE_MODEL,
             "--plugin-dir", str((SCRATCH / "arms" / arm).resolve()),
+            # Measured on 2.1.251: an isolated CLAUDE_CONFIG_DIR still loads the
+            # user CLAUDE.md, and "--setting-sources project,local" still does.
+            # Only "local" drops it, which the arm needs: the real user memory
+            # names a response language and its own engineering rules.
+            "--setting-sources", "local",
             "--dangerously-skip-permissions",
         ]
+        if debug_file is not None:
+            cmd += ["--debug-file", str(debug_file)]
     else:
         env["CODEX_HOME"] = home or str((SCRATCH / "codex-home").resolve())
         cmd = [
@@ -222,7 +231,8 @@ def cmd_run(args) -> None:
         main_sha = activate_codex_arm(args.arm, args.codex_plugin_root)
     ws = prepare_workspace(case, tag)
     response_file = ws.parent / f"{tag}.last"
-    cmd, env = build_command(args.host, args.arm, case, response_file, args.home)
+    debug_file = ws.parent / f"{tag}.debug" if args.host == "claude" else None
+    cmd, env = build_command(args.host, args.arm, case, response_file, args.home, debug_file)
 
     started = time.time()
     timed_out = False
@@ -246,6 +256,13 @@ def cmd_run(args) -> None:
     else:
         response = stdout
 
+    injected = None
+    if debug_file is not None and debug_file.exists():
+        text = debug_file.read_text(encoding="utf-8", errors="replace")
+        found = re.findall(r"provided additionalContext \((\d+) chars\)", text)
+        injected = [int(n) for n in found]
+        debug_file.unlink()
+
     git(["add", "-A"], ws)
     diff = git(["diff", "--cached"], ws)
 
@@ -257,6 +274,7 @@ def cmd_run(args) -> None:
         "run": args.run,
         "model": CLAUDE_MODEL if args.host == "claude" else CODEX_MODEL,
         "arm_main_sha256": main_sha,
+        "injected_chars": injected,
         "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
         "elapsed_s": elapsed,
         "exit_code": code,

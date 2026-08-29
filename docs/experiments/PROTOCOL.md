@@ -48,14 +48,28 @@ and would bury the signal.
 
 ### Claude Code
 
-- `CLAUDE_CONFIG_DIR=.pilot/claude-config` isolates settings and installed plugins.
-- `--plugin-dir .pilot/arms/<ARM>` loads that arm for one session only and never
-  touches the installed plugin cache. This is the real hook path.
-- Authentication: `claude auth status` must report `loggedIn: true` in that
-  config directory before the batch starts.
-- Whether an isolated `CLAUDE_CONFIG_DIR` also suppresses the user-level `CLAUDE.md`
-  is **unverified**. Confirm it on the first run from the debug log and record the
-  answer here before trusting any Claude arm.
+Measured on Claude Code `2.1.251`, 2026-08-29.
+
+- `CLAUDE_CONFIG_DIR=.pilot/claude-config` holds its own credentials:
+  `CLAUDE_CONFIG_DIR=... claude auth login` authenticates that directory alone, and
+  `claude auth status` reports `loggedIn: true` there while the real profile stays
+  logged out.
+- `--plugin-dir .pilot/arms/<ARM>` loads that arm for one session only. The debug log
+  reports `Registered 3 hooks from 1 plugins`, so no other plugin is present, and the
+  arm swap is visible in the injected size: L0 gives `2486 chars`, L3 gives `1099`.
+- A `--plugin-dir` load gets its own plugin-data root at
+  `<CLAUDE_CONFIG_DIR>/plugins/data/leanclarity-inline/`, distinct from an installed
+  plugin's `leanclarity-<marketplace>`. Pilot runs therefore cannot touch the real
+  profile's saved setting.
+- **An isolated `CLAUDE_CONFIG_DIR` does not suppress the user-level `CLAUDE.md`.**
+  Neither does `--setting-sources project,local`. Only `--setting-sources local` drops
+  it: the same probe answers `LANG: Korean` under the first two and `LANG: none` under
+  the third. The arm requires it — the real user memory names a response language and
+  carries its own engineering contract, which would confound every arm and, when its
+  own import fails to resolve, tells the model to refuse the task outright.
+- Tools still work under `--setting-sources local` with `--dangerously-skip-permissions`,
+  and the plugin still loads and injects.
+- `--restricted` is not usable: it removes Bash and the other code-running tools.
 
 ### Codex
 
