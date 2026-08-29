@@ -42,6 +42,20 @@ L1 and L2 save roughly 60 to 100 tokens per injection. Only L3 saves enough to
 matter, and L3 is the level the literature predicts will break. The pilot is
 therefore effectively a single sharp question about L3.
 
+## Artifacts
+
+| Path | What it is |
+|---|---|
+| `PROTOCOL.md` | how the 144 runs are produced and judged, frozen |
+| `fixtures/cases.jsonl` | the six frozen cases: prompt, positive predicates, forbidden outcomes, machine signals |
+| `fixtures/<CASE>/workspace/` | that case's synthetic codebase |
+| `fixtures/<CASE>/check.py` | that case's executable oracle, where one exists |
+| `fixtures/MANIFEST.md` | SHA-256 of every fixture byte, frozen before the first run |
+| `harness/pilot.py` | build arms, freeze the manifest, run one cell, score every record |
+| `harness/build_cases.py` | regenerates `cases.jsonl`; rerunning must reproduce the same bytes |
+| `runs/<host>/<arm>/` | one JSON record per run: response, diff, oracle output |
+| `SPEC-succession-rule-draft.md` | proposed SPEC 17.1, not in force |
+
 ## Pre-committed rules
 
 - Acceptance is regression-free smoke only: a level passes if every case L0

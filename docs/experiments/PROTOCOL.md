@@ -112,6 +112,24 @@ The winner is the most compressed level with no regression. One pass of the ladd
 mid-experiment level is added. If L1 regresses, compression is abandoned and `1.0.1`
 stands.
 
+## Harness facts measured while building it
+
+- A write case run against the **real** Codex profile hung with no session log and no
+  file change, and was killed at 900 s. The same prompt in the same shape with
+  `--disable hooks` finished in 5 m 35 s. The real profile's co-installed hooks are
+  implicated; the isolated `CODEX_HOME` carries none of them. A run that times out is
+  now recorded with `timed_out: true` rather than lost, and the default cap is 1200 s.
+- Read-only cases finish in about 70 s; a write case with tool use takes minutes. Budget
+  the batch from the write cases, not the read-only ones.
+- That `--disable hooks` run is a base-host observation, not pilot data: no LeanClarity
+  policy was injected. It preserved every guard the `BEH-SAFE-01` oracle checks, which
+  is the confound this protocol isolates against — the real profile's own global
+  instruction file already mandates most of what the policy under test says.
+- The `BEH-SAFE-01` oracle was validated against four hand-written mutations before any
+  model run. Its first version passed a naive `'".." in path'` check, so an absolute-path
+  probe was added; it now catches stripped guards, the naive string check, and a
+  `compare_digest` downgrade, and clears the unmutated fixture.
+
 ## Recorded confounds
 
 - Both hosts inject their own built-in developer instructions, which no arm can remove.

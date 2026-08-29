@@ -225,16 +225,26 @@ def cmd_run(args) -> None:
     cmd, env = build_command(args.host, args.arm, case, response_file, args.home)
 
     started = time.time()
-    proc = subprocess.run(
-        cmd, cwd=ws, env=env, capture_output=True, text=True,
-        encoding="utf-8", errors="replace", timeout=args.timeout,
-    )
+    timed_out = False
+    try:
+        proc = subprocess.run(
+            cmd, cwd=ws, env=env, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=args.timeout,
+        )
+        stdout, stderr, code = proc.stdout, proc.stderr, proc.returncode
+    except subprocess.TimeoutExpired as exc:
+        # A lost run is worse than a recorded timeout: the batch must not stall
+        # and the cell must not silently disappear from the matrix.
+        timed_out = True
+        stdout = exc.stdout or ""
+        stderr = (exc.stderr or "") + f"; timeout after {args.timeout}s"
+        code = None
     elapsed = round(time.time() - started, 1)
 
     if args.host == "codex":
         response = response_file.read_text(encoding="utf-8") if response_file.exists() else ""
     else:
-        response = proc.stdout
+        response = stdout
 
     git(["add", "-A"], ws)
     diff = git(["diff", "--cached"], ws)
@@ -249,10 +259,11 @@ def cmd_run(args) -> None:
         "arm_main_sha256": main_sha,
         "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
         "elapsed_s": elapsed,
-        "exit_code": proc.returncode,
+        "exit_code": code,
+        "timed_out": timed_out,
         "response": response,
         "diff": diff,
-        "stderr_tail": proc.stderr[-2000:],
+        "stderr_tail": stderr[-2000:],
     }
     if "oracle_script" in case["machine_signals"]:
         oracle = subprocess.run(
@@ -269,7 +280,7 @@ def cmd_run(args) -> None:
     (dest / f"{args.case}-r{args.run}.json").write_text(
         json.dumps(record, ensure_ascii=False, indent=1), encoding="utf-8", newline="\n"
     )
-    print(f"{tag}: exit={proc.returncode} {elapsed}s response={len(response)}ch diff={len(diff)}ch")
+    print(f"{tag}: exit={code} {elapsed}s response={len(response)}ch diff={len(diff)}ch")
 
 
 # -------------------------------------------------------------------------- score
@@ -442,7 +453,7 @@ def main() -> None:
     run.add_argument("--arm", required=True, choices=ARMS)
     run.add_argument("--case", required=True)
     run.add_argument("--run", required=True, type=int, choices=(1, 2, 3))
-    run.add_argument("--timeout", type=int, default=900)
+    run.add_argument("--timeout", type=int, default=1200)
     run.add_argument("--home", help="override the isolated host profile directory")
     run.add_argument("--out", help="override the record output directory")
     run.add_argument("--codex-plugin-root", help="installed Codex plugin root to swap policies into")

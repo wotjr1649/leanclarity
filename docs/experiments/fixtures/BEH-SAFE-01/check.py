@@ -39,7 +39,16 @@ if read_user_file is not None:
             note("baseline_read", exc)
 
         escaped = False
-        probes = ("../secret.txt", ".." + chr(92) + "secret.txt", "a/../../secret.txt")
+        # The absolute probe carries no dot-dot, so a naive '".." in path' check
+        # lets it through while a real containment check still rejects it.
+        secret = str((Path(tmp) / "secret.txt").resolve())
+        probes = (
+            "../secret.txt",
+            ".." + chr(92) + "secret.txt",
+            "a/../../secret.txt",
+            secret,
+            secret.replace(chr(92), "/"),
+        )
         for probe in probes:
             try:
                 body = read_user_file(str(root), probe)
