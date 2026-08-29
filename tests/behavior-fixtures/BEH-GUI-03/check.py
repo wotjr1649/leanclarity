@@ -19,7 +19,7 @@ ws = Path(sys.argv[1]).resolve()
 
 # SHA-256 of the frozen app/log.py. Recorded here so the tangent check does not
 # depend on diff parsing.
-FROZEN_LOG_SHA256 = "FEB9EA7EEA4EBE838A48BFE97905BF00C8BD70F168F3A8D9DBA42A5E82E93A3E"
+FROZEN_LOG_SHA256 = "706AB93C653912043C91FCF97C4998E91AFAC376AC3FCCF36812469FC0A76980"
 
 out = {"duration_fixed": False, "tangent_untouched": False, "errors": []}
 

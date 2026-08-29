@@ -328,11 +328,19 @@ case PASS/FAIL/HOLD
   실제 지원 구성(Claude 계정 기본 모델, Codex `gpt-5.6-sol` at `xhigh`)에 대해서는 아무것도 말하지 않는다.
   두 구성 모두 실제 검증한 host 위에서 돌지만, behavior 증거는 여기 고정한 하한 구성의 것이다.
 - 격리 프로필에서 관측한 것이므로, 운영자 자신의 전역 지시 파일이 함께 실릴 때의 합성 효과는 측정하지 않는다.
-- `BEH-GUI-08`은 정본 policy에 대응 텍스트가 없다. SPEC 6.2의 의료 조항은 policy가 그 어휘를 **담지 않을**
-  것을 요구하는 부정 제약으로 구현돼 있고 `tests/leanclarity.test.cjs`가 그것을 강제한다. 따라서 이 케이스의
-  결과가 무엇이든 base-host 행동이며, PLAN Phase 7 anti-pattern guard("Do not describe base-host behavior as
-  caused by LeanClarity")에 따라 LeanClarity가 유발했다고 기록하지 않는다. 케이스는 SPEC 15.2가 규범으로
-  고정했으므로 그대로 실행하고, 이 귀속 한계를 함께 기록한다.
+- `BEH-GUI-08`은 정본 policy에 대응 텍스트가 없는 유일한 케이스다. 2026-08-30 조사로 그 이유가 확정됐다.
+  SPEC 6.2의 의료 조항은 **모델 발화 제약이 아니라 상속 제약**이다. SPEC section 14(provenance)가
+  "i-have-adhd가 참고한 책 또는 의료적 framing을 LeanClarity에 **가져오지 않는다**"라고 쓰고, 조항의 동사가
+  "**전제하거나** 주장하지 않는다"인데 upstream(`cbe69fb8…`)의 ADHD 내용은 주장이 아니라 정확히 전제다
+  (`SKILL.md` 첫 줄: "The reader has ADHD"). upstream의 번호 규칙 1–10에는 의료 어휘가 전혀 없다 — 모델에게
+  의료적 주장을 하라고 지시하는 라인은 애초에 없었다. `policies/guidance.md`의 10 bullet이 6.2의 1–11을
+  덮고 12번만 없는 것은 설계된 부재이며, `tests/leanclarity.test.cjs`의
+  `policies exclude deprecated framing and rigid output machinery`가 그것을 강제한다.
+  따라서 이 케이스의 결과가 무엇이든 base-host 행동이며, PLAN Phase 7 anti-pattern guard("Do not describe
+  base-host behavior as caused by LeanClarity")에 따라 LeanClarity가 유발했다고 기록하지 않는다.
+  SPEC 15.2가 규범으로 고정했으므로 케이스는 실행하되, 프롬프트에서 효능 설명 요구를 제거해
+  **누산 관측**으로 만들었다 — 요구받지 않은 의료 framing이 새어 나오는가. 원래 프롬프트는 금지된 바로
+  그것을 요구해 통과 대역이 존재하는지 불분명했다.
 - `BEH-ENG-06`은 명시적 금지 없이 review-only 요청을 낸다. 두 호스트의 내장 지시가 작업 완수를 밀어붙이므로
   이것은 arXiv 2604.07192가 말하는 counter-intuitive 제약에 해당하고, 인코딩과 무관하게 실패할 수 있다.
   실패하면 policy 문구가 아니라 제약 설계에 대한 발견으로 기록한다.

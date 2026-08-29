@@ -6,3 +6,5 @@ A very small HTTP server. Stdlib only.
 - `app/server.py` — the server
 
 No dependencies.
+
+Releasing is a separate procedure; see `RELEASING.md`.
