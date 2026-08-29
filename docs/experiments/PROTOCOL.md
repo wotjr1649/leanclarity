@@ -73,14 +73,39 @@ Measured on Claude Code `2.1.251`, 2026-08-29.
 
 ### Codex
 
+Measured on Codex CLI `0.150.1`, 2026-08-29.
+
 - `CODEX_HOME=.pilot/codex-home` isolates config, plugins and the global `AGENTS.md`.
-  Measured on Codex CLI `0.150.1`: `--ignore-user-config` skips `config.toml` but still
-  loads `$CODEX_HOME/AGENTS.md`, so only a separate `CODEX_HOME` gives a clean profile.
-- An isolated `CODEX_HOME` needs its own login. Without one every request is
-  `401 Unauthorized` (observed 2026-08-29).
+  `--ignore-user-config` skips `config.toml` but still loads `$CODEX_HOME/AGENTS.md`, so
+  only a separate `CODEX_HOME` gives a clean profile.
+- That home needs its own `codex login`; without one every request is `401 Unauthorized`.
+- Setup, once: `codex features enable hooks`,
+  `codex plugin marketplace add wotjr1649/leanclarity`,
+  `codex plugin add leanclarity@leanclarity`. The installed nine files hash to the
+  candidate identity with zero CR bytes.
+- **The isolation pays for itself.** A whole session in that home is 8,838 characters of
+  context, of which the 2,486-character Main composition is a visible fraction. On the
+  real profile the same session carries roughly 22,000, most of it a global instruction
+  file that already mandates much of what the policy under test says.
+- Hook trust has no CLI command on `0.150.1`, and a fresh home has none persisted, so
+  runs pass `--dangerously-bypass-hook-trust`. It is per-invocation, writes no trust
+  state, and the hook source is the byte-verified candidate.
+- `-s workspace-write -c approval_policy=never` **does not work** in a fresh home: with
+  no execpolicy rules nothing is auto-approved and nothing can ask, so every command is
+  `rejected: blocked by policy` and the agent reports it cannot read or edit anything.
+  Runs use `--approve-for-me` instead, the host's own automation route, which
+  auto-reviews each request in the workspace-write sandbox.
+- `codex exec` waits on stdin unless it is closed. The harness passes `DEVNULL`.
+- Reasoning effort in that clean home defaults to `none`, against `max` on the operator's
+  real profile. The pilot pinned "host default", and this is that default; it is constant
+  across arms, and it is recorded rather than tuned.
 - The plugin is installed once into that home; each run copies the arm's two policy
   files into the installed cache before invoking the host, so the hook path, the hook
   map and the manifests stay byte-identical across arms.
+- `<CODEX_HOME>/plugins/data/` must exist before the arm injects anything. Codex does not
+  create it and candidate `1.0.1` treats a missing parent as unavailable, which is the
+  Phase 6 defect recorded in the GO evidence. The pilot creates that directory by hand;
+  the pilot measures policy text, not data-root handling.
 
 ## Delivery fidelity
 
@@ -150,17 +175,20 @@ stands.
 
 ## Harness facts measured while building it
 
-- A write case run against the **real** Codex profile hung with no session log and no
-  file change, and was killed at 900 s. The same prompt in the same shape with
-  `--disable hooks` finished in 5 m 35 s. The real profile's co-installed hooks are
-  implicated; the isolated `CODEX_HOME` carries none of them. A run that times out is
-  now recorded with `timed_out: true` rather than lost, and the default cap is 1200 s.
-- Read-only cases finish in about 70 s; a write case with tool use takes minutes. Budget
-  the batch from the write cases, not the read-only ones.
+- A write case run against the real Codex profile hung with no session log and no file
+  change, and was killed at 900 s. An earlier version of this file blamed the profile's
+  co-installed hooks, because the same prompt with `--disable hooks` finished in 5 m 35 s.
+  **That attribution was wrong.** The real cause is that `codex exec` prints
+  `Reading additional input from stdin...` and waits forever when stdin is an inherited
+  open pipe; the `--disable hooks` run happened to be typed directly at the shell, where
+  stdin closes. Closing stdin fixes it, and the same cell now finishes in 27 s. The case
+  for the isolated profile stands on the context measurement above, not on this.
+  A run that times out is recorded with `timed_out: true` rather than lost, and the
+  default cap is 1200 s.
+- Read-only cases finish in 20 to 30 s; a write case with tool use takes 20 s to 2 min.
 - That `--disable hooks` run is a base-host observation, not pilot data: no LeanClarity
-  policy was injected. It preserved every guard the `BEH-SAFE-01` oracle checks, which
-  is the confound this protocol isolates against — the real profile's own global
-  instruction file already mandates most of what the policy under test says.
+  policy was injected, and it still preserved every guard the `BEH-SAFE-01` oracle
+  checks. That is the confound this protocol isolates against.
 - The `BEH-SAFE-01` oracle was validated against four hand-written mutations before any
   model run. Its first version passed a naive `'".." in path'` check, so an absolute-path
   probe was added; it now catches stripped guards, the naive string check, and a

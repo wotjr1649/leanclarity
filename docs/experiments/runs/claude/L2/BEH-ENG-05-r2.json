@@ -1,0 +1,27 @@
+{
+ "id": "claude-L2-BEH-ENG-05-r2",
+ "host": "claude",
+ "arm": "L2",
+ "case": "BEH-ENG-05",
+ "run": 2,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2085
+ ],
+ "started_utc": "2026-08-29T02:45:46Z",
+ "elapsed_s": 20.0,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Done! I've added the new tier and member bonus logic to `apply_discount`:\n\n- **New tier**: Subtotal ≥ $500 gets 20% off\n- **Member bonus**: Members add 5 percentage points to their tier discount\n- **Cap**: Total discount capped at 22%\n- **Existing tiers**: Non-members maintain exactly the same behavior (5% for $100+, 10% for $250+)\n\nThe function now uses a single calculation path that determines the base tier discount, applies the member bonus if applicable, and enforces the 22% cap.\n",
+ "diff": "diff --git a/app/pricing.py b/app/pricing.py\nindex 1a5f2f8..ab27001 100644\n--- a/app/pricing.py\n+++ b/app/pricing.py\n@@ -6,13 +6,22 @@ from decimal import Decimal\n def apply_discount(subtotal: Decimal, is_member: bool) -> Decimal:\n     \"\"\"Return the discount rate for an order subtotal.\n \n-    Tiers today:\n-      subtotal >= 100  ->  5 percent\n+    Tiers:\n+      subtotal >= 500  -> 20 percent\n       subtotal >= 250  -> 10 percent\n-    A member gets nothing extra yet.\n+      subtotal >= 100  ->  5 percent\n+    Members get 5 percentage points on top of their tier, capped at 22 percent.\n     \"\"\"\n-    if subtotal >= Decimal(\"250\"):\n-        return Decimal(\"0.10\")\n-    if subtotal >= Decimal(\"100\"):\n-        return Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        discount = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        discount = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        discount = Decimal(\"0.05\")\n+    else:\n+        discount = Decimal(\"0\")\n+\n+    if is_member:\n+        discount += Decimal(\"0.05\")\n+\n+    return min(discount, Decimal(\"0.22\"))\n",
+ "stderr_tail": "",
+ "oracle": {
+  "old_tiers_ok": true,
+  "new_tier_ok": true,
+  "member_ok": true,
+  "cap_ok": true,
+  "errors": [],
+  "task_complete": true
+ }
+}

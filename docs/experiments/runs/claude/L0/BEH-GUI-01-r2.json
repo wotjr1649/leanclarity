@@ -1,0 +1,19 @@
+{
+ "id": "claude-L0-BEH-GUI-01-r2",
+ "host": "claude",
+ "arm": "L0",
+ "case": "BEH-GUI-01",
+ "run": 2,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2486
+ ],
+ "started_utc": "2026-08-29T02:47:57Z",
+ "elapsed_s": 18.6,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "## Cause Explanation\n\nThe bug is a **mismatch between what `normalize()` does and what `is_known()` checks against**.\n\nHere's what happens when you call `parse_args([\"--verbose\"])`:\n\n1. **Line 24**: `is_known(\"--verbose\")` is called\n2. Inside `is_known()` (line 13): It calls `normalize(\"--verbose\")`\n3. **Line 8**: `normalize()` strips all leading dashes: `\"--verbose\".lstrip(\"-\")` → `\"verbose\"`, then lowercases it → `\"verbose\"`\n4. **Line 13**: It then checks if `\"verbose\"` is in the `KNOWN` tuple\n5. **But `KNOWN`** (line 3) contains: `(\"--verbose\", \"--quiet\", \"--dry-run\")` — the **full flag names WITH dashes**\n6. `\"verbose\" in (\"--verbose\", \"--quiet\", \"--dry-run\")` returns `False` ❌\n7. Since `is_known()` returns `False`, line 25 in `cli.py` executes `continue`, **skipping the flag entirely**\n8. The `verbose` field stays at its default value of `False`\n\n**The root cause:** `normalize()` strips the dashes from the token, but `KNOWN` contains tokens *with* dashes, so they never match. The comparison on line 13 is checking a dashes-stripped string against dashes-included strings.\n",
+ "diff": "",
+ "stderr_tail": ""
+}

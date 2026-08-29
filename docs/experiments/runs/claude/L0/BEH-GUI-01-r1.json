@@ -1,0 +1,19 @@
+{
+ "id": "claude-L0-BEH-GUI-01-r1",
+ "host": "claude",
+ "arm": "L0",
+ "case": "BEH-GUI-01",
+ "run": 1,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2486
+ ],
+ "started_utc": "2026-08-29T02:47:38Z",
+ "elapsed_s": 18.2,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Found it! Here's the issue:\n\n**The cause:** In `app/flags.py`, the `is_known()` function has a mismatch between what it normalizes and what it checks against.\n\nWhen `parse_args([\"--verbose\"])` is called:\n\n1. It encounters the token `\"--verbose\"`\n2. It calls `is_known(\"--verbose\")` (line 24 of `cli.py`)\n3. `is_known()` normalizes the token: `normalize(\"--verbose\")` → strips `--` and lowercases → returns `\"verbose\"`\n4. It then checks: `\"verbose\" in KNOWN`\n5. But `KNOWN` is `(\"--verbose\", \"--quiet\", \"--dry-run\")` — the tuples still have the `--` prefix\n6. So `\"verbose\" in (\"--verbose\", \"--quiet\", \"--dry-run\")` returns **False**\n7. The flag fails the `is_known()` check and gets skipped with `continue` (line 25 of `cli.py`)\n8. `verbose` is never set to `True`, so it remains `False`\n\n**The root cause:** The `normalize()` function removes the `--` prefix, but the `KNOWN` tuple still contains normalized flags with the `--` prefix. They're checking normalized tokens against non-normalized known flags.\n",
+ "diff": "",
+ "stderr_tail": ""
+}

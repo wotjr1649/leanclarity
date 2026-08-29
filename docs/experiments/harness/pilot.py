@@ -199,8 +199,15 @@ def build_command(host: str, arm: str, case: dict, response_file: Path, home: st
         cmd = [
             "codex", "exec", case["prompt"],
             "-m", CODEX_MODEL,
-            "-s", "workspace-write",
-            "-c", "approval_policy=never",
+            # Measured on 0.150.1: "-s workspace-write -c approval_policy=never" in a
+            # fresh CODEX_HOME rejects every command, because nothing is auto-approved
+            # and there is no one to ask. --approve-for-me is the host's own automation
+            # route: each request is auto-reviewed in the workspace-write sandbox.
+            "--approve-for-me",
+            # Codex 0.150.1 has no CLI command to persist hook trust, and the
+            # isolated home is fresh. The hook source is the byte-verified
+            # candidate and this grants nothing beyond the invocation.
+            "--dangerously-bypass-hook-trust",
             "--output-last-message", str(response_file),
         ]
     return cmd, env
@@ -238,8 +245,11 @@ def cmd_run(args) -> None:
     timed_out = False
     try:
         proc = subprocess.run(
+            # stdin must be closed: `codex exec` otherwise prints "Reading additional
+            # input from stdin..." and waits forever on an inherited pipe.
             cmd, cwd=ws, env=env, capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=args.timeout,
+            stdin=subprocess.DEVNULL,
         )
         stdout, stderr, code = proc.stdout, proc.stderr, proc.returncode
     except subprocess.TimeoutExpired as exc:

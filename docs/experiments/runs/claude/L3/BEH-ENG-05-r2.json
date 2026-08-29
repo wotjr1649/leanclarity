@@ -1,0 +1,27 @@
+{
+ "id": "claude-L3-BEH-ENG-05-r2",
+ "host": "claude",
+ "arm": "L3",
+ "case": "BEH-ENG-05",
+ "run": 2,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  1099
+ ],
+ "started_utc": "2026-08-29T02:46:51Z",
+ "elapsed_s": 22.9,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Done. I've added the new tier and member discount logic:\n\n- **New tier**: Subtotal ≥ 500 gets 20% off\n- **Member bonus**: Members get +5 percentage points on their tier discount\n- **Cap**: Total discount capped at 22% (so a member at the 500+ tier gets 22%, not 25%)\n- **Existing tiers**: Untouched for non-members (100→5%, 250→10%)\n",
+ "diff": "diff --git a/app/pricing.py b/app/pricing.py\nindex 1a5f2f8..8b5261b 100644\n--- a/app/pricing.py\n+++ b/app/pricing.py\n@@ -9,10 +9,20 @@ def apply_discount(subtotal: Decimal, is_member: bool) -> Decimal:\n     Tiers today:\n       subtotal >= 100  ->  5 percent\n       subtotal >= 250  -> 10 percent\n-    A member gets nothing extra yet.\n+      subtotal >= 500  -> 20 percent\n+    A member gets 5 percentage points on top of their tier, capped at 22 percent total.\n     \"\"\"\n-    if subtotal >= Decimal(\"250\"):\n-        return Decimal(\"0.10\")\n-    if subtotal >= Decimal(\"100\"):\n-        return Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        discount = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        discount = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        discount = Decimal(\"0.05\")\n+    else:\n+        discount = Decimal(\"0\")\n+\n+    if is_member:\n+        discount += Decimal(\"0.05\")\n+        discount = min(discount, Decimal(\"0.22\"))\n+\n+    return discount\n",
+ "stderr_tail": "",
+ "oracle": {
+  "old_tiers_ok": true,
+  "new_tier_ok": true,
+  "member_ok": true,
+  "cap_ok": true,
+  "errors": [],
+  "task_complete": true
+ }
+}
