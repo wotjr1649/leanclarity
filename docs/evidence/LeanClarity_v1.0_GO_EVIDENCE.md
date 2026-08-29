@@ -149,7 +149,32 @@ Bullets up to the authentication note below are install and preparation records.
 - Invalid policy, observed. With the Guidance file replaced by whitespace in a task-owned copy of the candidate, the session produced zero injections at all, so Main is all-or-nothing rather than Engineering-only, and the host stayed usable and answered the prompt normally.
 - Host control, observed. Run without `--plugin-dir`, the debug log reports `Registered 0 hooks from 0 plugins` and there are zero injections. LeanClarity did not self-enable or install itself.
 - Claude context-limit proof, observed. `2486 chars` arrived as one unsplit `additionalContext` value in every ON session, and no file-preview replacement appears in any debug log at this size on `2.1.251`.
-- Not observed on Claude: the `clear` and `compact` `SessionStart` sources. `claude -p` starts a new `startup` session per invocation and exposes no route to either, so both need the interactive surface.
+- Re-observation of the whole Claude matrix on candidate `1.0.2` (Claude Code `2.1.251`, isolated authenticated `CLAUDE_CONFIG_DIR`, `--plugin-dir` pointed at a materialized copy of the `1.0.2` candidate whose nine files hash to `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`, model `claude-haiku-4-5-20251001`, `--setting-sources local`, 2026-08-29). Required because SPEC 17.1 grants no inheritance across a revision that changes the runtime; the `1.0.1` rows do not transfer.
+
+  All thirteen rows reproduced the `1.0.1` result exactly, and every session again reported `Registered 3 hooks from 1 plugins` with no file-preview replacement anywhere:
+
+  | Row | Observation on `1.0.2` |
+  |---|---|
+  | `startup`, absent state | `SessionStart:startup`, `2486 chars`, default ON |
+  | exact status command | two `decision: block` records, ON reason, state untouched |
+  | near match `/leanclarity` | not intercepted; the host answered `Unknown command` |
+  | `leanclarity off` | block plus OFF reason; 18 bytes, SHA-256 `7187D1E8E2A4...` |
+  | `startup` after OFF | zero injections |
+  | Subagent after OFF | zero injections |
+  | `leanclarity on` | block plus ON reason; 17 bytes, SHA-256 `A050EF06EA54...` |
+  | `startup` after ON | `2486 chars` |
+  | `resume` | `SessionStart:resume`, a further `2486 chars` |
+  | Subagent after ON | `SessionStart` `2486` plus `SubagentStart` `1176`, Engineering only |
+  | invalid state | zero injections, no guess |
+  | invalid Guidance policy | zero injections at all; host stayed usable |
+  | no plugin loaded | `Registered 0 hooks from 0 plugins`, zero injections |
+
+  A separate probe on `1.0.2` confirmed the source strings the host emits: a fresh `claude -p` gives `SessionStart:startup`, `--resume <id> --fork-session` gives `SessionStart:fork`, and `--continue` gives `SessionStart:resume`. All three injected `2486 chars`.
+- Host-invoked observation, interactive `clear` with `1.0.1` (operator-run TUI, real Claude profile, Claude Code `2.1.251`, project `D:\AI_DEV\leanclarity_claude`, 2026-08-29). Each `/clear` starts a new transcript on this version.
+  - Transcript `862e42d0-f9bc-43d1-987a-4e5214d76571` (opened `10:33:33Z`, saved ON): the Main composition, 2486 characters, SHA-256 prefix `F2FEC0C3BDFC`. Two blocked control prompts followed with no assistant turn, showing the ON status reason and then the OFF reason.
+  - Transcript `da8ef474-f251-44bf-8e56-dfc2a590eecc` (opened `10:34:16Z`, after `/clear` with saved OFF): **no policy injection at all**. An ordinary prompt was answered normally and a later control prompt was blocked with the ON reason. The Claude `clear` clean boundary is observed in the OFF direction.
+  - Transcript `67dd3f9a-5acf-436f-a33a-7d67054f9ba3` (opened `10:34:36Z`, after `/clear` with saved ON): the Main composition returned, 2486 characters, same hash. The ON direction is observed.
+  - `compact` is **not** observed on Claude. That transcript carries no `isCompactSummary` and no `compactMetadata` entry and only one injection, so no compaction occurred: the conversation was a few short turns and the host had nothing to compact. `claude -p` exposes no compaction command; `--autocompact` accepts only a 100k to 1M token window, so forcing it needs a session that actually reaches that size. Status: `NOT RUN`, not `FAIL`.
 - Isolation routes measured on Claude Code `2.1.251`: `--bare` disables hooks and restricts auth to `ANTHROPIC_API_KEY`, so it cannot host a plugin-hook observation; `--restricted` removes Bash and the other code-running tools; `--plugin-dir <path>` loads a plugin from a directory for one session only, which is the route used above. An isolated `CLAUDE_CONFIG_DIR` isolates credentials and installed plugins but does **not** suppress the user-level `CLAUDE.md`, and neither does `--setting-sources project,local`; only `--setting-sources local` drops it. The same probe answers with a user-memory-imposed response language under the first two and reports no language instruction under the third.
 
 ## Cross-host state isolation
@@ -200,7 +225,17 @@ Bullets below mix install records with host-invoked PLAN Phase 6 observations on
   - Claude Code is unaffected: it creates the plugin data directory itself, observed empty before any hook ran on both the real profile and a `--plugin-dir` load.
   - The hand-created `plugins/data/` directory is left in the task-owned isolated home as a documented workaround so the compression pilot, which measures policy text and not data-root handling, can proceed. It is not part of the candidate.
 - Resolution in candidate `1.0.2` (SPEC document version 1.3, sections 7.1, 10.2, 10.3, 12.2, 13.2, 16): a data root path that does not exist is absent state regardless of how many levels are missing, so a fresh Codex profile keeps the defined default `ON` and still receives the policy; only an `on`/`off` write creates that path, recursively, and the runtime creates nothing outside it. Deterministic coverage is in the test suite, including that a lifecycle read creates no level and that a write creates the whole host-provided path and nothing beside it. The `1.0.2` candidate identity is `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`; `policies/engineering.md` and `policies/guidance.md` are byte-identical to `1.0.1`. Host re-observation of `1.0.2` on a fresh Codex profile is `NOT RUN`.
-- Not yet observed with `1.0.1` on Codex: the `compact` and `clear` `SessionStart` sources. Both are documented Codex source values, but `codex exec` exposes no route to either, so both need the interactive TUI.
+- Host-invoked observation, interactive `clear` and `compact` with `1.0.1` (operator-run TUI, real Codex profile, Codex CLI `0.150.1`, workspace `D:\AI_DEV\leanclarity_codex`, 2026-08-29). Three rollouts cover the sequence; `/clear` starts a new rollout on this version, so the boundary is observed as a new context rather than as a labelled source, and the hook `source` string is not written to the session log.
+  - Session `01a04cf1-6eca-77d2-aff0-0b1b751574f7` (opened `09:54:46Z`, saved ON): `SessionStart` contributed the Main composition, 2486 characters, SHA-256 prefix `F2FEC0C3BDFC`, beside the co-installed `engramux` and `claude-mem` items. Two turns followed with no user item and no assistant message, the signature of two blocked control prompts, the status prompt and `leanclarity off`.
+  - Session `01a04cf1-b43e-7ea1-a338-4ec625a87f22` (opened `09:55:03Z`, after `/clear` with saved OFF): **zero LeanClarity items**, while the `engramux` context was still injected, so the hook chain ran and only LeanClarity returned nothing. An ordinary prompt in that session was answered normally, and a later turn with no user item and no assistant message is the blocked `leanclarity on`. The Codex `clear` clean boundary is observed in the OFF direction.
+  - Session `01a04cf2-13ed-7c71-99e9-0926eacb0eda` (opened `09:55:28Z`, after `/clear` with saved ON): the Main composition returned at `09:55:34.000Z`, 2486 characters, same hash. The `clear` clean boundary is observed in the ON direction.
+  - **`compact` observed** in that same session: a turn at `09:56:07Z` produced a `compacted` event at `09:56:16.820Z` carrying `replacement_history`; the next turn at `09:56:30Z`, still under `thread_id` `01a04cf2-13ed-7c71-99e9-0926eacb0eda`, re-emitted the full context block and the Main composition again at `09:56:31.163Z`, 2486 characters, same hash. A `SessionStart` therefore fires after compaction inside the same thread and injects per the Saved setting, which is what SPEC 8.2 requires of the inherited `compact` boundary. As with every other Codex row the literal source string is absent from the log; `compact` is the only documented Codex source that fits a mid-thread `SessionStart` immediately after a `compacted` event.
+- Isolated-profile re-observation of `1.0.2`, the fresh-profile defect resolved (task-owned `CODEX_HOME`, Codex CLI `0.150.1`, 2026-08-29). `codex plugin marketplace upgrade` then `codex plugin add leanclarity@leanclarity` installed `1.0.2`; the nine files hash to `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` with zero CR bytes. The hand-made workaround directory was moved aside so `<CODEX_HOME>/plugins/data/` was absent again, exactly the condition `1.0.1` failed. Then, in order:
+  - `SessionStart` injected the Main composition, 2486 characters, SHA-256 prefix `F2FEC0C3BDFC`, and `<CODEX_HOME>/plugins/data/` still did not exist afterwards. Under `1.0.1` this same condition injected nothing.
+  - `leanclarity off` returned `UserPromptSubmit Blocked` and created both missing levels, writing `state.json` at 18 bytes, SHA-256 `7187D1E8E2A4D61B1DC5DFEDB22D703A462DF21470E0C145365B20FB3ED467C3`, byte-identical to the OFF file both hosts wrote before. Under `1.0.1` this same command wrote nothing and created nothing.
+  - The next session with saved OFF contained zero LeanClarity items.
+  - `leanclarity on` restored `state.json` to 17 bytes, SHA-256 `A050EF06EA542B8FD8781F1E945F9ADCD03C7AE5190719E66BA826E2059FCE12`.
+  - The Codex fresh-profile defect is therefore resolved on a real host, not only in synthetic dispatch. Hook trust has no CLI command on `0.150.1`, so these runs used the documented per-invocation `--dangerously-bypass-hook-trust` against the byte-verified candidate; no persisted trust state was written.
 
 ## Context measurements
 
