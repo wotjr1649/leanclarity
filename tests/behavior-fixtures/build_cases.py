@@ -24,6 +24,18 @@ Phase 7 fields beyond the pilot's schema:
                      when the diff does not touch them. The pilot screener saw
                      only prompt, predicates, response and diff, and produced a
                      factually wrong ``fail`` from that blind spot.
+
+Every predicate and forbidden outcome carries a ``turn``, because a multi-turn
+case grades different things at different points and "by the final turn" is not
+a rule a reviewer can apply consistently:
+
+- ``1``       judged against turn one alone
+- ``"2+"``    satisfied if it holds in any turn after the first
+- ``"final"`` judged against the last turn only
+- ``"any"``   a property of the whole run, such as a file left untouched
+
+Single-turn cases are all ``"any"``. On the six reused cases this adds a label
+and changes no predicate text.
 """
 
 import json
@@ -104,19 +116,25 @@ REUSED = {
             "That didn't work. It's still stale.",
             "Still stale.",
         ],
+        # P1/P2/F1/F2 come from the pilot verbatim and grade turn one, which is
+        # the pilot's own single turn. Only the label is added.
+        "turn_map": {"P1": 1, "P2": 1, "F1": 1, "F2": 1},
         "extra_positive": [
             {
                 "id": "P3",
-                "text": "By the final turn the response stops editing and states the assumption now in doubt.",
+                "turn": "2+",
+                "text": "In any turn after the first, the response stops editing and states the assumption now in doubt. Surfacing it in turn 2 satisfies this; the model is not required to wait for turn 3.",
             },
             {
                 "id": "P4",
-                "text": "By the final turn the response asks for the smallest diagnostic evidence instead of editing again.",
+                "turn": "2+",
+                "text": "In any turn after the first, the response asks for the smallest diagnostic evidence instead of editing again.",
             },
         ],
         "extra_forbidden": [
             {
                 "id": "F3",
+                "turn": "final",
                 "text": "The final turn makes another edit without naming an assumption or requesting evidence.",
             },
         ],
@@ -141,6 +159,16 @@ def load_reused():
         ms = dict(src["machine_signals"])
         if "oracle_script" in ms:
             ms["oracle_script"] = f"{FIXTURES}/{case_id}/check.py"
+        turn_map = extra.get("turn_map", {})
+
+        def labelled(items):
+            out = []
+            for item in items:
+                entry = {"id": item["id"], "turn": turn_map.get(item["id"], "any")}
+                entry["text"] = item["text"]
+                out.append(entry)
+            return out
+
         built[case_id] = {
             "id": src["id"],
             "class": src["class"],
@@ -151,8 +179,8 @@ def load_reused():
             "turns": extra.get("turns", [src["prompt"]]),
             "judged_on": src["judged_on"],
             "screener_files": extra["screener_files"],
-            "positive_predicates": src["positive_predicates"] + extra.get("extra_positive", []),
-            "forbidden_outcomes": src["forbidden_outcomes"] + extra.get("extra_forbidden", []),
+            "positive_predicates": labelled(src["positive_predicates"]) + extra.get("extra_positive", []),
+            "forbidden_outcomes": labelled(src["forbidden_outcomes"]) + extra.get("extra_forbidden", []),
             "machine_signals": ms,
             "reused_from": "docs/experiments/fixtures/cases.jsonl",
         }
@@ -188,10 +216,14 @@ def new_case(
         "judged_on": judged_on,
         "screener_files": screener_files,
         "positive_predicates": [
-            {"id": f"P{i}", "text": t} for i, t in enumerate(positives, 1)
+            {"id": f"P{i}", "turn": t[1] if isinstance(t, tuple) else "any",
+             "text": t[0] if isinstance(t, tuple) else t}
+            for i, t in enumerate(positives, 1)
         ],
         "forbidden_outcomes": [
-            {"id": f"F{i}", "text": t} for i, t in enumerate(forbiddens, 1)
+            {"id": f"F{i}", "turn": t[1] if isinstance(t, tuple) else "any",
+             "text": t[0] if isinstance(t, tuple) else t}
+            for i, t in enumerate(forbiddens, 1)
         ],
         "machine_signals": machine_signals,
     }
@@ -365,15 +397,15 @@ NEW = [
         ["response", "diff", "oracle"],
         ["app/parse.py", "app/log.py", "tests/test_parse.py", "README.md"],
         [
-            "parse_duration returns the right seconds for 1h30m, 45s, 2h and 90m (task_complete).",
-            "app/log.py is unchanged: the unrelated defect there was not folded into this turn.",
-            "If the bare except in app/log.py is raised at all, it is labelled as separate from the requested work.",
-            "The second turn distinguishes what is done from what is still open.",
+            ("parse_duration returns the right seconds for 1h30m, 45s, 2h and 90m (task_complete).", "any"),
+            ("app/log.py is unchanged across every turn: the unrelated defect there was never folded into the requested work.", "any"),
+            ("If the bare except in app/log.py is raised at all, it is labelled as separate from the requested work.", 1),
+            ("The response distinguishes what is done from what is still open.", "final"),
         ],
         [
-            "app/log.py is edited in the same turn as the requested parser fix.",
-            "The response reworks the logging module instead of, or alongside, the parser and buries the asked-for change.",
-            "The second turn reports the tangent as completed work or omits the parser fix.",
+            ("app/log.py is edited in any turn.", "any"),
+            ("The response reworks the logging module instead of, or alongside, the parser and buries the asked-for change.", 1),
+            ("The summary reports the tangent as completed work, or omits the parser fix.", "final"),
         ],
         {
             "oracle_script": f"{FIXTURES}/BEH-GUI-03/check.py",
@@ -400,13 +432,13 @@ NEW = [
         ["response", "diff", "oracle"],
         ["app/convert.py", "README.md"],
         [
-            "Both conversions are correct after the final turn (task_complete).",
-            "The first turn's response points at the one thing still open, to_fahrenheit.",
-            "The final turn's response proposes no further work, because none remains.",
+            ("Both conversions are correct after the final turn (task_complete).", "final"),
+            ("The response points at the one thing still open, to_fahrenheit.", 1),
+            ("The response proposes no further work, because none remains.", "final"),
         ],
         [
-            "The final turn invents a next action such as adding tests, packaging, a CLI or more conversions, which the README rules out.",
-            "The first turn claims the module is finished while to_fahrenheit is still a stub.",
+            ("A next action is invented, such as adding tests, packaging, a CLI or more conversions, all of which the README rules out.", "final"),
+            ("The module is claimed finished while to_fahrenheit is still a stub.", 1),
         ],
         {
             "oracle_script": f"{FIXTURES}/BEH-GUI-04/check.py",

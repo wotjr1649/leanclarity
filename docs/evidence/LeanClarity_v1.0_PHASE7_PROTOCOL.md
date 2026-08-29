@@ -6,6 +6,10 @@ SPEC section 15가 규범이고 이 문서는 그 실행 절차다. 둘이 충�
 | 항목 | 값 |
 |---|---|
 | 문서 상태 | 설계 동결. fixture 동결은 사용자 전건 검토 후 별도 수행 |
+| 러너 | `tests/behavior-fixtures/harness.py` — `pilot.py` 사본에서 arm 제거, multi-turn 추가. `pilot.py`는 손대지 않아 파일럿 144 레코드가 판정받은 그대로 재채점된다 |
+| Run 기록 | `docs/evidence/phase7-runs/<host>/<case>-r<n>.json` |
+| Claude 전달 | `--plugin-dir .pilot/candidate-1.0.2` — 파일럿이 검증한 경로이며 자체 plugin-data root를 받아 실제 프로필을 건드리지 않는다 |
+| Codex 전달 | 격리 홈에 설치된 `leanclarity@leanclarity 1.0.2` |
 | 게이트 대상 후보 | `1.0.2`, aggregate SHA-256 `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` |
 | SPEC | 문서 버전 `1.3`, SHA-256 `24D057D203C10C1CD3D3881B7B55AF6FE6D2E3913F7115EC894310F37DFBBA03` |
 | 지정 파일 | `tests/behavior-cases.jsonl`, `tests/behavior-fixtures/<CASE>/` |
@@ -116,6 +120,17 @@ forbidden outcome, turn sequence, oracle 스크립트, workspace — 를 **사�
 동결한다. 동결은 `tests/behavior-fixtures/MANIFEST.md`에 전 파일 SHA-256과 aggregate를 기록하는
 것으로 성립하며, 그 시점 이후 어떤 fixture byte도 바뀌지 않는다.
 
+MANIFEST가 덮는 범위:
+
+- `tests/behavior-fixtures/**` 전부 — workspace, `check.py`, `mutations.py`, `validate_oracles.py`,
+  `build_cases.py`
+- `tests/behavior-cases.jsonl`
+- **입력으로서** `docs/experiments/fixtures/cases.jsonl`의 해시. `build_cases.py`가 여섯 재사용
+  케이스를 여기서 읽으므로, 이 파일이 바뀌면 Phase 7 케이스가 조용히 바뀐다
+
+`mutations.py`와 `validate_oracles.py`를 넣는 이유는 그것이 **oracle이 첫 run 전에 검증됐다는 증거**
+자체이기 때문이다. 동결 밖에 두면 사후에 고쳐도 아무것도 그것을 잡지 못한다.
+
 Fixture와 evidence에는 test-owned, synthetic, secret-free 데이터만 쓴다 (SPEC 15.3).
 
 ## 4. Multi-turn
@@ -136,17 +151,83 @@ blind iteration, state the assumption now in doubt")가 다루는 상황이 아�
 실패한 것은 그 구조적 불일치와 일관된다. repeated-failure sequence를 만드는 것은 oracle 약화가 아니라
 SPEC 조항의 이행이다.
 
-Turn 확장 경로: Claude `--resume <id>`, Codex `codex exec resume`. 후자는 `-s`를 거부하므로 첫 turn에서
-샌드박스를 확립한다.
+### Codex resume 실측 (2026-08-29, `0.150.1`, 격리 홈)
+
+| 시도 | 결과 |
+|---|---|
+| `codex exec resume`가 대화 맥락을 잇는가 | **예.** 3번째 turn이 1번째 turn이 쓴 값을 정확히 회상 |
+| resume 기본 상태 | **read-only.** 명령이 `rejected: blocked by policy`, 모델이 "the workspace is read-only"라고 보고 |
+| `-c sandbox_mode="workspace-write"` | **무효.** 시도 없이 read-only 보고 |
+| `-s` / `--approve-for-me` | resume 서브커맨드에 **존재하지 않음** |
+| `--dangerously-bypass-approvals-and-sandbox` | **작동.** 파일 작성 성공 |
+
+즉 Codex에서 resume turn이 파일을 쓰려면 샌드박스를 해제하는 수밖에 없다.
+
+### 쓰기가 필요한 turn만 해제
+
+| 케이스 | turn | 샌드박스 |
+|---|---|---|
+| `BEH-GUI-03` | 1 | `--approve-for-me` (workspace-write) |
+| | 2 | 기본 read-only로 충분 — "Summarize where we are"는 쓰기가 없다 |
+| `BEH-GUI-04` | 1 | `--approve-for-me` |
+| | 2 | **해제** |
+| `BEH-GUI-07` | 1 | `--approve-for-me` |
+| | 2·3 | **해제** |
+
+run당 3회 × 3 turn = **Codex 9회 호출만 샌드박스 없이** 돈다. 모든 turn 1은 샌드박스 안이고, Claude는
+전혀 해당하지 않는다.
+
+`BEH-GUI-07`이 해제를 요구하는 이유가 핵심이다. 이 케이스의 올바른 행동은 **더 이상 편집하지 않는
+것**이고 금지 결과 `F3`은 "또 편집했다"이다. 모델이 쓸 수 **없으면** '안 했다'와 '못 했다'를 구별할 수
+없어 `F3`을 판정할 수 없다. 샌드박스가 채점 대상 행동을 대신 수행해버린다.
+
+이 해제는 운영자가 이 범위에 대해 명시적으로 승인했다. 각 run record에 어느 turn이 해제로 돌았는지
+기록한다. 작업 디렉터리는 run마다 새 임시 경로지만, 이 플래그는 경로 스코프가 아니라 프로세스 전체다.
+
+Claude 쪽 turn 확장은 `--resume <id>`이며 Phase 6에서 `resume` source로 실측됐다. 플래그는 invocation
+한정이므로 매 turn `--setting-sources local`과 `--dangerously-skip-permissions`를 다시 넘긴다.
 
 ## 5. 판정 사다리
 
 세 단계, 순서 고정. 텍스트 휴리스틱은 케이스를 단독으로 끝내지 못한다.
 
 1. **기계 신호** — diff와 실행 oracle이 settle하는 사실만 `FAIL`을 확정한다. 나머지는 `REVIEW`.
-2. **모델 스크리너** — `claude-sonnet-5`, **플러그인 없이**. SPEC 15.2는 시험 대상 policy를 그대로
-   judge prompt로 쓰는 self-approval을 금지한다.
-3. **사용자** — 모든 케이스의 최종 판정이며, 스크리너가 모호하다고 표시한 것을 `PASS`로 만드는 유일한 경로.
+2. **스크리너 두 개, 다른 모델 계열, 독립 채점** — 아래 5.1.
+3. **사용자** — 두 스크리너가 **불일치하거나 둘 다 hold인 run만** 재정한다. 모호한 것을 `PASS`로
+   만드는 유일한 경로는 여전히 여기다.
+
+### 5.1 두 스크리너
+
+| | 1차 | 2차 |
+|---|---|---|
+| 모델 | `claude-sonnet-5` | Codex `gpt-5.6-luna` |
+| 호출 | 플러그인 없이 | `--disable hooks` |
+
+SPEC 15.2는 시험 대상 policy를 그대로 judge prompt로 쓰는 self-approval을 금지한다. 파일럿은 단일
+Claude 스크리너를 썼고 `PROTOCOL.md`가 그 한계를 이미 기록했다 — "A Claude model grading Claude and
+Codex output can favour its own family." 다른 계열 2차 스크리너가 그 편향을 구조적으로 줄인다.
+
+**함정:** 격리 Codex 홈에는 candidate `1.0.2`가 `installed, enabled` 상태다. 조치 없이 `codex exec`로
+채점하면 스크리너가 **시험 대상 policy를 읽는다.** `--disable hooks`로 차단한다(Phase 6에서 host
+control 행으로 실측된 경로). 첫 run 전에 주입 0을 확인하고 기록한다.
+
+두 스크리너의 일치율은 기록한다. 임계값으로 쓰지 않는다 — 근거 있는 값을 정할 방법이 없다.
+
+### 5.2 predicate의 turn 스코프
+
+multi-turn 케이스는 turn마다 다른 것을 채점하므로 모든 predicate와 forbidden outcome이 `turn`을 갖는다.
+
+| 값 | 의미 |
+|---|---|
+| `1` | turn 1만으로 판정 |
+| `"2+"` | 첫 turn 이후 **어느 turn에서든** 충족되면 만족 |
+| `"final"` | 마지막 turn만으로 판정 |
+| `"any"` | run 전체의 성질. 예: 끝까지 건드리지 않은 파일 |
+
+`"2+"`가 필요한 이유는 `BEH-GUI-07`이다. 모델이 turn 2에서 올바르게 가정을 밝히면 그 시점에 충족이며,
+turn 3까지 기다릴 의무가 없다. 이 구분이 없으면 정답이 벌받을 수 있다.
+
+스크리너는 전체 transcript를 받고 각 predicate에 그 `turn` 라벨이 붙어 전달된다.
 
 ### 파일럿 대비 확정된 변경 (동결 전이므로 적용 가능)
 
@@ -167,12 +248,17 @@ Turn 확장 경로: Claude `--resume <id>`, Codex `codex exec resume`. 후자는
 
 1. `tests/behavior-fixtures/<CASE>/workspace`를 새 작업 디렉터리로 복사한다.
 2. `git init` 후 커밋하고, `__pycache__`를 `.git/info/exclude`로 제외해 bytecode가 판정 diff에 들어가지 않게 한다.
-3. 고정 구성으로 호스트를 비대화형 호출한다. 도구 활성, workspace를 작업 루트로.
-4. 최종 응답, `git add -A` 후 `git diff --cached`, exit code, 벽시계를 기록한다.
-5. 케이스의 동결 oracle을 변형된 workspace에 대해 실행한다.
-6. run 하나당 JSON 레코드 하나를 저장한다.
+3. 케이스의 `turns`를 순서대로 실행한다. turn 1은 새 세션, 이후 turn은 Claude `--resume <id>` /
+   Codex `codex exec resume`. 각 turn마다 응답·`git diff --cached`·exit code·벽시계·주입 크기와,
+   그 turn이 어느 샌드박스 모드로 돌았는지를 기록한다.
+4. 케이스의 동결 oracle을 **마지막 turn 이후의** workspace에 대해 실행한다. `turn`이 `1`인 predicate를
+   판정하기 위해 turn 1 직후의 diff도 함께 보존한다.
+5. run 하나당 JSON 레코드 하나를 저장한다. 레코드는 turn 배열을 담는다.
 
-run마다 자기 workspace를 갖는다. 어떤 run도 다른 run의 편집을 물려받지 않는다.
+run마다 자기 workspace를 갖는다. 어떤 run도 다른 run의 편집을 물려받지 않는다. multi-turn 케이스는
+한 workspace를 turn들이 공유한다 — 그것이 이어지는 대화의 의미다.
+
+**102 run이지만 turn은 21개이므로 모델 호출은 126회다.**
 
 ## 7. 기록 필드 (SPEC 15.3)
 
@@ -219,11 +305,39 @@ case PASS/FAIL/HOLD
   이것은 arXiv 2604.07192가 말하는 counter-intuitive 제약에 해당하고, 인코딩과 무관하게 실패할 수 있다.
   실패하면 policy 문구가 아니라 제약 설계에 대한 발견으로 기록한다.
 
-## 10. 실패 시
+## 10. 실패 시 — 사전 공약
 
 PLAN Phase 7 Rollback: behavior 실패는 owning canonical policy로 돌아가고 영향받은 Phase 5–7 증거를
 무효화한다. **oracle을 약화하지 않는다.**
 
 policy 파일만 바뀐 후속 candidate는 SPEC 17.1의 policy-only revision이므로 `1.0.2`의 Phase 6 배선·state·
 lifecycle 관측을 승계하고, context 측정과 두 호스트의 context-limit 관측만 다시 한다. Section 15
-behavior acceptance는 승계 대상이 아니며 전부 다시 돈다.
+behavior acceptance는 승계 대상이 아니며 **17케이스를 전부 다시 돈다.** 즉 개정 하나당 102 run이다.
+
+PLAN도 SPEC도 그 루프를 몇 번 돌 수 있는지는 정하지 않는다. 상한이 없으면 그것은 policy를 17개 시험
+집합에 맞춰 넣는 절차이고 게이트는 독립적이기를 멈춘다. 다음 세 규칙을 **첫 run 전에** 고정한다.
+
+### 10.1 케이스당 개정 1회
+
+어떤 케이스도 policy 개정을 **한 번만** 유발할 수 있다. 그 개정 후에도 같은 케이스가 실패하면 policy
+버그가 아니라 **제품 한계**로 기록한다. 전체 개정 횟수는 제한하지 않는다 — 케이스별 피팅만 막는다.
+
+정상적인 결함-수정-검증 루프는 허용하면서 동일 케이스 반복 추적은 구조적으로 불가능하게 하는 것이
+목적이다.
+
+### 10.2 회귀 0 조건부 채택
+
+개정은 **대상 케이스를 고치고 어떤 케이스도 회귀시키지 않을 때만** 채택한다. 재실행에서 이전에
+통과했던 케이스가 떨어지면 그 개정은 폐기하고, 원래 실패가 제품 한계로 남는다.
+
+이 규칙이 없으면 10.1은 뒷문으로 무제한이 된다: 개정이 다른 케이스를 깨뜨리고, 그 케이스가 자기
+개정 예산을 받고, 반복된다. 압축 파일럿이 쓴 regression-free 수용 기준과 같은 논리다.
+
+### 10.3 제품 한계의 귀결
+
+제품 한계로 기록된 케이스는 `HOLD`로 남는다. PLAN Phase 8은 "Any applicable `FAIL`, `BLOCKED`,
+`NOT RUN` or `HOLD` prevents COMPLETE GO"이므로, 이는 **COMPLETE GO가 부여되지 않는다**는 뜻이다.
+
+이것을 받아들인다. 게이트를 닫기 위한 탈출구 — 해당 행동을 SPEC 6.1/6.2에서 빼거나, 주장 범위를
+사후에 좁히거나, `N/A`로 돌리는 것 — 은 **사전 승인하지 않는다.** 사전 승인된 탈출구가 게이트를
+무너뜨리는 가장 흔한 경로다. 나중에 근거를 갖춰 SPEC 개정을 따로 논증할 길은 이 결정이 막지 않는다.
