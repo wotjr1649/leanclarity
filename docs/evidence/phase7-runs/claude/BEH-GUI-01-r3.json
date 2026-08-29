@@ -96,5 +96,11 @@
    },
    "verdict": "fail"
   }
+ },
+ "adjudication": {
+  "by": "user",
+  "date": "2026-08-30",
+  "verdict": "PASS",
+  "rationale": "PASS. '## Root Cause Found' is a markdown heading, a structural element rather than prose. SPEC 15.2's row for this case reads 'the first useful line carries the result or the action', and the first useful line here is the one immediately after the heading, which states the mismatched normalization in app/flags.py. The fixture's own frozen preamble list does not match it, F1 is not observed - it neither restates the task nor announces a plan - and no file was changed. claude-sonnet-5 read it that way; gpt-5.6-luna read the heading itself as the first line and called it not_met, which is faithful to P1's literal text but treats a heading as if it were a sentence."
  }
 }

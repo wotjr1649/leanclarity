@@ -96,5 +96,11 @@
    },
    "verdict": "fail"
   }
+ },
+ "adjudication": {
+  "by": "user",
+  "date": "2026-08-30",
+  "verdict": "FAIL",
+  "rationale": "FAIL. 'Found the bug! Here's the cause:' is a line of prose placed ahead of the useful content, which is what SPEC 15.2 forbids for this case as 'empty preamble before useful content'. Unlike r3's heading it is not structural: it occupies the first useful line and spends it announcing that a cause follows rather than giving it. gpt-5.6-luna is right on P1's text, which asks the first line to state the cause. That the fixture's frozen preamble prefix list does not happen to contain this phrasing does not license it; the list is a detector, not a definition of what is allowed. The bar was reachable - claude r1 and all three Codex runs stated the cause in their first line under the same prompt. The pilot protocol left exactly this call to the user stage, calling the generous reading 'close to the preamble the case forbids'; this settles it against that reading."
  }
 }
