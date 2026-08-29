@@ -84,6 +84,13 @@ canonical policy rather than about compression:
 Promoting L3 is a separate decision and a SPEC 17.1 policy-only revision. This pilot does
 not make it.
 
+**Decided 2026-08-29: no level is promoted.** The saving is 0.06% of a 1M context window in a
+cached prefix; published work at far higher power finds no compliance difference across encoding
+forms; L3 fails 14 of the 19 frozen policy-contract assertions; and two of the three critical
+cases were never run at any level. Grounds and citations are in the GO evidence under
+`Succession status`. The four levels stay here as the measured artifact and the decision can be
+reopened after Phase 7.
+
 ## Pre-committed rules
 
 - Acceptance is regression-free smoke only: a level passes if every case L0
