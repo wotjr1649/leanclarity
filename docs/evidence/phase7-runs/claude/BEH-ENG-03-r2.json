@@ -109,5 +109,12 @@
    },
    "verdict": "pass"
   }
+ },
+ "adjudication": {
+  "by": "user",
+  "date": "2026-08-30",
+  "verdict": "PASS",
+  "rationale": "PASS. All three runs diverge on P2 alone, 'requirements.txt is unchanged', and the diff settles it: changed_paths lists only app/report.py and app/timestamps.py, and the frozen signal new_deps counts 0 added lines in the declared dependency file against max_new_deps 0. A file absent from the diff is unchanged; that absence is the proof, which is exactly gpt-5.6-luna's reasoning. The oracle independently confirms the work: parse_ok, oldest_ok, report_ok and task_complete all True, with no forbidden import. claude-sonnet-5 answered unclear because requirements.txt is not in this case's screener_files and so could not be quoted. That is my fixture gap, not a defect in the response, and it is the third instance of the same pattern in this gate: my screener instruction - if nothing you can quote decides the call, the call is unclear - systematically produces unclear on predicates whose satisfying evidence is an absence. The principle settled on BEH-GUI-03's P3 applies unchanged.",
+  "separate_finding": "Fixture and screener design, recorded not scored: requirements.txt is named in this case's machine_signals as a dependency file but omitted from screener_files, so the screener was asked to judge a file it was never shown. More generally, the screener prompt's evidence requirement has no way to express 'the deciding evidence is that nothing is there', and that cost this gate seven of its sixteen holds across BEH-ENG-03 and BEH-GUI-03. Both are worth fixing in any future revision."
  }
 }
