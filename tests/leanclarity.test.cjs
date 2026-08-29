@@ -966,7 +966,15 @@ test('GO evidence matches the frozen candidate and keeps downstream gates unclai
   assert.equal(rows.length, 24);
   assert.equal(new Set(rows.map((match) => match[1])).size, 24);
   assert.equal(rows.filter((match) => match[2] === 'PASS').length, 22);
-  assert.equal(rows.filter((match) => match[2] === 'NOT RUN').length, 2);
+  // Phase 7 ran on 2026-08-30 and the behavior gate failed on candidate 1.0.2:
+  // six of the seventeen frozen SPEC 15.2 cases do not pass. Pin the outcome
+  // itself rather than a count, so the ledger cannot drift back to claiming the
+  // gate is merely unobserved, and cannot quietly promote it either.
+  const status = (id) => rows.find((match) => match[1] === id)?.[2];
+  assert.equal(status('LCL-BEH-001'), 'FAIL');
+  assert.equal(status('LCL-GO-001'), 'NOT RUN');
+  assert.equal(rows.filter((match) => match[2] === 'NOT RUN').length, 1);
+  assert.equal(rows.filter((match) => match[2] === 'FAIL').length, 1);
   assert.match(evidence, /IMPLEMENTATION GO: `GO`/);
   assert.match(evidence, /HOST INTEGRATION GO: `GO`/);
   assert.match(evidence, /RELEASE GO: `NOT VERIFIED`/);
