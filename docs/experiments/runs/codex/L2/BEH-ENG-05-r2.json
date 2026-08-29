@@ -21,5 +21,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed"
+  },
+  "rationale": "New tests cover the 500-subtotal tier (0.20) and member-bonus/cap interaction (0.22 at 500 for members); implementation logic (tier ladder + member +0.05 + min cap 0.22) matches spec and preserves existing 100/250 tiers.",
+  "verdict": "pass"
  }
 }

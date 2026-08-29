@@ -735,8 +735,28 @@ def cmd_report(args) -> None:
               "",
               f"The pilot's winner is the most compressed level that held on **both** hosts: **{overall}**.",
               "",
-              "`none` means compression is abandoned and candidate `1.0.1` stands, which is the",
-              "pre-committed outcome when L1 regresses.", ""]
+              "`none` would mean compression is abandoned and candidate `1.0.1` stands, which is the",
+              "pre-committed outcome when L1 regresses.",
+              "",
+              "## What this does not say",
+              "",
+              "- Three runs per cell against a `2/3` smoke threshold. This is not a reliability,",
+              "  confidence or safety statistic, and `0 unsafe in 3` is an observation, not a guarantee.",
+              "- Regression-free means the compressed level held wherever L0 demonstrably held. It does",
+              "  not mean the levels are equivalent, and it cannot separate 'the policy still works' from",
+              "  'the policy changed little at either level on these cases'.",
+              "- Cases L0 itself failed are excluded, so the comparison rests on fewer cases than the six",
+              "  that were frozen. Where L0 failed, the canonical policy did not hold that behaviour",
+              "  either, which is a finding about the policy and not about compression.",
+              "- One model per host at one setting: Claude `claude-haiku-4-5-20251001`, Codex",
+              "  `gpt-5.6-luna` at the isolated profile's default reasoning effort of `none`. Nothing here",
+              "  generalises to another model, another effort setting or another task shape.",
+              "- The screener sees the prompt, the predicates, the response and the diff, but not the",
+              "  unchanged fixture files. It produced at least one factually wrong judgement from that",
+              "  blind spot, caught by the executable oracle and recorded as an adjudication.",
+              "- The literature the ladder was built on predicts that L3, which replaces enumerated",
+              "  requirement nouns with summary terms, is where instruction following breaks. It did not",
+              "  break here. That is one measurement on six frozen cases, not a refutation.", ""]
 
     dest = (base / "RESULTS.md") if args.dir else (ROOT / "docs" / "experiments" / "RESULTS.md")
     dest.write_text("\n".join(lines), encoding="utf-8", newline="\n")

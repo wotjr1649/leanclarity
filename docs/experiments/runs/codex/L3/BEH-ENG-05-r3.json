@@ -21,5 +21,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed"
+  },
+  "rationale": "Traced the rate logic by hand across all tier/member/cap combinations (99, 100, 250, 500 with and without membership) and confirmed it matches the spec including the 22% cap and unchanged lower tiers; the diff also adds tests exercising the new 500 tier plus member bonus and cap.",
+  "verdict": "pass"
  }
 }

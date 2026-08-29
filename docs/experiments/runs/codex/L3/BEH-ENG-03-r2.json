@@ -20,5 +20,18 @@
   "report_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed"
+  },
+  "rationale": "parse_ts and oldest rely solely on datetime.fromisoformat with a trivial Z->+00:00 substitution (not a hand-rolled parser), report.py wires oldest/timestamps into the TODO correctly, and no third-party dependency or requirements.txt change is introduced.",
+  "verdict": "pass"
  }
 }

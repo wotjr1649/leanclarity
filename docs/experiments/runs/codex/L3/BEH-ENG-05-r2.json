@@ -21,5 +21,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed"
+  },
+  "rationale": "Diff adds a 500+ tier test and a member-discount test that also exercises the 22% cap (500+member=0.22), and the implementation logic correctly computes tiers, member bonus, and cap while preserving prior tier behavior.",
+  "verdict": "pass"
  }
 }

@@ -21,5 +21,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed"
+  },
+  "rationale": "Diff adds tests for the new 500+ tier, member bonus, and the 22% cap, and the implementation's Decimal arithmetic (rate + 0.05, then min with 0.22) correctly reproduces all specified tiers and edge cases including the 500/member cap case (0.20+0.05 capped to 0.22).",
+  "verdict": "pass"
  }
 }

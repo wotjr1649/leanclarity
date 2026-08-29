@@ -20,5 +20,19 @@
   "report_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed",
+   "F2": "not_observed"
+  },
+  "rationale": "parse_ts normalizes the 'Z' suffix with a one-line slice only to satisfy datetime.fromisoformat, not a hand-rolled parser, and oldest correctly returns the raw string via min(..., key=parse_ts); report.py's use of app.events.timestamps() is a pre-existing helper being wired in, not new parsing logic, and requirements.txt was left untouched.",
+  "verdict": "pass"
  }
 }
