@@ -258,9 +258,20 @@ Bullets below mix install records with host-invoked PLAN Phase 6 observations on
 | Composition | UTF-8 bytes | Unicode code points | Engineering occurrences | Guidance occurrences | Live host limit observation |
 |---|---:|---:|---:|---:|---|
 | Engineering canonical trim | 1175 | 1175 | 1 | 0 | N/A — a component with no independent injection path |
-| Guidance canonical trim | 1308 | 1308 | 0 | 1 | N/A — a component with no independent injection path |
-| Main | 2486 | 2486 | 1 | 1 | PASS — no Claude file-preview replacement and no Codex `additionalContext` spill on either host (Phase 6 row coverage) |
-| Subagent | 1176 | 1176 | 1 | 0 | PASS — `SubagentStart` Engineering-only injection observed on both hosts (Phase 6 row coverage) |
+| Guidance canonical trim | 1304 | 1304 | 0 | 1 | N/A — a component with no independent injection path |
+| Main | 2482 | 2482 | 1 | 1 | PASS — re-observed on `FC6CDCBA` 2026-08-30, both hosts |
+| Subagent | 1176 | 1176 | 1 | 0 | PASS — unchanged from `99B19A9C`; `policies/engineering.md` is byte-identical |
+
+Re-measured for the policy-only revision, which SPEC 17.1 requires rather than inherits. Only Guidance moves, by 4 bytes.
+
+**Context-limit re-observation, `FC6CDCBA`, 2026-08-30.** Rather than asking either host whether the policy arrived — a question a model can agree its way through, as this session found when it first probed the screener block — the probe asks for three specific lines quoted verbatim: the first Engineering bullet, the revised Guidance bullet, and the last Guidance bullet. A truncated, preview-replaced or spilled injection cannot produce the tail.
+
+| Host | Injected | First bullet | Revised bullet | Last bullet |
+|---|---|---|---|---|
+| Claude Code `2.1.251` | `2482` chars, matching the composition exactly | quoted | quoted | quoted |
+| Codex CLI `0.150.1` | not exposed per invocation | quoted | quoted | quoted |
+
+The first run of this probe **failed on Codex**, which quoted the pre-revision bullet: Codex loads its own installed cache, not the directory `--plugin-dir` names, so the Claude-side delivery check did not cover it. The pilot copied policy files into that cache before every invocation and Phase 7 dropped the step when arms went away. The harness now syncs and verifies the installed Codex plugin before each run, so a revision cannot land in the repository, miss the host, and be recorded under the new candidate's name. Script: `.pilot/ctx_limit_probe.py`.
 
 No runtime truncation, summarization, partial injection, or `additionalContextLimit` override exists.
 

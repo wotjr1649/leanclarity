@@ -343,10 +343,44 @@ def run_turn(host, case, text, index, ws, session, tmp, timeout):
     }, session
 
 
+def codex_plugin_root() -> Path:
+    """The installed plugin directory Codex actually loads from.
+
+    Codex reads its own installed cache, not the directory --plugin-dir points
+    at, so the Claude check does not cover it. Located rather than hardcoded
+    because the path carries the marketplace and version names.
+    """
+    cache = SCRATCH / "codex-home" / "plugins" / "cache"
+    found = [p.parent.parent for p in cache.rglob("policies/guidance.md")]
+    if len(found) != 1:
+        raise SystemExit(f"expected one installed Codex plugin under {cache}, found {found}")
+    return found[0]
+
+
+def sync_codex_delivery() -> Path:
+    """Copy the candidate into the installed Codex plugin, then verify it.
+
+    A revision that lands in the repository but not here runs the gate against
+    the previous policy while every record names the new candidate. The pilot
+    copied policy files into the installed cache before each invocation for the
+    same reason; Phase 7 dropped that step when arms went away, and a probe
+    caught Codex still answering with the pre-revision bullet.
+    """
+    root = codex_plugin_root()
+    for rel in CANDIDATE_FILES:
+        dst = root / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / rel, dst)
+    assert_delivery_matches(root)
+    return root
+
+
 def cmd_run(args) -> None:
     case = load_cases()[args.case]
     if args.host == "claude":
         assert_delivery_matches(CANDIDATE)
+    else:
+        sync_codex_delivery()
     tag = f"{args.host}-{args.case}-r{args.run}"
     ws = prepare_workspace(case, tag)
     tmp = ws.parent / f"{tag}-out"
