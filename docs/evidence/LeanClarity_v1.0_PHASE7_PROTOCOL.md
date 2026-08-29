@@ -8,7 +8,7 @@ SPEC section 15가 규범이고 이 문서는 그 실행 절차다. 둘이 충�
 | 문서 상태 | 설계 동결. fixture 동결은 사용자 전건 검토 후 별도 수행 |
 | 러너 | `tests/behavior-fixtures/harness.py` — `pilot.py` 사본에서 arm 제거, multi-turn 추가. `pilot.py`는 손대지 않아 파일럿 144 레코드가 판정받은 그대로 재채점된다 |
 | Run 기록 | `docs/evidence/phase7-runs/<host>/<case>-r<n>.json` |
-| Claude 전달 | `--plugin-dir .pilot/candidate-1.0.2` — 파일럿이 검증한 경로이며 자체 plugin-data root를 받아 실제 프로필을 건드리지 않는다 |
+| Claude 전달 | `--plugin-dir .pilot/candidate-1.0.2` — 파일럿이 검증한 경로이며 자체 plugin-data root를 받아 실제 프로필을 건드리지 않는다. 2026-08-30 확인: 9개 파일 전부 repo와 byte-identical, aggregate `99B19A9C…` 일치 |
 | Codex 전달 | 격리 홈에 설치된 `leanclarity@leanclarity 1.0.2` |
 | 게이트 대상 후보 | `1.0.2`, aggregate SHA-256 `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` |
 | SPEC | 문서 버전 `1.3`, SHA-256 `24D057D203C10C1CD3D3881B7B55AF6FE6D2E3913F7115EC894310F37DFBBA03` |
@@ -113,6 +113,11 @@ oracle로 만들 수 없다.
 둘 다 diff가 단독으로 결정하는 사실이므로 1단계(기계 신호)에서 `FAIL`을 확정할 수 있다. 첫 run 전에
 구현하고, 구현 없이 동결하지 않는다.
 
+**해시 알고리즘 주의.** aggregate identity는 상대 경로를 **문자열로** 정렬해야 한다. Windows에서
+`pathlib.Path` 비교는 대소문자를 접으므로 `Path` 객체로 정렬하면 순서가 달라지고 해시가 조용히
+바뀐다. 실제로 `.pilot/candidate-1.0.2`를 검증하다 이 함정을 밟았다 — 파일은 전부 동일한데 aggregate만
+어긋났다. MANIFEST 생성과 검증 양쪽에서 `relative_to(root).as_posix()`를 문자열 정렬한다.
+
 ### 검토와 동결
 
 SPEC 15.3은 `pre-reviewed synthetic fixture`를 요구한다. 17건 전부 — prompt, positive predicate,
@@ -184,8 +189,20 @@ run당 3회 × 3 turn = **Codex 9회 호출만 샌드박스 없이** 돈다. 모
 이 해제는 운영자가 이 범위에 대해 명시적으로 승인했다. 각 run record에 어느 turn이 해제로 돌았는지
 기록한다. 작업 디렉터리는 run마다 새 임시 경로지만, 이 플래그는 경로 스코프가 아니라 프로세스 전체다.
 
-Claude 쪽 turn 확장은 `--resume <id>`이며 Phase 6에서 `resume` source로 실측됐다. 플래그는 invocation
-한정이므로 매 turn `--setting-sources local`과 `--dangerously-skip-permissions`를 다시 넘긴다.
+### Claude resume 실측 (2026-08-30, `2.1.251`, 격리 프로필, `--plugin-dir` 전달)
+
+Codex와 정반대로 **양보가 필요 없다.**
+
+| 항목 | turn 1 | turn 2 (`--resume <id>`) |
+|---|---|---|
+| 대화 유지 | — | **예.** turn 1이 쓴 `ALPHA`를 정확히 회상 |
+| 쓰기 도구 | 파일 생성 성공 | **예.** 두 번째 파일 생성 성공 |
+| 정책 주입 | `2486` chars | **`2486` chars** — 동일 |
+| exit | 0 | 0 |
+
+`session_id`는 turn 1을 `--output-format json`으로 돌려 얻는다. 플래그는 invocation 한정이므로 매 turn
+`--model`, `--plugin-dir`, `--setting-sources local`, `--dangerously-skip-permissions`를 다시 넘긴다.
+측정 스크립트는 `.pilot/resume_probe.py`.
 
 ## 5. 판정 사다리
 
@@ -208,8 +225,23 @@ Claude 스크리너를 썼고 `PROTOCOL.md`가 그 한계를 이미 기록했다
 Codex output can favour its own family." 다른 계열 2차 스크리너가 그 편향을 구조적으로 줄인다.
 
 **함정:** 격리 Codex 홈에는 candidate `1.0.2`가 `installed, enabled` 상태다. 조치 없이 `codex exec`로
-채점하면 스크리너가 **시험 대상 policy를 읽는다.** `--disable hooks`로 차단한다(Phase 6에서 host
-control 행으로 실측된 경로). 첫 run 전에 주입 0을 확인하고 기록한다.
+채점하면 스크리너가 **시험 대상 policy를 읽는다.** `--disable hooks`로 차단한다.
+
+**차단 실측 (2026-08-30).** "context에 `LeanClarity Engineering Policy`라는 제목의 절이 있으면 그
+첫 bullet을 그대로 인용하고, 없으면 `NONE`이라고만 답하라"를 양쪽으로 물었다.
+
+| | 응답 |
+|---|---|
+| hooks ON | "Understand the request and its relevant execution flow before simplifying. Inspect affected callers and shared paths before changing a shared contract." — 정본 Engineering policy의 첫 bullet 그대로 |
+| `--disable hooks` | `NONE` |
+
+격리 홈에 `AGENTS.md`는 없다. 차단이 성립한다.
+
+**프로브 설계 교훈 — 스크리너에도 적용한다.** 처음에는 "context에 LeanClarity가 있는가? YES/NO"로
+물었고 **양쪽 다 YES**가 나왔다. 토큰 수는 4,767에서 2,303으로 떨어져 정책이 실제로는 빠졌는데도
+모델이 동조해 거짓 YES를 냈다. 판정을 물으면 추측할 수 있다. **참일 때만 생성 가능한 증거**(여기서는
+축자 인용)를 요구해야 답이 반증 가능해진다. 스크리너 프롬프트도 각 predicate에 대해 판정만이 아니라
+그 판정을 뒷받침하는 응답·diff의 구체적 지점을 함께 내도록 요구한다.
 
 두 스크리너의 일치율은 기록한다. 임계값으로 쓰지 않는다 — 근거 있는 값을 정할 방법이 없다.
 
