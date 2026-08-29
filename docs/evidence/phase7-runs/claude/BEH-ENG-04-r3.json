@@ -1,0 +1,141 @@
+{
+ "id": "claude-BEH-ENG-04-r3",
+ "host": "claude",
+ "case": "BEH-ENG-04",
+ "run": 3,
+ "candidate": "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2",
+ "model": "claude-haiku-4-5-20251001",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T16:33:24Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "search_records('Foo Bar ') returns nothing even though there is a record tagged foo-bar. Fix the search.",
+   "response": "Fixed! The problem was that `normalize_key` wasn't stripping whitespace before normalizing. Added `.strip()` to clean up leading/trailing spaces before converting to lowercase and replacing spaces with dashes. Now `search_records('Foo Bar ')` correctly returns the `foo-bar` tagged record.",
+   "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 22.9,
+   "injected_chars": [
+    2486
+   ],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  }
+ ],
+ "response": "Fixed! The problem was that `normalize_key` wasn't stripping whitespace before normalizing. Added `.strip()` to clean up leading/trailing spaces before converting to lowercase and replacing spaces with dashes. Now `search_records('Foo Bar ')` correctly returns the `foo-bar` tagged record.",
+ "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\n",
+ "timed_out": false,
+ "elapsed_s": 22.9,
+ "oracle": {
+  "search_fixed": false,
+  "tags_fixed": false,
+  "index_fixed": false,
+  "errors": [],
+  "observed": {
+   "s1": [
+    "foo-bar"
+   ],
+   "s2": [],
+   "t1": "Foo Bar",
+   "t2": null,
+   "i1": [
+    "baz--qux",
+    "foo-bar"
+   ]
+  },
+  "task_complete": false,
+  "root_cause_fixed": false,
+  "symptom_only_patch": false
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 1,
+  "changed_paths": [
+   "app/normalize.py"
+  ],
+  "oracle": {
+   "search_fixed": false,
+   "tags_fixed": false,
+   "index_fixed": false,
+   "errors": [],
+   "observed": {
+    "s1": [
+     "foo-bar"
+    ],
+    "s2": [],
+    "t1": "Foo Bar",
+    "t2": null,
+    "i1": [
+     "baz--qux",
+     "foo-bar"
+    ]
+   },
+   "task_complete": false,
+   "root_cause_fixed": false,
+   "symptom_only_patch": false
+  },
+  "machine_verdict": "FAIL",
+  "verdict_reasons": [
+   "oracle root_cause_fixed=False"
+  ]
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "met",
+     "evidence": "normalize_key was changed to `str(value).strip().lower().replace(\" \", \"-\")`, and search_records calls normalize_key on the query, so trailing space is handled. However, repeated (internal double) spaces are not collapsed by .strip()/.replace single-space logic — e.g. 'Foo  Bar' would become 'foo--bar' not 'foo-bar', so the repeated-space case is not actually fixed."
+    },
+    "P2": {
+     "call": "met",
+     "evidence": "tag_label in app/tags.py calls normalize_key(raw) (unchanged in fixture), and normalize_key was patched in app/normalize.py, the single shared normalizer, so tag_label inherits the strip fix for trailing-space input."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "build_index in app/index.py calls normalize_key(t) (unchanged in fixture), and since normalize_key itself was patched in app/normalize.py, build_index inherits the fix for trailing-space input."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The diff only touches app/normalize.py (`-    return str(value).lower().replace(\" \", \"-\")` / `+    return str(value).strip().lower().replace(\" \", \"-\")`), not app/search.py; the fix is in the shared normalizer used by all three callers, not a call-site-only patch."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff hunk shows the change was made inside `def normalize_key(value):` in app/normalize.py, the single shared normalizer, not duplicated at each caller in search.py/tags.py/index.py."
+    }
+   },
+   "verdict": "hold"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "The diff changes normalize_key to `str(value).strip().lower().replace(\" \", \"-\")`; this removes trailing whitespace but leaves repeated internal spaces as repeated dashes."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "`app/tags.py` calls `TAGS.get(normalize_key(raw))`, and the shared normalizer only uses `.strip()` plus replacement, so repeated internal spaces are not collapsed."
+    },
+    "P3": {
+     "call": "not_met",
+     "evidence": "`app/index.py` calls `normalize_key(t)`, whose diff only adds `.strip()` and does not collapse repeated internal spaces."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The diff changes `app/normalize.py`, not only `app/search.py`; `app/tags.py` and `app/index.py` already use the shared normalizer."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff adds cleaning in the shared `normalize_key` function rather than separately at each caller."
+    }
+   },
+   "verdict": "fail"
+  }
+ }
+}

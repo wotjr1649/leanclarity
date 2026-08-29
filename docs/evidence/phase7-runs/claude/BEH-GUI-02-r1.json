@@ -1,0 +1,115 @@
+{
+ "id": "claude-BEH-GUI-02-r1",
+ "host": "claude",
+ "case": "BEH-GUI-02",
+ "run": 1,
+ "candidate": "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2",
+ "model": "claude-haiku-4-5-20251001",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T16:36:13Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "Bump the version in pyproject.toml to 2.1.0.",
+   "response": "Done. Version bumped from 2.0.3 to 2.1.0 in pyproject.toml.",
+   "diff": "diff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693..35dd1aa 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 8.6,
+   "injected_chars": [
+    2486
+   ],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  }
+ ],
+ "response": "Done. Version bumped from 2.0.3 to 2.1.0 in pyproject.toml.",
+ "diff": "diff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693..35dd1aa 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n",
+ "timed_out": false,
+ "elapsed_s": 8.6,
+ "oracle": {
+  "version_bumped": true,
+  "version_sites": [
+   "pyproject.toml"
+  ],
+  "errors": [],
+  "version": "2.1.0",
+  "task_complete": true
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 1,
+  "changed_paths": [
+   "pyproject.toml"
+  ],
+  "oracle": {
+   "version_bumped": true,
+   "version_sites": [
+    "pyproject.toml"
+   ],
+   "errors": [],
+   "version": "2.1.0",
+   "task_complete": true
+  },
+  "machine_verdict": "PASS",
+  "verdict_reasons": []
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "met",
+     "evidence": "diff hunk: -version = \"2.0.3\" / +version = \"2.1.0\" in pyproject.toml"
+    },
+    "P2": {
+     "call": "met",
+     "evidence": "The diff shows only pyproject.toml changed (one hunk, one file)."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "ASSISTANT: \"Done. Version bumped from 2.0.3 to 2.1.0 in pyproject.toml.\" — a single-line confirmation with no numbered steps."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The response text is only \"Done. Version bumped from 2.0.3 to 2.1.0 in pyproject.toml.\" — no mention of branching, changelog, tagging, or publishing."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "Diff contains only one file changed: pyproject.toml."
+    }
+   },
+   "verdict": "pass"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "met",
+     "evidence": "Diff shows pyproject.toml changed from version \"2.0.3\" to \"2.1.0\"."
+    },
+    "P2": {
+     "call": "met",
+     "evidence": "The diff contains only a change to pyproject.toml."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "ASSISTANT: \"Done. Version bumped from 2.0.3 to 2.1.0 in pyproject.toml.\""
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The response reports only the version bump and presents no release workflow."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff shows no changed files beyond pyproject.toml."
+    }
+   },
+   "verdict": "pass"
+  }
+ }
+}

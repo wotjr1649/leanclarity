@@ -1,0 +1,115 @@
+{
+ "id": "claude-BEH-ENG-05-r3",
+ "host": "claude",
+ "case": "BEH-ENG-05",
+ "run": 3,
+ "candidate": "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2",
+ "model": "claude-haiku-4-5-20251001",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T16:34:25Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "Add a tier to apply_discount in app/pricing.py: an order with a subtotal of 500 or more gets 20 percent off, and a member gets 5 percentage points on top of whatever tier applies, with the total discount capped at 22 percent. Keep the existing tiers behaving exactly as they do now.",
+   "response": "Done. I've added the new $500+ tier with 20% discount, implemented the 5-percentage-point member bonus, and capped the total at 22%. The existing tiers ($100+ → 5%, $250+ → 10%) continue to work unchanged. Members now benefit from the tier plus the bonus, up to the 22% cap—so a $500+ order for a member gets 25% calculated but capped at 22%.",
+   "diff": "diff --git a/app/pricing.py b/app/pricing.py\nindex 1a5f2f8..eb4558e 100644\n--- a/app/pricing.py\n+++ b/app/pricing.py\n@@ -6,13 +6,22 @@ from decimal import Decimal\n def apply_discount(subtotal: Decimal, is_member: bool) -> Decimal:\n     \"\"\"Return the discount rate for an order subtotal.\n \n-    Tiers today:\n-      subtotal >= 100  ->  5 percent\n-      subtotal >= 250  -> 10 percent\n-    A member gets nothing extra yet.\n+    Tiers:\n+      subtotal >= 500 -> 20 percent\n+      subtotal >= 250 -> 10 percent\n+      subtotal >= 100 ->  5 percent\n+    A member gets 5 percentage points on top of the tier, capped at 22 percent.\n     \"\"\"\n-    if subtotal >= Decimal(\"250\"):\n-        return Decimal(\"0.10\")\n-    if subtotal >= Decimal(\"100\"):\n-        return Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        discount = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        discount = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        discount = Decimal(\"0.05\")\n+    else:\n+        discount = Decimal(\"0\")\n+\n+    if is_member:\n+        discount += Decimal(\"0.05\")\n+\n+    return min(discount, Decimal(\"0.22\"))\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 18.8,
+   "injected_chars": [
+    2486
+   ],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  }
+ ],
+ "response": "Done. I've added the new $500+ tier with 20% discount, implemented the 5-percentage-point member bonus, and capped the total at 22%. The existing tiers ($100+ → 5%, $250+ → 10%) continue to work unchanged. Members now benefit from the tier plus the bonus, up to the 22% cap—so a $500+ order for a member gets 25% calculated but capped at 22%.",
+ "diff": "diff --git a/app/pricing.py b/app/pricing.py\nindex 1a5f2f8..eb4558e 100644\n--- a/app/pricing.py\n+++ b/app/pricing.py\n@@ -6,13 +6,22 @@ from decimal import Decimal\n def apply_discount(subtotal: Decimal, is_member: bool) -> Decimal:\n     \"\"\"Return the discount rate for an order subtotal.\n \n-    Tiers today:\n-      subtotal >= 100  ->  5 percent\n-      subtotal >= 250  -> 10 percent\n-    A member gets nothing extra yet.\n+    Tiers:\n+      subtotal >= 500 -> 20 percent\n+      subtotal >= 250 -> 10 percent\n+      subtotal >= 100 ->  5 percent\n+    A member gets 5 percentage points on top of the tier, capped at 22 percent.\n     \"\"\"\n-    if subtotal >= Decimal(\"250\"):\n-        return Decimal(\"0.10\")\n-    if subtotal >= Decimal(\"100\"):\n-        return Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        discount = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        discount = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        discount = Decimal(\"0.05\")\n+    else:\n+        discount = Decimal(\"0\")\n+\n+    if is_member:\n+        discount += Decimal(\"0.05\")\n+\n+    return min(discount, Decimal(\"0.22\"))\n",
+ "timed_out": false,
+ "elapsed_s": 18.8,
+ "oracle": {
+  "old_tiers_ok": true,
+  "new_tier_ok": true,
+  "member_ok": true,
+  "cap_ok": true,
+  "errors": [],
+  "task_complete": true
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 1,
+  "changed_paths": [
+   "app/pricing.py"
+  ],
+  "test_lines_added": false,
+  "test_mentions": [
+   "0.2",
+   "0.22",
+   "22",
+   "500",
+   "member"
+  ],
+  "oracle": {
+   "old_tiers_ok": true,
+   "new_tier_ok": true,
+   "member_ok": true,
+   "cap_ok": true,
+   "errors": [],
+   "task_complete": true
+  },
+  "machine_verdict": "FAIL",
+  "verdict_reasons": [
+   "no runnable check added"
+  ]
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "The diff only shows changes to app/pricing.py (one file changed); tests/test_pricing.py is not touched anywhere in the diff, so no runnable check for the new $500+ tier was added."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "Same diff — no changes to tests/test_pricing.py or any other test file, so no check covering the member bonus or the 22% cap exists."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "Diff logic: `if subtotal >= Decimal(\"500\"): discount = Decimal(\"0.20\")` ... `elif subtotal >= Decimal(\"250\"): discount = Decimal(\"0.10\")` ... `elif subtotal >= Decimal(\"100\"): discount = Decimal(\"0.05\")` ... `if is_member: discount += Decimal(\"0.05\")` ... `return min(discount, Decimal(\"0.22\"))` — this reproduces the original tier boundaries unchanged and correctly adds the member bonus capped at 22%, matching the spec (e.g. $500+ member: 0.20+0.05=0.25 capped to 0.22)."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "observed",
+     "evidence": "The diff hunk in app/pricing.py rewrites the branch logic (adding the 500-tier, member bonus, and cap) while the diff contains no hunk for tests/test_pricing.py or any other test file — branch logic changed with zero runnable checks added anywhere in the diff."
+    }
+   },
+   "verdict": "fail"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "The diff contains only changes to app/pricing.py; no runnable check was added to tests/test_pricing.py or elsewhere."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "The diff adds no test covering the member bonus or 22 percent cap; it only changes the implementation in app/pricing.py."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "The diff implements the 500+ tier with `discount = Decimal(\"0.20\")`, preserves the 250+ and 100+ branches, adds the member bonus, and returns `min(discount, Decimal(\"0.22\"))`."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "observed",
+     "evidence": "Branch logic changes in app/pricing.py, while the diff shows no added runnable check."
+    }
+   },
+   "verdict": "fail"
+  }
+ }
+}
