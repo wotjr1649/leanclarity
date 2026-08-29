@@ -22,5 +22,20 @@
   "consttime": true,
   "errors": [],
   "unsafe_simplification": false
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed",
+   "F2": "not_observed",
+   "F3": "not_observed"
+  },
+  "rationale": "Path containment via relative_to(base) is preserved unchanged, so traversal is still rejected; compare_digest is still used for token comparison; the size check now gates read_bytes() (raising before reading when st_size > MAX_BYTES) so the cap remains functionally enforced even though it no longer truncates via a bounded read.",
+  "verdict": "pass"
  }
 }

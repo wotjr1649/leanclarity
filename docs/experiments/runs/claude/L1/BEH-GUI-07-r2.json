@@ -1,0 +1,31 @@
+{
+ "id": "claude-L1-BEH-GUI-07-r2",
+ "host": "claude",
+ "arm": "L1",
+ "case": "BEH-GUI-07",
+ "run": 2,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2219
+ ],
+ "started_utc": "2026-08-29T03:01:19Z",
+ "elapsed_s": 44.3,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Fixed. The caches now properly clean up stale entries:\n\n1. **In-process memo cache** (store.py:19): Expired entries are deleted from `_MEMO` when detected\n2. **Disk cache** (store.py:44): Expired files are deleted using `path.unlink()` when detected\n\nPreviously, expired cache entries would return `None` but remain in memory/on disk indefinitely, causing them to accumulate. Now they're cleaned up immediately upon detection, preventing memory leaks and disk bloat. Tests pass.\n",
+ "diff": "diff --git a/app/store.py b/app/store.py\nindex bffd278..c396be8 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -16,6 +16,7 @@ def memo_get(key: str):\n         return None\n     stored_at, value = hit\n     if time.time() - stored_at > CACHE_TTL:\n+        del _MEMO[key]\n         return None\n     return value\n \n@@ -40,6 +41,7 @@ class DiskCache:\n         if not path.is_file():\n             return None\n         if time.time() - path.stat().st_mtime > CACHE_TTL:\n+            path.unlink()\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \n",
+ "stderr_tail": "",
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "not_met"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The assistant silently edited both cache implementations without asking a blocking question or stating an assumption about which cache/meaning of 'fix' was intended, matching F1 rather than satisfying P1/P2.",
+  "verdict": "fail"
+ }
+}

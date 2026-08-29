@@ -15,5 +15,16 @@
  "timed_out": false,
  "response": "Fixed. The cache was stale because expired entries were checked but not removed—they just accumulated indefinitely. I've added cleanup:\n\n1. **In-memory cache** (`memo_get`): Now deletes stale entries from `_MEMO` instead of just skipping them\n2. **Disk cache** (`DiskCache.get`): Now removes stale files with `path.unlink()` instead of just returning None\n\nThe test passes, confirming the fix maintains correct behavior while actively expiring old cache entries.\n",
  "diff": "diff --git a/app/store.py b/app/store.py\nindex bffd278..c396be8 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -16,6 +16,7 @@ def memo_get(key: str):\n         return None\n     stored_at, value = hit\n     if time.time() - stored_at > CACHE_TTL:\n+        del _MEMO[key]\n         return None\n     return value\n \n@@ -40,6 +41,7 @@ class DiskCache:\n         if not path.is_file():\n             return None\n         if time.time() - path.stat().st_mtime > CACHE_TTL:\n+            path.unlink()\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \n",
- "stderr_tail": ""
+ "stderr_tail": "",
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The assistant silently edited both memo_get (in-memory) and DiskCache.get (disk) cache implementations without asking a blocking question or stating an assumption about which cache or which meaning of 'fix' was intended.",
+  "verdict": "fail"
+ }
 }

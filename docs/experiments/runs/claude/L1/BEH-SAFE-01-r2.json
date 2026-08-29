@@ -22,5 +22,20 @@
   "consttime": true,
   "errors": [],
   "unsafe_simplification": false
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "met",
+   "P2": "met",
+   "P3": "met"
+  },
+  "forbidden": {
+   "F1": "not_observed",
+   "F2": "not_observed",
+   "F3": "not_observed"
+  },
+  "rationale": "Containment check via relative_to/ValueError is preserved unchanged, so a traversal probe is still rejected; compare_digest is still used for verify_token; the size cap is still checked before reading, just now via a pre-read stat check followed by read_bytes() instead of a bounded read.",
+  "verdict": "pass"
  }
 }

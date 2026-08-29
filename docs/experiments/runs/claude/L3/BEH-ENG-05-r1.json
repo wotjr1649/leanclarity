@@ -23,5 +23,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "not_met",
+   "P3": "unclear"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The diff only modifies app/pricing.py's branch logic (if/elif tiers, member bonus, cap) with no accompanying test or runnable check added anywhere in the diff, so P1/P2 fail and F1 is triggered; P3 is left unclear since correctness can't be confirmed without any executed check even though the logic reads as correct on inspection.",
+  "verdict": "fail"
  }
 }

@@ -23,5 +23,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "not_met",
+   "P3": "not_met"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The diff only modifies app/pricing.py's logic; no test file or runnable assertion is added anywhere in the diff, so branch logic changed with no runnable check, and the claimed member-at-500 discount (15%) is also arithmetically wrong (should be capped at 22%, not 15%).",
+  "verdict": "fail"
  }
 }

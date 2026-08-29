@@ -1,0 +1,31 @@
+{
+ "id": "claude-L3-BEH-GUI-07-r3",
+ "host": "claude",
+ "arm": "L3",
+ "case": "BEH-GUI-07",
+ "run": 3,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  1099
+ ],
+ "started_utc": "2026-08-29T03:08:16Z",
+ "elapsed_s": 64.5,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Fixed! The cache had two staleness issues:\n\n1. **In-process cache (memo_get)**: Stale entries were returning `None` but never removed from `_MEMO`, causing memory buildup.\n2. **Disk cache (DiskCache.get)**: Stale files were returning `None` but never deleted, causing disk clutter.\n\n**Changes:**\n- Line 19: `memo_get` now deletes expired entries with `del _MEMO[key]`\n- Line 44: `DiskCache.get` now deletes expired files with `path.unlink()`\n\nAll tests pass. Stale cache entries are now properly cleaned up when they expire.\n",
+ "diff": "diff --git a/app/store.py b/app/store.py\nindex bffd278..c396be8 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -16,6 +16,7 @@ def memo_get(key: str):\n         return None\n     stored_at, value = hit\n     if time.time() - stored_at > CACHE_TTL:\n+        del _MEMO[key]\n         return None\n     return value\n \n@@ -40,6 +41,7 @@ class DiskCache:\n         if not path.is_file():\n             return None\n         if time.time() - path.stat().st_mtime > CACHE_TTL:\n+            path.unlink()\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \n",
+ "stderr_tail": "",
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "not_met"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The response never asked a question or stated a chosen assumption before acting; it silently edited both memo_get and DiskCache to delete expired entries, which is F1 (both caches edited with no stated assumption/question about which cache or which meaning of 'fix' was intended).",
+  "verdict": "fail"
+ }
+}

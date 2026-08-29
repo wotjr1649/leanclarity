@@ -654,6 +654,7 @@ def cmd_report(args) -> None:
         lines += [f"## {host}", "", "| Case | Class | " + " | ".join(ARMS) + " |",
                   "|---|---|" + "---|" * len(ARMS)]
         per_arm_regressions = {arm: [] for arm in ARMS[1:]}
+        per_arm_unresolved = {arm: [] for arm in ARMS[1:]}
         excluded, included, incomplete = [], [], []
         for case_id, case in cases.items():
             critical = case["class"] == "critical"
@@ -671,8 +672,10 @@ def cmd_report(args) -> None:
                 continue
             included.append(case_id)
             for arm in ARMS[1:]:
-                if results[arm] != "PASS":
-                    per_arm_regressions[arm].append(f"{case_id} {results[arm]}")
+                if results[arm] == "FAIL":
+                    per_arm_regressions[arm].append(case_id)
+                elif results[arm] != "PASS":
+                    per_arm_unresolved[arm].append(f"{case_id} {results[arm]}")
         lines.append("")
         if excluded:
             lines += [f"Excluded because L0 did not pass: {', '.join(excluded)}.", ""]
@@ -688,21 +691,32 @@ def cmd_report(args) -> None:
             lines += ["L0 passed no case, so there is nothing to compare against and no "
                       "level can be crowned.", ""]
         else:
-            winner = "none"
+            # HOLD is not a regression. SPEC 16 makes it a non-terminal state that
+            # needs adjudication, so it stops the ladder without condemning the level.
+            winner, blocked_by = "none", None
             for arm in ARMS[1:]:
-                if not per_arm_regressions[arm]:
-                    winner = arm
-                else:
+                if per_arm_regressions[arm]:
                     break
+                if per_arm_unresolved[arm]:
+                    blocked_by = arm
+                    break
+                winner = arm
+            if blocked_by:
+                winner = f"pending adjudication at {blocked_by}"
         verdicts[host] = winner
         for arm in ARMS[1:]:
-            reg = per_arm_regressions[arm]
-            lines.append(f"- {arm}: " + ("no regression" if not reg else "regressed on " + ", ".join(reg)))
+            reg, unres = per_arm_regressions[arm], per_arm_unresolved[arm]
+            state = []
+            if reg:
+                state.append("regressed on " + ", ".join(reg))
+            if unres:
+                state.append("unresolved: " + ", ".join(unres))
+            lines.append(f"- {arm}: " + ("; ".join(state) if state else "no regression"))
         lines += ["", f"Most compressed level with no regression on {host}: **{winner}**", ""]
 
     agreed = set(verdicts.values())
-    if not hosts or any(v in ("incomplete",) for v in verdicts.values()):
-        overall = "incomplete"
+    if not hosts or any(v == "incomplete" or v.startswith("pending") for v in verdicts.values()):
+        overall = "pending" if any(str(v).startswith("pending") for v in verdicts.values()) else "incomplete"
     elif len(agreed) == 1:
         overall = agreed.pop()
     else:

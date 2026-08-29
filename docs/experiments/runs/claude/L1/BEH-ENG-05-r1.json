@@ -23,5 +23,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "not_met",
+   "P3": "unclear"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The diff only modifies app/pricing.py logic and adds no test file or runnable check anywhere; the response text claims completion but includes no verification, and since branch logic changed with zero runnable checks added, F1 is triggered, making P3 unverifiable from the diff alone.",
+  "verdict": "fail"
  }
 }

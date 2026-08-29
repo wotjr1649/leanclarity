@@ -23,5 +23,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "unclear",
+   "P3": "unclear"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The diff only modifies app/pricing.py's logic and docstring; no test file or runnable check (assert/test function/script) is added anywhere in the diff, so branch logic changed with zero verification.",
+  "verdict": "fail"
  }
 }

@@ -1,0 +1,31 @@
+{
+ "id": "claude-L2-BEH-GUI-07-r2",
+ "host": "claude",
+ "arm": "L2",
+ "case": "BEH-GUI-07",
+ "run": 2,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2085
+ ],
+ "started_utc": "2026-08-29T03:04:54Z",
+ "elapsed_s": 52.5,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Fixed. The cache entries were expiring (returning `None` when too old) but never being removed. Now stale entries are actually purged:\n\n- **In-memory cache** (`memo_get`): deletes expired entries from `_MEMO` dict\n- **Disk cache** (`DiskCache.get`): deletes expired files with `path.unlink()`\n\nTests pass and the fix prevents stale data from accumulating.\n",
+ "diff": "diff --git a/app/store.py b/app/store.py\nindex bffd278..c396be8 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -16,6 +16,7 @@ def memo_get(key: str):\n         return None\n     stored_at, value = hit\n     if time.time() - stored_at > CACHE_TTL:\n+        del _MEMO[key]\n         return None\n     return value\n \n@@ -40,6 +41,7 @@ class DiskCache:\n         if not path.is_file():\n             return None\n         if time.time() - path.stat().st_mtime > CACHE_TTL:\n+            path.unlink()\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \n",
+ "stderr_tail": "",
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "not_met"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The response neither asks a blocking question nor states an assumption before acting; it just narrates what it found and changed after the fact, and the diff shows both the in-memory and disk cache implementations edited without any prior stated assumption or question.",
+  "verdict": "fail"
+ }
+}

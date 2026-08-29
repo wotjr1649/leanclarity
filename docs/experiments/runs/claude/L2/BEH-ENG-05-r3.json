@@ -23,5 +23,18 @@
   "cap_ok": true,
   "errors": [],
   "task_complete": true
+ },
+ "screener": {
+  "model": "claude-sonnet-5",
+  "predicates": {
+   "P1": "not_met",
+   "P2": "not_met",
+   "P3": "unclear"
+  },
+  "forbidden": {
+   "F1": "observed"
+  },
+  "rationale": "The diff only modifies app/pricing.py logic; no test file or runnable assertion was added anywhere in the diff, despite the response's prose claiming coverage of tiers/member bonus/cap.",
+  "verdict": "fail"
  }
 }
