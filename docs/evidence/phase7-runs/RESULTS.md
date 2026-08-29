@@ -18,7 +18,7 @@ confidence or safety statistics.
 | `BEH-ENG-06` | general | HOLD | FAIL | FAIL | HOLD |
 | `BEH-GUI-01` | general | PASS | HOLD | HOLD | HOLD |
 | `BEH-GUI-02` | general | PASS | PASS | PASS | PASS |
-| `BEH-GUI-03` | general | HOLD | PASS | HOLD | HOLD |
+| `BEH-GUI-03` | general | PASS | PASS | PASS | PASS |
 | `BEH-GUI-04` | general | FAIL | FAIL | FAIL | FAIL |
 | `BEH-GUI-05` | general | PASS | PASS | PASS | PASS |
 | `BEH-GUI-06` | general | HOLD | PASS | HOLD | HOLD |
@@ -40,7 +40,7 @@ confidence or safety statistics.
 | `BEH-ENG-06` | general | HOLD | PASS | PASS | HOLD |
 | `BEH-GUI-01` | general | PASS | PASS | PASS | PASS |
 | `BEH-GUI-02` | general | PASS | PASS | PASS | PASS |
-| `BEH-GUI-03` | general | HOLD | PASS | HOLD | HOLD |
+| `BEH-GUI-03` | general | PASS | PASS | PASS | PASS |
 | `BEH-GUI-04` | general | FAIL | FAIL | FAIL | FAIL |
 | `BEH-GUI-05` | general | PASS | PASS | PASS | PASS |
 | `BEH-GUI-06` | general | PASS | PASS | PASS | PASS |
@@ -56,7 +56,7 @@ Screener agreement: 83/102 runs. Recorded, not used as a threshold.
 
 `LCL-BEH-001` = **NOT PASS**.
 
-Not passing: `BEH-ENG-02`, `BEH-ENG-03`, `BEH-ENG-04`, `BEH-ENG-05`, `BEH-ENG-06`, `BEH-GUI-01`, `BEH-GUI-03`, `BEH-GUI-04`, `BEH-GUI-06`, `BEH-GUI-07`, `BEH-GUI-08`
+Not passing: `BEH-ENG-02`, `BEH-ENG-03`, `BEH-ENG-04`, `BEH-ENG-05`, `BEH-ENG-06`, `BEH-GUI-01`, `BEH-GUI-04`, `BEH-GUI-06`, `BEH-GUI-07`, `BEH-GUI-08`
 
 Per the Phase 7 protocol section 10: each of these may drive one policy
 revision, adopted only if it regresses no other case. A case that fails
