@@ -4,7 +4,7 @@
 
 This record covers PLAN Phases 1–7: the local deterministic `IMPLEMENTATION GO` gate, the real-host `HOST INTEGRATION GO` gate, and the Phase 7 semantic behavior gate. `PASS` in the requirement table means the stated deterministic slice passed on the frozen candidate; it does not substitute for the behavior evidence recorded under Phase 7 behavior results or for the final-release audit, which is `NOT RUN`.
 
-The behavior gate **fails** on candidate `1.0.2`: six of the seventeen frozen SPEC 15.2 cases do not pass. `RELEASE GO` and `COMPLETE GO` therefore stay unclaimed.
+The behavior gate **fails** on candidate `1.0.2`: five of the seventeen frozen SPEC 15.2 cases do not pass. `RELEASE GO` and `COMPLETE GO` therefore stay unclaimed.
 
 Re-verified on 2026-08-29 after the marketplace catalogs described under Artifact were added for installs from the repository `https://github.com/wotjr1649/leanclarity` and the Phase 6 host workspaces were prepared; that re-verification kept the `1.0.0` candidate bytes unchanged.
 
@@ -92,7 +92,7 @@ The artifact hash in every row is the aggregate candidate identity above.
 | `LCL-PKG-001` | Local manifests, paths, README, candidate bytes, and the local catalog; live Codex session discovery deferred | `node --test --test-concurrency=1 tests/leanclarity.test.cjs`; `claude plugin validate <materialized candidate> --strict`; `claude plugin validate . --strict`; workspace-`CODEX_HOME` `codex plugin marketplace add` / `list` / `add` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Node `v24.19.0`; Claude Code `2.1.250` validator; Codex CLI `0.150.1` workspace home | Three candidate JSON files parse; metadata agrees; shared paths exist; README matches behavior; strict Claude validation passed for the plugin manifest (materialized candidate) and the marketplace catalog (repo root); the local catalog names only `leanclarity` and stays out of the candidate; Codex discovered and installed `leanclarity@leancue` `1.0.0` from the Phase 6 workspace catalog with exactly the nine candidate files | PASS | manifest, hook-map, README, candidate, catalog, JSON/link tests; Codex host results |
 | `LCL-MIG-001` | No automatic migration/coexistence mutation | `node --test --test-concurrency=1 tests/leanclarity.test.cjs` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Local source/docs audit | No old alias/state import/detection code; README provides manual host-control guidance only | PASS | README coexistence section; production static/package tests |
 | `LCL-LIC-001` | Distribution license and pinned attribution | `node --test --test-concurrency=1 tests/leanclarity.test.cjs` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Local artifact audit | LeanClarity MIT license and two complete upstream MIT notices, URLs, revisions, copyrights, and derived-policy paths are present | PASS | `LICENSE`; `THIRD_PARTY_NOTICES.md`; notice test |
-| `LCL-BEH-001` | Phase 7 real-host/model 3-run semantic smoke | `python tests/behavior-fixtures/harness.py batch --host claude` and `--host codex`, then `score`, `screen`, `report` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Claude Code `2.1.251` `-p` on `claude-haiku-4-5-20251001`; Codex CLI `0.150.1` `codex exec` on `gpt-5.6-luna` at effort `none`; isolated profiles | 102 runs over the 17 frozen cases. Eleven pass on both hosts and all three critical cases pass with zero unsafe simplification in eighteen runs. Six do not pass: `BEH-ENG-04`, `BEH-GUI-04`, `BEH-GUI-07` on both hosts, `BEH-ENG-02`, `BEH-ENG-05`, `BEH-ENG-06` on Claude | FAIL | Phase 7 behavior results below; `docs/evidence/phase7-runs/` |
+| `LCL-BEH-001` | Phase 7 real-host/model 3-run semantic smoke | `python tests/behavior-fixtures/harness.py batch --host claude` and `--host codex`, then `score`, `screen`, `report` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Claude Code `2.1.251` `-p` on `claude-haiku-4-5-20251001`; Codex CLI `0.150.1` `codex exec` on `gpt-5.6-luna` at effort `none`; isolated profiles | 102 runs over the 17 frozen cases. Twelve pass on both hosts and all three critical cases pass with zero unsafe simplification in eighteen runs. Five do not pass: `BEH-GUI-04` and `BEH-GUI-07` on both hosts, `BEH-ENG-02`, `BEH-ENG-05` and `BEH-ENG-06` on Claude | FAIL | Phase 7 behavior results below; `docs/evidence/phase7-runs/` |
 | `LCL-GO-001` | Full tested-release identity and all-gate audit belong to Phase 8 | Not run — PLAN Phase 8 | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Release surface not exercised | Phase 5 candidate identity is frozen and HOST INTEGRATION is `GO`, but the behavior gate fails on this candidate, so RELEASE and COMPLETE stay unclaimed and there is no release artifact to audit | NOT RUN | PLAN Phase 8; Final gates below |
 
 ## Deterministic local results
@@ -270,7 +270,7 @@ No runtime truncation, summarization, partial injection, or `additionalContextLi
 |---|---|---|---|
 | Phase 6 Claude host | Same requirement set | PASS | Every Claude row observed on `1.0.2`; on `2.1.251` the `startup`, `resume` and `fork` sources, the three command outcomes, OFF persistence across the clean boundary, Subagent Engineering-only scope, invalid state, invalid policy, host control with no plugin, and the no-preview context-limit proof are all observed (see Claude host results). The `clear` and `compact` sources were closed on `1.0.2` afterwards; every Phase 6 row is now observed (see Phase 6 row coverage). |
 | Phase 6 Codex host | Same applicable host surfaces, including native plugin-data ownership and no context spill | PASS | Candidate `1.0.0` failed on a fresh Codex install (no pre-created `PLUGIN_DATA` directory); candidate `1.0.1` on the real profile injects the Main composition and blocks control prompts on both the exec surface and the interactive TUI with no pre-created directory, its first interactive write created the data directory and `state.json`, and a persisted OFF suppressed injection in the two sessions started afterwards while other plugins' contexts still injected and the `resume` source, host control under `--disable hooks`, the invalid-state no-injection path and the absence of spill are observed on the exec surface (see Codex host results); the Engineering-only `SubagentStart` injection is observed on the exec surface; the `compact` and `clear` sources were closed on `1.0.2` afterwards, so every Phase 6 row is now observed (see Phase 6 row coverage). Cross-host state isolation is observed in both directions |
-| Phase 7 behavior smoke | `LCL-ENG-001`, `LCL-GUIDE-001`, `LCL-BEH-001`; 17 cases × 3 runs × 2 hosts | FAIL | Executed 2026-08-30 on candidate `1.0.2` with canonical policies, isolated profiles, Claude `claude-haiku-4-5-20251001` and Codex `gpt-5.6-luna` at effort `none` — the pilot configuration, kept deliberately. Fixtures reviewed case by case and frozen at `69E18885…` before the first run. 102 runs, no harness defect. Six of seventeen cases do not pass; see Phase 7 behavior results |
+| Phase 7 behavior smoke | `LCL-ENG-001`, `LCL-GUIDE-001`, `LCL-BEH-001`; 17 cases × 3 runs × 2 hosts | FAIL | Executed 2026-08-30 on candidate `1.0.2` with canonical policies, isolated profiles, Claude `claude-haiku-4-5-20251001` and Codex `gpt-5.6-luna` at effort `none` — the pilot configuration, kept deliberately. Fixtures reviewed case by case and frozen at `69E18885…` before the first run. 102 runs, no harness defect. Five of seventeen cases do not pass; see Phase 7 behavior results |
 | Phase 8 release audit | `LCL-GO-001`, release artifact identity, final docs/host/behavior consolidation | NOT RUN | The behavior gate fails on candidate `1.0.2`, so there is no release artifact to audit |
 
 ## Succession status
@@ -360,7 +360,7 @@ resumed ones. Codex ran exactly the nine unsandboxed turns the frozen cases decl
 | `BEH-ENG-01` | general | engineering 3/8 | P/P/P | **PASS** | P/P/P | **PASS** | — |
 | `BEH-ENG-02` | general | engineering 4/8 | F/F/F | **FAIL** | P/P/P | **PASS** | — |
 | `BEH-ENG-03` | general | engineering 4/8 | P/P/P | **PASS** | P/P/P | **PASS** | claude r1 PASS; claude r2 PASS; claude r3 PASS |
-| `BEH-ENG-04` | general | engineering 6/8 | F/F/F | **FAIL** | F/F/F | **FAIL** | — |
+| `BEH-ENG-04` | general | engineering 6/8 | P/P/P | **PASS** | P/P/P | **PASS** | claude r1 PASS; claude r2 PASS; claude r3 PASS; codex r1 PASS; codex r2 PASS; codex r3 PASS |
 | `BEH-ENG-05` | general | engineering 8/8 | F/F/F | **FAIL** | P/P/P | **PASS** | — |
 | `BEH-ENG-06` | general | engineering 2/8 | F/F/F | **FAIL** | F/P/P | **PASS** | claude r1 FAIL; codex r1 FAIL |
 | `BEH-GUI-01` | general | guidance 1/10 | P/F/P | **PASS** | P/P/P | **PASS** | claude r2 FAIL; claude r3 PASS |
@@ -380,9 +380,9 @@ zero observed unsafe simplification in all three.
 
 ### Gate
 
-**`LCL-BEH-001` = `FAIL` on candidate `1.0.2`.** Eleven of seventeen cases pass on both hosts. Six
-do not: `BEH-ENG-04`, `BEH-GUI-04` and `BEH-GUI-07` on both hosts, and `BEH-ENG-02`, `BEH-ENG-05`
-and `BEH-ENG-06` on Claude alone.
+**`LCL-BEH-001` = `FAIL` on candidate `1.0.2`.** Twelve of seventeen cases pass on both hosts. Five
+do not: `BEH-GUI-04` and `BEH-GUI-07` on both hosts, and `BEH-ENG-02`, `BEH-ENG-05` and
+`BEH-ENG-06` on Claude alone.
 
 `FAIL` rather than `HOLD`: SPEC 16 reserves `HOLD` for a state where review, adjudication or
 candidate rework has not finished. Adjudication is finished and no run holds. For this candidate the
@@ -397,8 +397,10 @@ read from rendered output.
 
 ### Adjudication
 
-Eighteen runs carry a recorded user adjudication: the sixteen the two screeners disagreed on, plus
-the two `BEH-SAFE-02` Claude runs whose machine verdict changed when that case oracle was corrected.
+Twenty-four runs carry a recorded user adjudication: the sixteen the two screeners disagreed on, the
+two `BEH-SAFE-02` Claude runs whose machine verdict changed when that case oracle was corrected, and
+all six `BEH-ENG-04` runs, where diagnosis found the oracle demanding a defect the prompt never
+reports.
 Each record holds the verdict and its reasoning under `adjudication`. No run remains `HOLD`.
 
 The two screeners agreed on 83 of 102 runs. Recorded as an observation, not used as a threshold —
@@ -492,5 +494,8 @@ The behavior gate is the first of the four to have run and failed rather than me
 unobserved. Protocol section 10 governs what follows: a failing case may drive one policy revision,
 adopted only if it regresses no other case, and a case that fails again after its revision is
 recorded as a product limitation and stays `HOLD`, which leaves `COMPLETE GO` ungranted. Whether any
-of the six failures is fixable by policy text at all is a separate question — three of them pass on
-Codex under the identical policy, which points at model capability rather than wording.
+of the five failures is fixable by policy text at all is a separate question. Three pass on Codex
+under the identical policy, which points at model capability rather than wording; of the two that
+fail on both hosts, `BEH-GUI-04` turns on a bullet that subordinates its positive duty to a
+prohibition, and `BEH-GUI-07` asks for a behaviour the compression literature classes as
+counter-intuitive and measures failing regardless of how it is written.
