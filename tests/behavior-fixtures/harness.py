@@ -819,8 +819,8 @@ def cmd_report(args) -> None:
                   "again after its revision is recorded as a product limitation and stays",
                   "`HOLD`, which leaves COMPLETE GO ungranted.", ""]
 
+    base.mkdir(parents=True, exist_ok=True)
     dest = base / "RESULTS.md"
-    dest.mkdir(parents=True, exist_ok=True) if not base.exists() else None
     dest.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print("\n".join(lines))
     print(f"wrote {dest}")

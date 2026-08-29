@@ -136,6 +136,23 @@ MANIFEST가 덮는 범위:
 `mutations.py`와 `validate_oracles.py`를 넣는 이유는 그것이 **oracle이 첫 run 전에 검증됐다는 증거**
 자체이기 때문이다. 동결 밖에 두면 사후에 고쳐도 아무것도 그것을 잡지 못한다.
 
+### 러너도 동결 안에 있다
+
+`harness.py`와 `smoke_harness.py`도 `tests/behavior-fixtures/` 아래이므로 해시에 들어간다. 다만
+러너 변경이 전부 같은 무게를 갖지는 않으므로, 다음 선을 **첫 run 전에** 고정한다.
+
+| 변경 대상 | 처리 |
+|---|---|
+| `signals_for`, `machine_verdict`, `SCREEN_TEMPLATE`, `verdict_schema`, `check_shape`, `cell_outcome`, `case_result` | **판정을 바꿀 수 있다.** 영향받는 cell을 전부 다시 돈다 |
+| 그 밖의 전부 — 경로 처리, 타임아웃 배관, 출력 형식, 배치 순서 | 무엇을 왜 바꿨는지 기록하고 MANIFEST를 갱신한다. 재실행하지 않는다 |
+
+선은 "판정을 바꿀 수 있는가"에 그어져 있지 파일이 무엇인가에 그어져 있지 않다. 어느 쪽이든 변경은
+기록되며, 조용히 지나가는 경로는 없다.
+
+이 구분이 필요한 이유는 실제 사례가 있기 때문이다: `cmd_report`가 기록 디렉터리가 없을 때
+`RESULTS.md`라는 **디렉터리**를 만들고 그다음 쓰기에서 실패했다. 인식론적으로 무관한 결함이고,
+이런 것 하나에 126회 호출을 다시 쓰는 것은 엄격함이 아니라 낭비다.
+
 Fixture와 evidence에는 test-owned, synthetic, secret-free 데이터만 쓴다 (SPEC 15.3).
 
 ## 4. Multi-turn
@@ -318,7 +335,7 @@ id를 전부 `required`로 잠근다.
 
 ### 6.2 하네스 검증
 
-`python .pilot/smoke_harness.py --host claude|codex` — 24검사, 양 호스트 통과.
+`python tests/behavior-fixtures/smoke_harness.py --host claude|codex` — 24검사, 양 호스트 통과.
 
 **일부러 17건이 아닌 폐기용 케이스로 돈다.** 동결 전에 frozen fixture에 모델을 돌리면 그것이 곧
 사전 고정 규칙이 막는 pre-freeze 응답 열람이다. 확인하는 것: multi-turn, 세션 연속성, turn별 diff 포착,
