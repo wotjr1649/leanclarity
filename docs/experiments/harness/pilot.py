@@ -605,8 +605,14 @@ def cmd_screen(args) -> None:
 # ------------------------------------------------------------------------- report
 
 
-def cell_outcome(sig: dict, screener: dict | None) -> str:
-    """One run. A decisive machine FAIL ends it; otherwise the screener decides."""
+def cell_outcome(sig: dict, screener: dict | None, adjudication: dict | None = None) -> str:
+    """One run: machine signals, then the screener, then the user.
+
+    A recorded adjudication is final and overrides both, because the user is the
+    last stage of the judgement ladder this pilot fixed in advance.
+    """
+    if adjudication and adjudication.get("verdict"):
+        return adjudication["verdict"].upper()
     if sig["machine_verdict"] == "FAIL":
         return "FAIL"
     verdict = (screener or {}).get("verdict")
@@ -641,7 +647,7 @@ def cmd_report(args) -> None:
         sig = signals_for(record, case)
         key = (record["host"], record["case"], record["arm"])
         grid.setdefault(key, []).append(
-            (record["run"], cell_outcome(sig, record.get("screener")))
+            (record["run"], cell_outcome(sig, record.get("screener"), record.get("adjudication")))
         )
 
     hosts = sorted({k[0] for k in grid})

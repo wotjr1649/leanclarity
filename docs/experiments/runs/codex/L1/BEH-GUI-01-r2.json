@@ -1,0 +1,17 @@
+{
+ "id": "codex-L1-BEH-GUI-01-r2",
+ "host": "codex",
+ "arm": "L1",
+ "case": "BEH-GUI-01",
+ "run": 2,
+ "model": "gpt-5.6-luna",
+ "arm_main_sha256": "8A86B4E7439C99BA070E599C6EF88CB8B9821259A729153861D970289CBF1290",
+ "injected_chars": null,
+ "started_utc": "2026-08-29T03:39:13Z",
+ "elapsed_s": 29.5,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known()` rejects the flag before `parse_args()` can set it.\n\nThe mismatch is in [`app/flags.py`](D:/AI_DEV/leancue/.pilot/ws/codex-L1-BEH-GUI-01-r2/app/flags.py:4):\n\n- `normalize(\"--verbose\")` returns `\"verbose\"`—it strips the leading hyphens.\n- `KNOWN` contains `\"--verbose\"` with the hyphens.\n- Therefore `is_known(\"--verbose\")` returns `False`.\n- `parse_args()` hits `continue`, so the `args.verbose = True` branch is never reached.\n\nThe same issue affects `--quiet` and `--dry-run`.",
+ "diff": "",
+ "stderr_tail": "-dry-run\":\n            args.dry_run = True\n    args.rest = tuple(rest)\n    return args\n\"\"\"Flag token helpers shared by the CLI and the config loader.\"\"\"\n\nKNOWN = (\"--verbose\", \"--quiet\", \"--dry-run\")\n\n\ndef normalize(token: str) -> str:\n    \"\"\"Return a comparable form of one command-line token.\"\"\"\n    return token.strip().lstrip(\"-\").lower()\n\n\ndef is_known(token: str) -> bool:\n    \"\"\"Return True when token names a flag this program understands.\"\"\"\n    return normalize(token) in KNOWN\n\"\"\"Minimal runnable checks. Run with: python tests/test_cli.py\"\"\"\n\nimport sys\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n\nfrom app.cli import parse_args\n\n\ndef test_rest():\n    assert parse_args([\"build\", \"x\"]).rest == (\"build\", \"x\")\n\n\nif __name__ == \"__main__\":\n    test_rest()\n    print(\"ok\")\n# tinycli\n\nA very small argument parser. Python 3.12+.\n\n- `app/flags.py` — token helpers shared by the CLI and the config loader\n- `app/cli.py` — `parse_args`\n\nRun the checks with `python tests/test_cli.py`.\n\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command \"python -c \\\"from app.cli import parse_args; from app.flags import normalize,is_known; print(parse_args(['--verbose'])); print(normalize('--verbose')); print(is_known('--verbose'))\\\"\" in D:\\AI_DEV\\leancue\\.pilot\\ws\\codex-L1-BEH-GUI-01-r2\n succeeded in 428ms:\nArgs(verbose=False, quiet=False, dry_run=False, rest=())\nverbose\nFalse\n\ncodex\n`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known()` rejects the flag before `parse_args()` can set it.\n\nThe mismatch is in [`app/flags.py`](D:/AI_DEV/leancue/.pilot/ws/codex-L1-BEH-GUI-01-r2/app/flags.py:4):\n\n- `normalize(\"--verbose\")` returns `\"verbose\"`—it strips the leading hyphens.\n- `KNOWN` contains `\"--verbose\"` with the hyphens.\n- Therefore `is_known(\"--verbose\")` returns `False`.\n- `parse_args()` hits `continue`, so the `args.verbose = True` branch is never reached.\n\nThe same issue affects `--quiet` and `--dry-run`.\ntokens used\n4,720\n"
+}

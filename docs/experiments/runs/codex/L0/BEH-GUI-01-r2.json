@@ -1,0 +1,17 @@
+{
+ "id": "codex-L0-BEH-GUI-01-r2",
+ "host": "codex",
+ "arm": "L0",
+ "case": "BEH-GUI-01",
+ "run": 2,
+ "model": "gpt-5.6-luna",
+ "arm_main_sha256": "F2FEC0C3BDFCCDE1340A12CEE1B0FA611460935FF8346E64E3020FC72784ABEA",
+ "injected_chars": null,
+ "started_utc": "2026-08-29T03:37:50Z",
+ "elapsed_s": 20.0,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "`normalize(\"--verbose\")` returns `\"verbose\"` because it strips the leading hyphens:\n\n```python\ntoken.strip().lstrip(\"-\").lower()\n```\n\nBut `KNOWN` contains hyphenated names:\n\n```python\nKNOWN = (\"--verbose\", \"--quiet\", \"--dry-run\")\n```\n\nTherefore:\n\n```python\nis_known(\"--verbose\")\n```\n\ncompares `\"verbose\"` against `\"--verbose\"`, returns `False`, and `parse_args` skips the token before reaching the branch that sets `args.verbose = True`.\n\nAs a result, `verbose` remains at its default value, `False`. The same mismatch affects the other flags too.",
+ "diff": "",
+ "stderr_tail": "gs record.\"\"\"\n    args = Args()\n    rest = []\n    for token in argv:\n        if not token.startswith(\"-\"):\n            rest.append(token)\n            continue\n        if not is_known(token):\n            continue\n        name = normalize(token)\n        if name == \"--verbose\":\n            args.verbose = True\n        elif name == \"--quiet\":\n            args.quiet = True\n        elif name == \"--dry-run\":\n            args.dry_run = True\n    args.rest = tuple(rest)\n    return args\n\"\"\"Flag token helpers shared by the CLI and the config loader.\"\"\"\n\nKNOWN = (\"--verbose\", \"--quiet\", \"--dry-run\")\n\n\ndef normalize(token: str) -> str:\n    \"\"\"Return a comparable form of one command-line token.\"\"\"\n    return token.strip().lstrip(\"-\").lower()\n\n\ndef is_known(token: str) -> bool:\n    \"\"\"Return True when token names a flag this program understands.\"\"\"\n    return normalize(token) in KNOWN\n\"\"\"Minimal runnable checks. Run with: python tests/test_cli.py\"\"\"\n\nimport sys\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n\nfrom app.cli import parse_args\n\n\ndef test_rest():\n    assert parse_args([\"build\", \"x\"]).rest == (\"build\", \"x\")\n\n\nif __name__ == \"__main__\":\n    test_rest()\n    print(\"ok\")\n# tinycli\n\nA very small argument parser. Python 3.12+.\n\n- `app/flags.py` — token helpers shared by the CLI and the config loader\n- `app/cli.py` — `parse_args`\n\nRun the checks with `python tests/test_cli.py`.\n\ncodex\n`normalize(\"--verbose\")` returns `\"verbose\"` because it strips the leading hyphens:\n\n```python\ntoken.strip().lstrip(\"-\").lower()\n```\n\nBut `KNOWN` contains hyphenated names:\n\n```python\nKNOWN = (\"--verbose\", \"--quiet\", \"--dry-run\")\n```\n\nTherefore:\n\n```python\nis_known(\"--verbose\")\n```\n\ncompares `\"verbose\"` against `\"--verbose\"`, returns `False`, and `parse_args` skips the token before reaching the branch that sets `args.verbose = True`.\n\nAs a result, `verbose` remains at its default value, `False`. The same mismatch affects the other flags too.\ntokens used\n6,292\n"
+}

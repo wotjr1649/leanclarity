@@ -1,0 +1,17 @@
+{
+ "id": "codex-L3-BEH-GUI-01-r3",
+ "host": "codex",
+ "arm": "L3",
+ "case": "BEH-GUI-01",
+ "run": 3,
+ "model": "gpt-5.6-luna",
+ "arm_main_sha256": "ADBB9218D9A0DACFCBA276E158162B1663200CC9E916A098FBB515ADBD331230",
+ "injected_chars": null,
+ "started_utc": "2026-08-29T03:42:28Z",
+ "elapsed_s": 28.6,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known(\"--verbose\")` incorrectly rejects the flag.\n\nFlow:\n\n1. `normalize(\"--verbose\")` strips the hyphens, producing `\"verbose\"`.\n2. `is_known()` checks `\"verbose\"` against `KNOWN`, whose entries still include `\"--verbose\"`.\n3. The check returns `False`.\n4. `parse_args()` skips the token before reaching the code that sets `args.verbose = True`.\n\nConfirmed runtime result: `normalize(\"--verbose\") == \"verbose\"`, `is_known(\"--verbose\") == False`, and `parse_args(...)` leaves `verbose=False`.",
+ "diff": "",
+ "stderr_tail": "lize(token: str) -> str:\n    \"\"\"Return a comparable form of one command-line token.\"\"\"\n    return token.strip().lstrip(\"-\").lower()\n\n\ndef is_known(token: str) -> bool:\n    \"\"\"Return True when token names a flag this program understands.\"\"\"\n    return normalize(token) in KNOWN\n\"\"\"Minimal runnable checks. Run with: python tests/test_cli.py\"\"\"\n\nimport sys\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n\nfrom app.cli import parse_args\n\n\ndef test_rest():\n    assert parse_args([\"build\", \"x\"]).rest == (\"build\", \"x\")\n\n\nif __name__ == \"__main__\":\n    test_rest()\n    print(\"ok\")\n# tinycli\n\nA very small argument parser. Python 3.12+.\n\n- `app/flags.py` — token helpers shared by the CLI and the config loader\n- `app/cli.py` — `parse_args`\n\nRun the checks with `python tests/test_cli.py`.\n\ncodex\nThe cause is in `app/flags.py`: `is_known()` compares the normalized token against `KNOWN`, but normalization removes the leading hyphens. I’m doing one direct runtime check to confirm the resulting control flow.\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command \"python -c \\\"from app.cli import parse_args; from app.flags import normalize, is_known; print(normalize('--verbose'), is_known('--verbose'), parse_args(['--verbose']))\\\"\" in D:\\AI_DEV\\leancue\\.pilot\\ws\\codex-L3-BEH-GUI-01-r3\n succeeded in 349ms:\nverbose False Args(verbose=False, quiet=False, dry_run=False, rest=())\n\ncodex\n`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known(\"--verbose\")` incorrectly rejects the flag.\n\nFlow:\n\n1. `normalize(\"--verbose\")` strips the hyphens, producing `\"verbose\"`.\n2. `is_known()` checks `\"verbose\"` against `KNOWN`, whose entries still include `\"--verbose\"`.\n3. The check returns `False`.\n4. `parse_args()` skips the token before reaching the code that sets `args.verbose = True`.\n\nConfirmed runtime result: `normalize(\"--verbose\") == \"verbose\"`, `is_known(\"--verbose\") == False`, and `parse_args(...)` leaves `verbose=False`.\ntokens used\n7,000\n"
+}

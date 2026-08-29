@@ -1,0 +1,17 @@
+{
+ "id": "codex-L3-BEH-GUI-01-r2",
+ "host": "codex",
+ "arm": "L3",
+ "case": "BEH-GUI-01",
+ "run": 2,
+ "model": "gpt-5.6-luna",
+ "arm_main_sha256": "ADBB9218D9A0DACFCBA276E158162B1663200CC9E916A098FBB515ADBD331230",
+ "injected_chars": null,
+ "started_utc": "2026-08-29T03:42:07Z",
+ "elapsed_s": 20.9,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known()` rejects the token before `parse_args()` reaches its verbose-handling branch.\n\nThe flow is:\n\n```python\nnormalize(\"--verbose\")  # returns \"verbose\"\n```\n\nBut `KNOWN` contains the hyphenated form:\n\n```python\n(\"--verbose\", \"--quiet\", \"--dry-run\")\n```\n\nTherefore:\n\n```python\nis_known(\"--verbose\")  # compares \"verbose\" to \"--verbose\"; returns False\n```\n\n`parse_args()` then executes `continue`, so `args.verbose = True` is never reached. This mismatch between `normalize()`’s output and `KNOWN`’s contents is the cause.",
+ "diff": "",
+ "stderr_tail": "t = []\n    for token in argv:\n        if not token.startswith(\"-\"):\n            rest.append(token)\n            continue\n        if not is_known(token):\n            continue\n        name = normalize(token)\n        if name == \"--verbose\":\n            args.verbose = True\n        elif name == \"--quiet\":\n            args.quiet = True\n        elif name == \"--dry-run\":\n            args.dry_run = True\n    args.rest = tuple(rest)\n    return args\n\"\"\"Flag token helpers shared by the CLI and the config loader.\"\"\"\n\nKNOWN = (\"--verbose\", \"--quiet\", \"--dry-run\")\n\n\ndef normalize(token: str) -> str:\n    \"\"\"Return a comparable form of one command-line token.\"\"\"\n    return token.strip().lstrip(\"-\").lower()\n\n\ndef is_known(token: str) -> bool:\n    \"\"\"Return True when token names a flag this program understands.\"\"\"\n    return normalize(token) in KNOWN\n\"\"\"Minimal runnable checks. Run with: python tests/test_cli.py\"\"\"\n\nimport sys\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n\nfrom app.cli import parse_args\n\n\ndef test_rest():\n    assert parse_args([\"build\", \"x\"]).rest == (\"build\", \"x\")\n\n\nif __name__ == \"__main__\":\n    test_rest()\n    print(\"ok\")\n# tinycli\n\nA very small argument parser. Python 3.12+.\n\n- `app/flags.py` — token helpers shared by the CLI and the config loader\n- `app/cli.py` — `parse_args`\n\nRun the checks with `python tests/test_cli.py`.\n\ncodex\n`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known()` rejects the token before `parse_args()` reaches its verbose-handling branch.\n\nThe flow is:\n\n```python\nnormalize(\"--verbose\")  # returns \"verbose\"\n```\n\nBut `KNOWN` contains the hyphenated form:\n\n```python\n(\"--verbose\", \"--quiet\", \"--dry-run\")\n```\n\nTherefore:\n\n```python\nis_known(\"--verbose\")  # compares \"verbose\" to \"--verbose\"; returns False\n```\n\n`parse_args()` then executes `continue`, so `args.verbose = True` is never reached. This mismatch between `normalize()`’s output and `KNOWN`’s contents is the cause.\ntokens used\n5,505\n"
+}

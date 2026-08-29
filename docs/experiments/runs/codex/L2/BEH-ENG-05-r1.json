@@ -1,0 +1,25 @@
+{
+ "id": "codex-L2-BEH-ENG-05-r1",
+ "host": "codex",
+ "arm": "L2",
+ "case": "BEH-ENG-05",
+ "run": 1,
+ "model": "gpt-5.6-luna",
+ "arm_main_sha256": "BBAE5FDD31A17E2AC860B98FA7C9A44A8748E4B46D8C2F6F4A6A205DCB8946D8",
+ "injected_chars": null,
+ "started_utc": "2026-08-29T03:32:09Z",
+ "elapsed_s": 56.0,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Implemented:\n\n- Added 20% tier for subtotals ≥ 500.\n- Added members’ 5 percentage-point bonus.\n- Capped total discount at 22%.\n- Preserved existing non-member tiers.\n- Added boundary tests in [tests/test_pricing.py](D:/AI_DEV/leancue/.pilot/ws/codex-L2-BEH-ENG-05-r1/tests/test_pricing.py).\n\nVerification: `python tests/test_pricing.py` passes. `pytest` was unavailable.",
+ "diff": "diff --git a/app/pricing.py b/app/pricing.py\nindex 1a5f2f8..e8c0df4 100644\n--- a/app/pricing.py\n+++ b/app/pricing.py\n@@ -9,10 +9,19 @@ def apply_discount(subtotal: Decimal, is_member: bool) -> Decimal:\n     Tiers today:\n       subtotal >= 100  ->  5 percent\n       subtotal >= 250  -> 10 percent\n-    A member gets nothing extra yet.\n+      subtotal >= 500  -> 20 percent\n+    Members get an additional 5 percentage points, up to a 22 percent cap.\n     \"\"\"\n-    if subtotal >= Decimal(\"250\"):\n-        return Decimal(\"0.10\")\n-    if subtotal >= Decimal(\"100\"):\n-        return Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        rate = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        rate = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        rate = Decimal(\"0.05\")\n+    else:\n+        rate = Decimal(\"0\")\n+\n+    if is_member:\n+        rate += Decimal(\"0.05\")\n+\n+    return min(rate, Decimal(\"0.22\"))\ndiff --git a/tests/test_pricing.py b/tests/test_pricing.py\nindex 70c89ff..27b9ffa 100644\n--- a/tests/test_pricing.py\n+++ b/tests/test_pricing.py\n@@ -14,6 +14,14 @@ def test_tiers():\n     assert apply_discount(Decimal(\"99\"), False) == Decimal(\"0\")\n     assert apply_discount(Decimal(\"100\"), False) == Decimal(\"0.05\")\n     assert apply_discount(Decimal(\"250\"), False) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"500\"), False) == Decimal(\"0.20\")\n+\n+\n+def test_member_bonus_and_cap():\n+    assert apply_discount(Decimal(\"99\"), True) == Decimal(\"0.05\")\n+    assert apply_discount(Decimal(\"100\"), True) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"250\"), True) == Decimal(\"0.15\")\n+    assert apply_discount(Decimal(\"500\"), True) == Decimal(\"0.22\")\n \n \n def test_total():\n",
+ "stderr_tail": "l) -> Decimal:\n     Tiers today:\n       subtotal >= 100  ->  5 percent\n       subtotal >= 250  -> 10 percent\n-    A member gets nothing extra yet.\n+      subtotal >= 500  -> 20 percent\n+    Members get an additional 5 percentage points, up to a 22 percent cap.\n     \"\"\"\n-    if subtotal >= Decimal(\"250\"):\n-        return Decimal(\"0.10\")\n-    if subtotal >= Decimal(\"100\"):\n-        return Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        rate = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        rate = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        rate = Decimal(\"0.05\")\n+    else:\n+        rate = Decimal(\"0\")\n+\n+    if is_member:\n+        rate += Decimal(\"0.05\")\n+\n+    return min(rate, Decimal(\"0.22\"))\ndiff --git a/tests/test_pricing.py b/tests/test_pricing.py\nindex 70c89ff..27b9ffa 100644\n--- a/tests/test_pricing.py\n+++ b/tests/test_pricing.py\n@@ -14,6 +14,14 @@ def test_tiers():\n     assert apply_discount(Decimal(\"99\"), False) == Decimal(\"0\")\n     assert apply_discount(Decimal(\"100\"), False) == Decimal(\"0.05\")\n     assert apply_discount(Decimal(\"250\"), False) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"500\"), False) == Decimal(\"0.20\")\n+\n+\n+def test_member_bonus_and_cap():\n+    assert apply_discount(Decimal(\"99\"), True) == Decimal(\"0.05\")\n+    assert apply_discount(Decimal(\"100\"), True) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"250\"), True) == Decimal(\"0.15\")\n+    assert apply_discount(Decimal(\"500\"), True) == Decimal(\"0.22\")\n \n \n def test_total():\n M app/pricing.py\n M tests/test_pricing.py\n\ncodex\nImplemented:\n\n- Added 20% tier for subtotals ≥ 500.\n- Added members’ 5 percentage-point bonus.\n- Capped total discount at 22%.\n- Preserved existing non-member tiers.\n- Added boundary tests in [tests/test_pricing.py](D:/AI_DEV/leancue/.pilot/ws/codex-L2-BEH-ENG-05-r1/tests/test_pricing.py).\n\nVerification: `python tests/test_pricing.py` passes. `pytest` was unavailable.\ntokens used\n11,030\n",
+ "oracle": {
+  "old_tiers_ok": true,
+  "new_tier_ok": true,
+  "member_ok": true,
+  "cap_ok": true,
+  "errors": [],
+  "task_complete": true
+ }
+}

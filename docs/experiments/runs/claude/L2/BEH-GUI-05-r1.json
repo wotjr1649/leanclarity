@@ -29,5 +29,11 @@
   },
   "rationale": "Cannot confirm P1/F1 without knowing which seven defects were seeded; the response lists 16 items but without the ground-truth list it's unclear if all seven seeded ones are among them or if some 'defects' are duplicates/noise substituting for real ones.",
   "verdict": "hold"
+ },
+ "adjudication": {
+  "verdict": "PASS",
+  "by": "user",
+  "date": "2026-08-29",
+  "rationale": "The screener held P1 and F1 unclear because it was not told which seven defects were seeded. The frozen seeded-finding map settles it: all seven matched (D1 through D7), no cap phrase appeared, and the diff was empty. P1 is met and F1 is not observed."
  }
 }

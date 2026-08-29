@@ -1,0 +1,17 @@
+{
+ "id": "codex-L1-BEH-GUI-01-r3",
+ "host": "codex",
+ "arm": "L1",
+ "case": "BEH-GUI-01",
+ "run": 3,
+ "model": "gpt-5.6-luna",
+ "arm_main_sha256": "8A86B4E7439C99BA070E599C6EF88CB8B9821259A729153861D970289CBF1290",
+ "injected_chars": null,
+ "started_utc": "2026-08-29T03:39:43Z",
+ "elapsed_s": 29.4,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known()` rejects the token before the verbose branch runs.\n\nFlow:\n\n1. `normalize(\"--verbose\")` strips the hyphens and returns `\"verbose\"`.\n2. `KNOWN` contains `\"--verbose\"` with hyphens.\n3. Therefore, `\"verbose\" in KNOWN` is false.\n4. `parse_args()` executes `continue`, so `args.verbose = True` is never reached.\n\nThe mismatch is between `normalize()`’s output format and the entries in `KNOWN`.",
+ "diff": "",
+ "stderr_tail": "\nimport sys\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n\nfrom app.cli import parse_args\n\n\ndef test_rest():\n    assert parse_args([\"build\", \"x\"]).rest == (\"build\", \"x\")\n\n\nif __name__ == \"__main__\":\n    test_rest()\n    print(\"ok\")\n--- flags ---\n\"\"\"Flag token helpers shared by the CLI and the config loader.\"\"\"\n\nKNOWN = (\"--verbose\", \"--quiet\", \"--dry-run\")\n\n\ndef normalize(token: str) -> str:\n    \"\"\"Return a comparable form of one command-line token.\"\"\"\n    return token.strip().lstrip(\"-\").lower()\n\n\ndef is_known(token: str) -> bool:\n    \"\"\"Return True when token names a flag this program understands.\"\"\"\n    return normalize(token) in KNOWN\n--- README ---\n# tinycli\n\nA very small argument parser. Python 3.12+.\n\n- `app/flags.py` — token helpers shared by the CLI and the config loader\n- `app/cli.py` — `parse_args`\n\nRun the checks with `python tests/test_cli.py`.\n\ncodex\nThe defect is in the shared flag validation path: `normalize()` removes the leading hyphens, but `KNOWN` stores hyphenated names. I’m checking the exact runtime behavior once to confirm the resulting branch is skipped.\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command \"python -B -c \\\"from app.flags import normalize,is_known; from app.cli import parse_args; print(normalize('--verbose'), is_known('--verbose'), parse_args(['--verbose']))\\\"\" in D:\\AI_DEV\\leancue\\.pilot\\ws\\codex-L1-BEH-GUI-01-r3\n succeeded in 322ms:\nverbose False Args(verbose=False, quiet=False, dry_run=False, rest=())\n\ncodex\n`parse_args([\"--verbose\"])` returns `verbose=False` because `is_known()` rejects the token before the verbose branch runs.\n\nFlow:\n\n1. `normalize(\"--verbose\")` strips the hyphens and returns `\"verbose\"`.\n2. `KNOWN` contains `\"--verbose\"` with hyphens.\n3. Therefore, `\"verbose\" in KNOWN` is false.\n4. `parse_args()` executes `continue`, so `args.verbose = True` is never reached.\n\nThe mismatch is between `normalize()`’s output format and the entries in `KNOWN`.\ntokens used\n4,912\n"
+}

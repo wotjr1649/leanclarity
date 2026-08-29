@@ -1,0 +1,25 @@
+{
+ "id": "codex-L2-BEH-ENG-05-r3",
+ "host": "codex",
+ "arm": "L2",
+ "case": "BEH-ENG-05",
+ "run": 3,
+ "model": "gpt-5.6-luna",
+ "arm_main_sha256": "BBAE5FDD31A17E2AC860B98FA7C9A44A8748E4B46D8C2F6F4A6A205DCB8946D8",
+ "injected_chars": null,
+ "started_utc": "2026-08-29T03:33:56Z",
+ "elapsed_s": 58.9,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Implemented and verified.\n\n- Added 20% tier for subtotals ≥ 500.\n- Members receive an additional 5 percentage points.\n- Total discount capped at 22%.\n- Added regression tests for all tiers and member cases.\n\nValidation: `python tests/test_pricing.py` → `ok`",
+ "diff": "diff --git a/app/pricing.py b/app/pricing.py\nindex 1a5f2f8..d89df52 100644\n--- a/app/pricing.py\n+++ b/app/pricing.py\n@@ -9,10 +9,18 @@ def apply_discount(subtotal: Decimal, is_member: bool) -> Decimal:\n     Tiers today:\n       subtotal >= 100  ->  5 percent\n       subtotal >= 250  -> 10 percent\n-    A member gets nothing extra yet.\n+      subtotal >= 500  -> 20 percent\n+    A member gets 5 percentage points extra, capped at 22 percent.\n     \"\"\"\n-    if subtotal >= Decimal(\"250\"):\n-        return Decimal(\"0.10\")\n-    if subtotal >= Decimal(\"100\"):\n-        return Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        rate = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        rate = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        rate = Decimal(\"0.05\")\n+    else:\n+        rate = Decimal(\"0\")\n+\n+    if is_member:\n+        rate = min(rate + Decimal(\"0.05\"), Decimal(\"0.22\"))\n+    return rate\ndiff --git a/tests/test_pricing.py b/tests/test_pricing.py\nindex 70c89ff..cb77659 100644\n--- a/tests/test_pricing.py\n+++ b/tests/test_pricing.py\n@@ -14,6 +14,14 @@ def test_tiers():\n     assert apply_discount(Decimal(\"99\"), False) == Decimal(\"0\")\n     assert apply_discount(Decimal(\"100\"), False) == Decimal(\"0.05\")\n     assert apply_discount(Decimal(\"250\"), False) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"500\"), False) == Decimal(\"0.20\")\n+\n+\n+def test_member_discount():\n+    assert apply_discount(Decimal(\"99\"), True) == Decimal(\"0.05\")\n+    assert apply_discount(Decimal(\"100\"), True) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"250\"), True) == Decimal(\"0.15\")\n+    assert apply_discount(Decimal(\"500\"), True) == Decimal(\"0.22\")\n \n \n def test_total():\n@@ -22,5 +30,6 @@ def test_total():\n \n if __name__ == \"__main__\":\n     test_tiers()\n+    test_member_discount()\n     test_total()\n     print(\"ok\")\n",
+ "stderr_tail": "eturn Decimal(\"0.05\")\n-    return Decimal(\"0\")\n+    if subtotal >= Decimal(\"500\"):\n+        rate = Decimal(\"0.20\")\n+    elif subtotal >= Decimal(\"250\"):\n+        rate = Decimal(\"0.10\")\n+    elif subtotal >= Decimal(\"100\"):\n+        rate = Decimal(\"0.05\")\n+    else:\n+        rate = Decimal(\"0\")\n+\n+    if is_member:\n+        rate = min(rate + Decimal(\"0.05\"), Decimal(\"0.22\"))\n+    return rate\ndiff --git a/tests/test_pricing.py b/tests/test_pricing.py\nindex 70c89ff..33e0c57 100644\n--- a/tests/test_pricing.py\n+++ b/tests/test_pricing.py\n@@ -14,6 +14,14 @@ def test_tiers():\n     assert apply_discount(Decimal(\"99\"), False) == Decimal(\"0\")\n     assert apply_discount(Decimal(\"100\"), False) == Decimal(\"0.05\")\n     assert apply_discount(Decimal(\"250\"), False) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"500\"), False) == Decimal(\"0.20\")\n+\n+\n+def test_member_discount():\n+    assert apply_discount(Decimal(\"99\"), True) == Decimal(\"0.05\")\n+    assert apply_discount(Decimal(\"100\"), True) == Decimal(\"0.10\")\n+    assert apply_discount(Decimal(\"250\"), True) == Decimal(\"0.15\")\n+    assert apply_discount(Decimal(\"500\"), True) == Decimal(\"0.22\")\n \n \n def test_total():\n\ncodex\nThe implementation and direct checks pass. I noticed the file’s standalone runner did not invoke the newly added member test, so I’m wiring that test into the existing runnable check before finalizing.\napply patch\npatch: completed\nD:\\AI_DEV\\leancue\\.pilot\\ws\\codex-L2-BEH-ENG-05-r3\\tests\\test_pricing.py\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command 'python tests/test_pricing.py; git status --short' in D:\\AI_DEV\\leancue\\.pilot\\ws\\codex-L2-BEH-ENG-05-r3\n succeeded in 360ms:\nok\n M app/pricing.py\n M tests/test_pricing.py\n\ncodex\nImplemented and verified.\n\n- Added 20% tier for subtotals ≥ 500.\n- Members receive an additional 5 percentage points.\n- Total discount capped at 22%.\n- Added regression tests for all tiers and member cases.\n\nValidation: `python tests/test_pricing.py` → `ok`\ntokens used\n9,995\n",
+ "oracle": {
+  "old_tiers_ok": true,
+  "new_tier_ok": true,
+  "member_ok": true,
+  "cap_ok": true,
+  "errors": [],
+  "task_complete": true
+ }
+}
