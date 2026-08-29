@@ -170,6 +170,7 @@ Bullets up to the authentication note below are install and preparation records.
   | no plugin loaded | `Registered 0 hooks from 0 plugins`, zero injections |
 
   A separate probe on `1.0.2` confirmed the source strings the host emits: a fresh `claude -p` gives `SessionStart:startup`, `--resume <id> --fork-session` gives `SessionStart:fork`, and `--continue` gives `SessionStart:resume`. All three injected `2486 chars`.
+- **`compact` observed on Claude, candidate `1.0.2`** (isolated profile, `2026-08-29`). `claude -p` has no compaction command and `--autocompact` accepts only a 100k to 1M token window, so the session was driven past that window: a task-owned workspace of eight generated files totalling 281 KiB, read two files per turn across resumed turns with `--autocompact 100000`. Turn 1 reported `SessionStart:startup` and `2486 chars`; turn 2, resumed, reported `SessionStart:resume` and `2486 chars`; turn 3 reported sources `compact` and `resume` with two `2486 chars` injections. A `SessionStart` therefore fires with source `compact` when the host auto-compacts, and it injects per the Saved setting, which is what SPEC 8.2 requires of the inherited `compact` boundary on Claude. Every documented Claude source in the SPEC 8.2 allowlist except `clear` is now observed on `1.0.2`: `startup`, `resume`, `compact` and `fork`.
 - Host-invoked observation, interactive `clear` with `1.0.1` (operator-run TUI, real Claude profile, Claude Code `2.1.251`, project `D:\AI_DEV\leanclarity_claude`, 2026-08-29). Each `/clear` starts a new transcript on this version.
   - Transcript `862e42d0-f9bc-43d1-987a-4e5214d76571` (opened `10:33:33Z`, saved ON): the Main composition, 2486 characters, SHA-256 prefix `F2FEC0C3BDFC`. Two blocked control prompts followed with no assistant turn, showing the ON status reason and then the OFF reason.
   - Transcript `da8ef474-f251-44bf-8e56-dfc2a590eecc` (opened `10:34:16Z`, after `/clear` with saved OFF): **no policy injection at all**. An ordinary prompt was answered normally and a later control prompt was blocked with the ON reason. The Claude `clear` clean boundary is observed in the OFF direction.
@@ -230,6 +231,8 @@ Bullets below mix install records with host-invoked PLAN Phase 6 observations on
   - Session `01a04cf1-b43e-7ea1-a338-4ec625a87f22` (opened `09:55:03Z`, after `/clear` with saved OFF): **zero LeanClarity items**, while the `engramux` context was still injected, so the hook chain ran and only LeanClarity returned nothing. An ordinary prompt in that session was answered normally, and a later turn with no user item and no assistant message is the blocked `leanclarity on`. The Codex `clear` clean boundary is observed in the OFF direction.
   - Session `01a04cf2-13ed-7c71-99e9-0926eacb0eda` (opened `09:55:28Z`, after `/clear` with saved ON): the Main composition returned at `09:55:34.000Z`, 2486 characters, same hash. The `clear` clean boundary is observed in the ON direction.
   - **`compact` observed** in that same session: a turn at `09:56:07Z` produced a `compacted` event at `09:56:16.820Z` carrying `replacement_history`; the next turn at `09:56:30Z`, still under `thread_id` `01a04cf2-13ed-7c71-99e9-0926eacb0eda`, re-emitted the full context block and the Main composition again at `09:56:31.163Z`, 2486 characters, same hash. A `SessionStart` therefore fires after compaction inside the same thread and injects per the Saved setting, which is what SPEC 8.2 requires of the inherited `compact` boundary. As with every other Codex row the literal source string is absent from the log; `compact` is the only documented Codex source that fits a mid-thread `SessionStart` immediately after a `compacted` event.
+- `codex exec` compaction, not reachable. Six `codex exec resume` turns over a task-owned 89 KiB fixture with `-c model_context_window=24000` produced no `compacted` event at all on Codex CLI `0.150.1`, so the exec surface exposes no route to compaction even with a small declared window. The same six turns accumulated **six** Main-composition items in one rollout, one per successful `SessionStart`, which is the SPEC 8.2 inherited boundary again: injection is per invocation and no single-copy claim holds across it.
+- Real-profile upgrades to `1.0.2` (2026-08-29). `claude plugin marketplace update leanclarity` then `claude plugin update leanclarity@leanclarity --scope local` moved `D:\AI_DEV\leanclarity_claude` from `1.0.1` to `1.0.2`; `codex plugin marketplace upgrade` then `codex plugin add leanclarity@leanclarity` did the same on the real Codex profile. Both installed copies hash to `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`. Both saved settings survived the upgrade unchanged at `{"enabled":true}`, SHA-256 prefix `A050EF06EA54`, and the Codex `[plugins."leanclarity@leanclarity"] enabled = true` entry was preserved. The profiles are now ready for the `clear` and `compact` re-observation on `1.0.2`.
 - Isolated-profile re-observation of `1.0.2`, the fresh-profile defect resolved (task-owned `CODEX_HOME`, Codex CLI `0.150.1`, 2026-08-29). `codex plugin marketplace upgrade` then `codex plugin add leanclarity@leanclarity` installed `1.0.2`; the nine files hash to `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` with zero CR bytes. The hand-made workaround directory was moved aside so `<CODEX_HOME>/plugins/data/` was absent again, exactly the condition `1.0.1` failed. Then, in order:
   - `SessionStart` injected the Main composition, 2486 characters, SHA-256 prefix `F2FEC0C3BDFC`, and `<CODEX_HOME>/plugins/data/` still did not exist afterwards. Under `1.0.1` this same condition injected nothing.
   - `leanclarity off` returned `UserPromptSubmit Blocked` and created both missing levels, writing `state.json` at 18 bytes, SHA-256 `7187D1E8E2A4D61B1DC5DFEDB22D703A462DF21470E0C145365B20FB3ED467C3`, byte-identical to the OFF file both hosts wrote before. Under `1.0.1` this same command wrote nothing and created nothing.
@@ -252,8 +255,8 @@ No runtime truncation, summarization, partial injection, or `additionalContextLi
 
 | Phase | Requirements/surface | Status | Reason |
 |---|---|---|---|
-| Phase 6 Claude host | Same requirement set | PARTIAL | Authentication resolved; on `2.1.251` the `startup`, `resume` and `fork` sources, the three command outcomes, OFF persistence across the clean boundary, Subagent Engineering-only scope, invalid state, invalid policy, host control with no plugin, and the no-preview context-limit proof are all observed (see Claude host results). Only the `clear` and `compact` sources are not yet run. |
-| Phase 6 Codex host | Same applicable host surfaces, including native plugin-data ownership and no context spill | FAIL | Candidate `1.0.0` failed on a fresh Codex install (no pre-created `PLUGIN_DATA` directory); candidate `1.0.1` on the real profile injects the Main composition and blocks control prompts on both the exec surface and the interactive TUI with no pre-created directory, its first interactive write created the data directory and `state.json`, and a persisted OFF suppressed injection in the two sessions started afterwards while other plugins' contexts still injected and the `resume` source, host control under `--disable hooks`, the invalid-state no-injection path and the absence of spill are observed on the exec surface (see Codex host results); the Engineering-only `SubagentStart` injection is observed on the exec surface; only the `compact` and `clear` sources are not yet run. Cross-host state isolation is observed in both directions |
+| Phase 6 Claude host | Same requirement set | PARTIAL on `1.0.2` | Authentication resolved; on `2.1.251` the `startup`, `resume` and `fork` sources, the three command outcomes, OFF persistence across the clean boundary, Subagent Engineering-only scope, invalid state, invalid policy, host control with no plugin, and the no-preview context-limit proof are all observed (see Claude host results). Only the `clear` and `compact` sources are not yet run. |
+| Phase 6 Codex host | Same applicable host surfaces, including native plugin-data ownership and no context spill | PARTIAL on `1.0.2` | Candidate `1.0.0` failed on a fresh Codex install (no pre-created `PLUGIN_DATA` directory); candidate `1.0.1` on the real profile injects the Main composition and blocks control prompts on both the exec surface and the interactive TUI with no pre-created directory, its first interactive write created the data directory and `state.json`, and a persisted OFF suppressed injection in the two sessions started afterwards while other plugins' contexts still injected and the `resume` source, host control under `--disable hooks`, the invalid-state no-injection path and the absence of spill are observed on the exec surface (see Codex host results); the Engineering-only `SubagentStart` injection is observed on the exec surface; only the `compact` and `clear` sources are not yet run. Cross-host state isolation is observed in both directions |
 | Phase 7 behavior smoke | `LCL-ENG-001`, `LCL-GUIDE-001`, `LCL-BEH-001`; 17 cases × 3 runs × 2 hosts | NOT RUN | Requires successful Phase 6 and frozen real host/model settings |
 | Phase 8 release audit | `LCL-GO-001`, release artifact identity, final docs/host/behavior consolidation | NOT RUN | HOST INTEGRATION and behavior gates are incomplete |
 
@@ -266,6 +269,36 @@ Nothing is inherited today. Candidate `1.0.1` has no host-verified predecessor: 
 Candidate identity, plugin version and the distribution byte set are unchanged by SPEC `1.2`.
 
 The `1.0.1` to `1.0.2` revision is **not** a policy-only revision and inherits nothing under 17.1. It changes the runtime, both manifests and `README.md` and leaves both policy files byte-identical, which is the exact inverse of the rule's condition. Every Codex host row observed on `1.0.1` must be re-observed on `1.0.2`; the Claude rows observed on `1.0.1` must be too, for the same reason.
+
+## Open Phase 6 rows
+
+Everything below is observed on candidate `1.0.2` unless named otherwise. `HOST INTEGRATION GO`
+stays `NOT VERIFIED` until the three rows in the second table are observed on `1.0.2`.
+
+| Row | Claude | Codex |
+|---|---|---|
+| `startup` | `1.0.2` | `1.0.2` |
+| `resume` | `1.0.2` | `1.0.1` |
+| `fork` | `1.0.2` | not supported, excluded by SPEC 8.2 |
+| `compact` | `1.0.2` | `1.0.1` |
+| `clear` | `1.0.1` | `1.0.1` |
+| `SubagentStart` | `1.0.2` | `1.0.1` |
+| three commands, near match, corrupt state, corrupt policy, host control, no preview | `1.0.2` | `1.0.2` |
+| fresh profile with no plugin-data parent | not applicable, the host creates it | `1.0.2` |
+
+| Still to observe on `1.0.2` | Why it is not done |
+|---|---|
+| Claude `clear` | The TUI is the only surface that emits it; `claude -p` starts a new `startup` session per invocation. |
+| Codex `clear` | Same; `/clear` starts a new rollout on Codex CLI `0.150.1`. |
+| Codex `compact` | `codex exec` reaches no compaction even with a small declared context window; the TUI reached it in one turn. |
+
+The `1.0.1` rows above are not inherited. SPEC 17.1 grants inheritance only to a candidate that
+differs solely in the policy files, and `1.0.2` differs in the runtime, both manifests and
+`README.md` while leaving the policy files identical, which is the exact inverse. Recorded for the
+reader rather than as an argument for an exception: the whole `1.0.1` to `1.0.2` runtime diff is two
+hunks inside the branch that handles a data root which does not exist, so on a profile whose data
+root exists the two versions execute identical code on every path those rows touch. The rule admits
+no exception for that, so the rows stay open.
 
 ## Residual uncertainty
 
