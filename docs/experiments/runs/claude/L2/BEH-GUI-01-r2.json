@@ -1,0 +1,19 @@
+{
+ "id": "claude-L2-BEH-GUI-01-r2",
+ "host": "claude",
+ "arm": "L2",
+ "case": "BEH-GUI-01",
+ "run": 2,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2085
+ ],
+ "started_utc": "2026-08-29T02:49:58Z",
+ "elapsed_s": 17.7,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "## The Cause\n\nThe bug is a mismatch between how tokens are normalized and how they're compared to the `KNOWN` list.\n\nHere's what happens when `parse_args([\"--verbose\"])` is called:\n\n1. **Line 24** calls `is_known(\"--verbose\")`\n2. **In `is_known()`** (flags.py:13), it calls `normalize(\"--verbose\")`\n3. **In `normalize()`** (flags.py:8):\n   - Strips whitespace: `\"--verbose\"` \n   - Removes leading dashes with `.lstrip(\"-\")`: `\"verbose\"` ← **dashes removed**\n   - Lowercases: `\"verbose\"`\n   - **Returns:** `\"verbose\"`\n4. **Back in `is_known()`**, it checks: `\"verbose\" in KNOWN`\n5. **But `KNOWN`** (flags.py:3) is `(\"--verbose\", \"--quiet\", \"--dry-run\")` ← **still has dashes**\n6. `\"verbose\"` **is NOT in** `(\"--verbose\", \"--quiet\", \"--dry-run\")`\n7. `is_known()` returns `False`\n8. **Line 25** skips over the flag with `continue`\n9. `args.verbose` **never gets set to `True`**, remains the default `False`\n\n**The root cause:** The `normalize()` function strips leading dashes from the token, but the `KNOWN` tuple still contains dashes. So the normalized token never matches anything in `KNOWN`, and all flags are silently ignored.\n",
+ "diff": "",
+ "stderr_tail": ""
+}

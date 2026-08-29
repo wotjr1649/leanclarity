@@ -1,0 +1,19 @@
+{
+ "id": "claude-L2-BEH-GUI-01-r1",
+ "host": "claude",
+ "arm": "L2",
+ "case": "BEH-GUI-01",
+ "run": 1,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2085
+ ],
+ "started_utc": "2026-08-29T02:49:38Z",
+ "elapsed_s": 19.5,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "## Cause\n\nThe bug is in the `is_known()` function in `app/flags.py:11-13`. Here's the execution trace:\n\nWhen `parse_args([\"--verbose\"])` is called:\n\n1. The token `\"--verbose\"` starts with `-`, so it enters the flag-parsing logic\n2. It calls `is_known(\"--verbose\")`\n3. Inside `is_known()`, it normalizes the token: `normalize(\"--verbose\")` strips dashes and lowercases, returning `\"verbose\"`\n4. Then it checks: `return \"verbose\" in KNOWN`\n5. But `KNOWN = (\"--verbose\", \"--quiet\", \"--dry-run\")` — the tuples contains the non-normalized forms **with dashes**\n6. Since `\"verbose\"` ≠ `\"--verbose\"`, the comparison fails and `is_known()` returns `False`\n7. Back in `parse_args()`, the condition `if not is_known(token): continue` skips the entire flag-setting logic\n8. `args.verbose` never gets set to `True` and remains at its default value of `False`\n\n**The core problem**: `is_known()` normalizes the input token but compares it against a `KNOWN` list containing un-normalized flag names. This mismatch causes all flags to be treated as unknown and ignored.\n",
+ "diff": "",
+ "stderr_tail": ""
+}

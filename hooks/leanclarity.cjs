@@ -136,17 +136,12 @@ function statePath(dataRoot) {
   return path.join(dataRoot, 'state.json');
 }
 
-// 'directory' | 'absent' (leaf directory missing, parent is a directory) | 'unavailable'
+// 'directory' | 'absent' (nothing exists at the path) | 'unavailable'
 function dataRootState(dataRoot, io = fs) {
   try {
     return io.statSync(dataRoot).isDirectory() ? 'directory' : 'unavailable';
   } catch (error) {
-    if (!error || error.code !== 'ENOENT') return 'unavailable';
-  }
-  try {
-    return io.statSync(path.dirname(dataRoot)).isDirectory() ? 'absent' : 'unavailable';
-  } catch {
-    return 'unavailable';
+    return error && error.code === 'ENOENT' ? 'absent' : 'unavailable';
   }
 }
 
@@ -187,7 +182,7 @@ function writeState(dataRoot, enabled, { io = fs, now = Date.now, pid = process.
   if (typeof enabled !== 'boolean') return false;
   if (dataRootState(dataRoot, io) === 'absent') {
     try {
-      io.mkdirSync(dataRoot, { mode: 0o700 });
+      io.mkdirSync(dataRoot, { mode: 0o700, recursive: true });
     } catch (error) {
       if (!error || error.code !== 'EEXIST') return false;
     }

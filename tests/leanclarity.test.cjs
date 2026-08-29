@@ -514,9 +514,17 @@ test('a missing data-root directory is absent state that only a write creates', 
 
   const orphan = makePlugin(t);
   const deep = path.join(orphan.base, 'missing parent', 'plugin data');
-  assert.deepEqual(runtime.readState(deep), { kind: 'unavailable' });
-  assert.equal(runtime.writeState(deep, true), false);
-  assert.equal(fs.existsSync(path.dirname(deep)), false, 'a missing parent is never created');
+  assert.deepEqual(runtime.readState(deep), { kind: 'absent', enabled: true });
+  assert.equal(fs.existsSync(path.dirname(deep)), false, 'reads never create any level');
+  assert.equal(runtime.dispatch({ hook_event_name: 'SessionStart', source: 'startup' }, { env: claudeEnv({ ...orphan, dataRoot: deep }) }).hookSpecificOutput.hookEventName, 'SessionStart');
+  assert.equal(fs.existsSync(path.dirname(deep)), false, 'a lifecycle read never creates any level');
+
+  assert.equal(runtime.writeState(deep, true), true);
+  assert.equal(fs.statSync(deep).isDirectory(), true, 'a write creates the whole host-provided path');
+  assert.deepEqual(runtime.readState(deep), { kind: 'valid', enabled: true });
+  assert.equal(fs.existsSync(path.join(orphan.base, 'missing parent')), true);
+  assert.deepEqual(fs.readdirSync(orphan.base).sort(), ['missing parent', 'plugin data', 'plugin root'].sort(),
+    'nothing is created outside the host-provided data-root path');
 });
 
 test('unavailable data roots and non-regular state targets are never repaired', (t) => {
@@ -716,7 +724,7 @@ test('Claude and Codex manifests contain matching minimal identity metadata', ()
   for (const field of ['name', 'version', 'description', 'license']) assert.equal(claude[field], codex[field]);
   assert.equal(claude.name, 'leanclarity');
   assert.equal(claude.displayName, 'LeanClarity');
-  assert.equal(claude.version, '1.0.1');
+  assert.equal(claude.version, '1.0.2');
   assert.equal(claude.license, 'MIT');
   assert.deepEqual(claude.author, { name: 'LeanClarity contributors' });
   assert.deepEqual(codex.author, claude.author);

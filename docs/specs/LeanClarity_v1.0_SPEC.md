@@ -6,7 +6,7 @@
 |---|---|
 | 문서 종류 | Normative Product and Runtime Specification |
 | 제품 계보 | LeanClarity |
-| 문서 버전 | 1.2 (section 19 개정 이력 참조) |
+| 문서 버전 | 1.3 (section 19 개정 이력 참조) |
 | 설계 상태 | SPEC GO |
 | 구현 상태 | NOT VERIFIED |
 | Host 통합 상태 | NOT VERIFIED |
@@ -300,7 +300,7 @@ Schema는 정확히 하나의 boolean setting을 표현한다.
 
 유효한 plugin-data root에서 `state.json`이 없으면 Saved setting은 defined default `ON`이다. Runtime은 이것을 “first run”이라고 추론하지 않는다. 사용자가 plugin-data를 삭제하면 설정은 ON으로 reset된다.
 
-Host가 제공한 data root의 마지막 디렉터리가 아직 존재하지 않더라도 그 부모 디렉터리가 존재하면 state는 absent(defined default `ON`)로 취급한다. Lifecycle event는 그 디렉터리를 만들지 않으며, `leanclarity on`/`leanclarity off`만 write 직전에 그 디렉터리를 생성한다. 부모 디렉터리도 없거나, data root가 디렉터리가 아닌 경로이거나, stat이 실패하면 data root는 unavailable이다. Runtime이 생성하는 디렉터리는 이 host-provided data root 하나뿐이다.
+Host가 제공한 data root 경로에 아무것도 존재하지 않으면 중간 디렉터리의 존재 여부와 무관하게 state는 absent(defined default `ON`)로 취급한다. Lifecycle event는 그 경로를 만들지 않으며, `leanclarity on`/`leanclarity off`만 write 직전에 필요한 상위 디렉터리를 포함해 그 경로를 생성한다. 그 경로에 디렉터리가 아닌 것이 있거나 stat이 `ENOENT` 외의 이유로 실패하면 data root는 unavailable이다. Runtime은 host-provided data root 경로 안쪽만 생성하고 그 경로 밖에는 어떤 디렉터리도 만들지 않는다.
 
 ### 7.2 command grammar
 
@@ -487,7 +487,7 @@ Malformed JSON, invalid UTF-8, unknown/missing key, invalid value, directory/sym
 
 `leanclarity on/off`는 다음 효과를 보장한다.
 
-1. data root의 마지막 디렉터리가 없고 부모 디렉터리가 있으면 그 디렉터리를 생성한다. 이미 존재하면 그대로 진행하고, 생성 실패는 오류다.
+1. data root 경로가 존재하지 않으면 필요한 상위 디렉터리를 포함해 재귀적으로 생성한다. 이미 존재하면 그대로 진행하고, 생성 실패는 오류다.
 2. host-provided data root와 같은 directory에 task-owned temp file을 exclusive-create한다.
 3. complete canonical JSON을 UTF-8로 쓴다.
 4. 필요한 handle close/flush를 완료한다.
@@ -504,10 +504,10 @@ Concurrent commands에는 global ordering이나 lock을 제공하지 않는다. 
 | Condition | Main SessionStart | SubagentStart | Exact command | Ordinary prompt |
 |---|---|---|---|---|
 | State absent under valid data root | default ON 처리 | default ON 처리 | status ON 또는 requested write | 영향 없음 |
-| Data root leaf directory absent, parent directory present | default ON 처리; 디렉터리 생성 없음 | default ON 처리; 디렉터리 생성 없음 | status ON 또는 디렉터리 생성 후 requested write | 영향 없음 |
+| Data root path absent at any depth | default ON 처리; 디렉터리 생성 없음 | default ON 처리; 디렉터리 생성 없음 | status ON 또는 경로 생성 후 requested write | 영향 없음 |
 | State readable regular but invalid | no injection | no injection | status error; on/off는 replace/readback으로 repair 가능 | 영향 없음 |
 | State unreadable/non-regular | no injection | no injection | error + block; 자동 repair 없음 | 영향 없음 |
-| Data root unavailable (variables missing/invalid, parent directory absent, non-directory path, stat failure) | no injection | no injection | error + block; 디렉터리 생성 없음 | 영향 없음 |
+| Data root unavailable (variables missing/invalid, non-directory path, non-`ENOENT` stat failure) | no injection | no injection | error + block; 디렉터리 생성 없음 | 영향 없음 |
 | Engineering invalid | Main 전체 no injection | no injection | state command에는 영향 없음 | 영향 없음 |
 | Guidance invalid | Main 전체 no injection | 해당 없음 | state command에는 영향 없음 | 영향 없음 |
 | Runtime/input error | no injection | no injection | recognized command면 가능한 bounded error + block; command 판별 전이면 host fail-open | 영향 없음 |
@@ -544,7 +544,7 @@ Runtime은 context가 길다는 이유로 policy를 truncate, summarize, partial
 
 - prompt text는 exact comparison 외에 path, command 또는 code로 해석하지 않는다.
 - fixed policy/state path 외의 input-derived path를 만들지 않는다.
-- runtime이 생성하는 directory는 host-provided data root 하나뿐이며 `on`/`off` write 직전에만 생성한다.
+- runtime이 생성하는 directory는 host-provided data root 경로 안쪽뿐이며 `on`/`off` write 직전에만 생성한다. 그 경로 밖에는 아무것도 만들지 않는다.
 - plugin root에는 mutable state를 쓰지 않는다.
 - host/global config, repository, home fallback 또는 upstream clone을 수정하지 않는다.
 - Runtime은 prompt, transcript, cwd, session ID, model, state content, environment dump를 log/persist/echo하지 않는다.
@@ -574,7 +574,7 @@ README는 다음을 실제 behavior와 일치하게 설명한다.
 - exact normalization과 near-match behavior
 - Saved setting, new hook context, existing context, clean boundary
 - state 삭제 시 default ON reset
-- host가 data root 디렉터리를 미리 만들지 않아도 default ON이 유지되고 첫 `on`/`off`가 디렉터리를 생성함
+- host가 data root 디렉터리를 미리 만들지 않아도 default ON과 policy 적용이 유지되고 첫 `on`/`off`가 그 경로를 생성함
 - corrupt state와 policy failure
 - Main/Subagent 차이
 - Windows release-validated와 macOS/Linux portable-by-design 범위
@@ -692,7 +692,7 @@ Paired ON/OFF evaluation 없이 README/release note에서 base host 대비 개�
 | `LCL-RUN-001` | Node CommonJS stdlib-only runtime이며 prohibited API가 없다. | import/static scan |
 | `LCL-INPUT-001` | bounded strict input과 no-sensitive-data use를 지킨다. | process tests |
 | `LCL-OUTPUT-001` | stdout는 empty 또는 one valid event-correct JSON이다. | process + host tests |
-| `LCL-STATE-001` | plugin-data one-file state, strict validity와 verified atomic replace를 지키고, 누락된 data root leaf 디렉터리는 `on`/`off` write 시에만 생성한다. | state + Windows integration tests |
+| `LCL-STATE-001` | plugin-data one-file state, strict validity와 verified atomic replace를 지키고, 존재하지 않는 data root 경로는 `on`/`off` write 시에만, 그 경로 안쪽만 생성한다. | state + Windows integration tests |
 | `LCL-FAIL-001` | ordinary prompt fail-open과 control-command failure contract를 지킨다. | failure matrix |
 | `LCL-MEASURE-001` | correct deduplicated context를 측정하고 runtime truncation 없이 host limits를 통과한다. | measurement + host evidence |
 | `LCL-SEC-001` | no execution, egress, logging, global mutation 또는 control bypass다. | adversarial/static tests |
@@ -776,5 +776,6 @@ Section 15 behavior acceptance는 이 규칙 밖이다. Model output behavior는
 | 문서 버전 | 날짜 | 변경 |
 |---|---|---|
 | 1.0 | 2026-08-28 | 최초 SPEC GO |
+| 1.3 | 2026-08-29 | Section 7.1, 10.2, 10.3, 12.2, 13.2, 16(`LCL-STATE-001`): 격리된 신규 Codex 프로필에서 host가 `<CODEX_HOME>/plugins/data/`를 만들지 않음을 실제 host에서 관찰(GO evidence의 Codex host results). 1.1은 leaf 디렉터리만 다뤄 부모가 없는 신규 설치에서 여전히 주입 0이고 `leanclarity on`도 복구하지 못했다. 존재하지 않는 data root 경로를 깊이와 무관하게 absent(default `ON`)로 읽고, write에서만 그 경로를 재귀 생성하도록 계약 변경. Plugin version `1.0.2`. 다른 normative 변경 없음. |
 | 1.2 | 2026-08-29 | Section 2.3, 11, 17(17.1 신설), 19: policy 파일만 바뀐 candidate가 predecessor의 host 관측 중 무엇을 승계하고 무엇을 다시 관측하는지 규범화. Context 측정과 host context-limit 관측은 승계하지 않고, section 15 behavior acceptance는 이 규칙 밖에서 전부 수행한다. `BLOCKED`/`NOT RUN`/`HOLD`는 승계 대상이 아니다. Candidate byte set과 plugin version은 바뀌지 않는다. |
 | 1.1 | 2026-08-29 | Section 7.1, 10.2, 10.3, 12.2, 13.2, 16(`LCL-STATE-001`): Codex CLI `0.150.1`이 `PLUGIN_DATA` 디렉터리를 사전 생성하지 않음을 실제 host에서 관찰(GO evidence의 Codex host results). 부모 디렉터리가 존재하는 누락 data root를 absent(default ON)로 취급하고 `on`/`off` write 직전에만 생성하도록 계약 변경. Plugin version `1.0.1`. 다른 normative 변경 없음. |

@@ -1,0 +1,19 @@
+{
+ "id": "claude-L3-BEH-GUI-01-r1",
+ "host": "claude",
+ "arm": "L3",
+ "case": "BEH-GUI-01",
+ "run": 1,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  1099
+ ],
+ "started_utc": "2026-08-29T02:50:37Z",
+ "elapsed_s": 15.5,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "## Explanation\n\nThe issue is in the **`is_known()` function** in `app/flags.py:11-13`.\n\nHere's the execution flow:\n\n1. When `parse_args([\"--verbose\"])` is called, the token `\"--verbose\"` is checked with `is_known(\"--verbose\")`\n\n2. Inside `is_known()`:\n   - `normalize(\"--verbose\")` returns `\"verbose\"` (strips leading dashes and lowercases)\n   - It checks: `\"verbose\" in KNOWN`\n   - But `KNOWN` contains `(\"--verbose\", \"--quiet\", \"--dry-run\")` — **the full tokens WITH dashes**\n\n3. **The comparison fails**: `\"verbose\"` is NOT in `(\"--verbose\", \"--quiet\", \"--dry-run\")`\n\n4. So `is_known()` returns `False`, line 24-25 in `cli.py` skips the flag processing with `continue`\n\n5. The `verbose` attribute never gets set to `True`, remaining at its default value of `False`\n\n**Root cause**: The `KNOWN` tuple contains un-normalized tokens (with dashes), but `is_known()` compares against a normalized token (without dashes). The normalization should either happen to `KNOWN` at initialization, or the comparison should normalize both sides.\n",
+ "diff": "",
+ "stderr_tail": ""
+}

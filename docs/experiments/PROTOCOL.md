@@ -36,9 +36,16 @@ replaced by that level's text.
 | L2 | 2085 | `6BB6D9DD5B750D7F` |
 | L3 | 1099 | `CE5BC4F5C227CD8C` |
 
-The L0 arm identity is the full frozen candidate identity
-`07C93E43D22B20AF651702059ACEC3D5FDDB837F8EB78BBC2A4334343045F4D0`, so the control arm
-is the shipped candidate byte for byte. Treat any other L0 value as a broken run.
+The pilot runs against candidate **`1.0.1`**, whose identity is
+`07C93E43D22B20AF651702059ACEC3D5FDDB837F8EB78BBC2A4334343045F4D0`. The L0 arm reproduces
+it exactly, so the control arm is that candidate byte for byte.
+
+Candidate `1.0.2` landed mid-pilot to fix a Codex data-root defect. It changes the
+runtime, both manifests and `README.md` and leaves **both policy files byte-identical**,
+so no arm's composition moves and no recorded run is invalidated. `pilot.py arms` now
+refuses to overwrite existing arms without `--rebuild`, because rebuilding from a changed
+repository would silently change what the recorded runs were measured against. The four
+`mainSHA` values above are the ones every run in `runs/` was produced under.
 
 ## Host profiles
 

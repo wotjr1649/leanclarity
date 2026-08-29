@@ -6,7 +6,7 @@ LeanClarity is model-interpreted guidance, not deterministic enforcement, a corr
 
 ## How it applies
 
-The host must install, enable, trust, and run the plugin hooks. That host readiness is separate from LeanClarity's Saved setting, which defaults to `ON` when `state.json` is absent under a valid plugin-data root.
+The host must install, enable, trust, and run the plugin hooks. That host readiness is separate from LeanClarity's Saved setting, which defaults to `ON` when `state.json` is absent, including when the host has not created the plugin-data directory at all.
 
 - Main context while ON: Engineering Policy, then Guidance Policy.
 - New subagent context while ON: Engineering Policy only.
@@ -30,7 +30,7 @@ LeanClarity applies `trim()` and `toLowerCase()` to the whole prompt, then requi
 
 ## Saved setting and context boundaries
 
-Each host owns one independent file at `<host plugin data>/state.json` with exactly one boolean key, `enabled`. Claude and Codex do not synchronize it. Deleting that host's state resets the defined default to ON. If the host has not created that plugin-data directory yet, the setting is still the default ON; the first `on` or `off` creates the directory and writes the file.
+Each host owns one independent file at `<host plugin data>/state.json` with exactly one boolean key, `enabled`. Claude and Codex do not synchronize it. Deleting that host's state resets the defined default to ON. If the host has not created that plugin-data directory yet, the setting is still the default ON and the policy still applies; the first `on` or `off` creates the whole host-provided path and writes the file. Codex does not pre-create `<CODEX_HOME>/plugins/data/` on a fresh profile, which is why the runtime treats a data root that does not exist as absent rather than unusable.
 
 Saved-setting changes are not retroactive:
 

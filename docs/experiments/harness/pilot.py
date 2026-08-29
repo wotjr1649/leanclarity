@@ -70,9 +70,22 @@ def load_cases() -> dict:
 # --------------------------------------------------------------------------- arms
 
 
-def cmd_arms(_args) -> None:
-    """Copy the candidate into .pilot/arms/<ARM>/ with that arm's policies."""
+def cmd_arms(args) -> None:
+    """Copy the candidate into .pilot/arms/<ARM>/ with that arm's policies.
+
+    Refuses to overwrite existing arms. Rebuilding mid-pilot would silently change
+    what the recorded runs were measured against.
+    """
     out_root = SCRATCH / "arms"
+    if out_root.exists() and not args.rebuild:
+        print(f"{out_root} already exists; pass --rebuild to replace it")
+        for arm in ARMS:
+            eng = (out_root / arm / "policies" / "engineering.md").read_text(encoding="utf-8").strip()
+            gui = (out_root / arm / "policies" / "guidance.md").read_text(encoding="utf-8").strip()
+            main = eng + "\n\n" + gui + "\n"
+            print(f"  {arm}  main={len(main.encode('utf-8')):>5} bytes  "
+                  f"mainSHA={sha256(main.encode('utf-8'))[:16]}")
+        return
     for arm in ARMS:
         dest = out_root / arm
         if dest.exists():
@@ -718,7 +731,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    sub.add_parser("arms").set_defaults(func=cmd_arms)
+    arms = sub.add_parser("arms")
+    arms.add_argument("--rebuild", action="store_true")
+    arms.set_defaults(func=cmd_arms)
     sub.add_parser("manifest").set_defaults(func=cmd_manifest)
 
     run = sub.add_parser("run")
