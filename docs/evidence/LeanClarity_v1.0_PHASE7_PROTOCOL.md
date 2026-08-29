@@ -292,6 +292,41 @@ run마다 자기 workspace를 갖는다. 어떤 run도 다른 run의 편집을 �
 
 **102 run이지만 turn은 21개이므로 모델 호출은 126회다.**
 
+### 6.1 러너
+
+`tests/behavior-fixtures/harness.py` — `manifest` / `verify` / `run` / `batch` / `score` / `screen` / `report`.
+
+`docs/experiments/harness/pilot.py`의 후손이지만 그 파일은 **손대지 않았다.** 파일럿 144 레코드가
+판정받은 그대로 재채점된다. 파일럿은 끝난 실험이고 여기서 아무것도 되먹이지 않는다.
+
+파일럿과 다른 점: arm 없음, multi-turn, 다른 계열 스크리너 둘, 스크리너에게 미변경 fixture 파일 제공,
+결정적 diff 신호 두 개(`max_changed_files`·`forbidden_paths`) 추가.
+
+**샌드박스 해제 turn은 하네스가 아니라 동결된 case에 적힌다** (`codex_bypass_turns`). 하드코딩하면
+어느 turn이 해제로 돌았는지 감사할 수 없다. 각 turn record가 실제로 어느 모드로 돌았는지도 기록한다.
+
+**스크리너는 저장소 밖 임시 디렉터리에서 돈다.** 저장소 안에서 돌면 도구를 가진 스크리너가
+`policies/`를 읽어 정책 차단을 무력화할 수 있다. 파일럿은 `.pilot`에서 돌렸다.
+
+**Codex 스크리너는 `--output-schema`를 쓴다.** 스키마 없이 처음 돌렸을 때 `"forbidden"`을
+`"predicates"` 안에 중첩하고 객체를 닫지 않아 아무것도 파싱되지 않았다. 스키마는 predicate·forbidden
+id를 전부 `required`로 잠근다.
+
+**두 스크리너 모두 형태 검증을 통과해야 한다.** 응답에 predicate·forbidden 호출이 하나라도 빠지면
+`verdict`를 믿지 않고 오류로 기록한다. 조용히 기준을 덜 적용하고 `pass`를 낸 판정을 그대로 쓰면
+케이스가 rubric보다 적은 기준으로 통과한다.
+
+### 6.2 하네스 검증
+
+`python .pilot/smoke_harness.py --host claude|codex` — 24검사, 양 호스트 통과.
+
+**일부러 17건이 아닌 폐기용 케이스로 돈다.** 동결 전에 frozen fixture에 모델을 돌리면 그것이 곧
+사전 고정 규칙이 막는 pre-freeze 응답 열람이다. 확인하는 것: multi-turn, 세션 연속성, turn별 diff 포착,
+oracle 호출, 레코드 형태, 새 신호 두 개가 잡고 통과시키는 것, 판정 사다리 8가지 경우.
+
+이 검증이 실제 결함을 잡았다: `BEH-GUI-01`의 `screener_files`가 존재하지 않는 `app/args.py`를
+가리키고 있었다(실제로는 `app/cli.py`와 `app/flags.py`). 동결 후였다면 고칠 수 없었다.
+
 ## 7. 기록 필드 (SPEC 15.3)
 
 ```text
