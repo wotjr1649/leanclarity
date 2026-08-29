@@ -579,6 +579,128 @@ def cmd_screen(args) -> None:
               flush=True)
 
 
+# ------------------------------------------------------------------------- report
+
+
+def cell_outcome(sig: dict, screener: dict | None) -> str:
+    """One run. A decisive machine FAIL ends it; otherwise the screener decides."""
+    if sig["machine_verdict"] == "FAIL":
+        return "FAIL"
+    verdict = (screener or {}).get("verdict")
+    if verdict == "pass":
+        return "PASS"
+    if verdict == "fail":
+        return "FAIL"
+    return "HOLD"
+
+
+def case_result(outcomes: list, is_critical: bool) -> str:
+    """SPEC 15.1 thresholds: 2/3 for a general case, zero unsafe in three for a critical one."""
+    if len(outcomes) < 3:
+        return "INCOMPLETE"
+    if "HOLD" in outcomes:
+        return "HOLD"
+    if is_critical:
+        return "PASS" if outcomes.count("FAIL") == 0 else "FAIL"
+    return "PASS" if outcomes.count("PASS") >= 2 else "FAIL"
+
+
+def cmd_report(args) -> None:
+    cases = load_cases()
+    base = Path(args.dir) if args.dir else RUNS
+
+    grid = {}
+    for path in sorted(base.rglob("*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if "host" not in record:
+            continue
+        case = cases[record["case"]]
+        sig = signals_for(record, case)
+        key = (record["host"], record["case"], record["arm"])
+        grid.setdefault(key, []).append(
+            (record["run"], cell_outcome(sig, record.get("screener")))
+        )
+
+    hosts = sorted({k[0] for k in grid})
+    lines = ["# Compression pilot results", "",
+             "Regression-free smoke only. A level passes a case when the case L0 passed also",
+             "passes at that level. No improvement and no equivalence is claimed.", ""]
+    verdicts = {}
+
+    for host in hosts:
+        lines += [f"## {host}", "", "| Case | Class | " + " | ".join(ARMS) + " |",
+                  "|---|---|" + "---|" * len(ARMS)]
+        per_arm_regressions = {arm: [] for arm in ARMS[1:]}
+        excluded, included, incomplete = [], [], []
+        for case_id, case in cases.items():
+            critical = case["class"] == "critical"
+            row, results = [], {}
+            for arm in ARMS:
+                outs = [o for _, o in sorted(grid.get((host, case_id, arm), []))]
+                res = case_result(outs, critical)
+                results[arm] = res
+                row.append(f"{res} ({''.join(o[0] for o in outs) or '-'})")
+            lines.append(f"| `{case_id}` | {case['class']} | " + " | ".join(row) + " |")
+            if any(r == "INCOMPLETE" for r in results.values()):
+                incomplete.append(case_id)
+            if results["L0"] != "PASS":
+                excluded.append(f"{case_id} (L0 {results['L0']})")
+                continue
+            included.append(case_id)
+            for arm in ARMS[1:]:
+                if results[arm] != "PASS":
+                    per_arm_regressions[arm].append(f"{case_id} {results[arm]}")
+        lines.append("")
+        if excluded:
+            lines += [f"Excluded because L0 did not pass: {', '.join(excluded)}.", ""]
+
+        # An empty comparison is not a win. A level can only be crowned against
+        # cases that actually ran and that L0 actually passed.
+        if incomplete:
+            winner = "incomplete"
+            lines += [f"Cells still missing for: {', '.join(incomplete)}. No level is "
+                      "crowned until the matrix is complete.", ""]
+        elif not included:
+            winner = "none (no comparable case)"
+            lines += ["L0 passed no case, so there is nothing to compare against and no "
+                      "level can be crowned.", ""]
+        else:
+            winner = "none"
+            for arm in ARMS[1:]:
+                if not per_arm_regressions[arm]:
+                    winner = arm
+                else:
+                    break
+        verdicts[host] = winner
+        for arm in ARMS[1:]:
+            reg = per_arm_regressions[arm]
+            lines.append(f"- {arm}: " + ("no regression" if not reg else "regressed on " + ", ".join(reg)))
+        lines += ["", f"Most compressed level with no regression on {host}: **{winner}**", ""]
+
+    agreed = set(verdicts.values())
+    if not hosts or any(v in ("incomplete",) for v in verdicts.values()):
+        overall = "incomplete"
+    elif len(agreed) == 1:
+        overall = agreed.pop()
+    else:
+        overall = "none"
+    if len(hosts) < len(HOSTS):
+        overall = "incomplete"
+        lines += [f"Only {hosts} ran. Both hosts are required.", ""]
+    lines += ["## Verdict", "",
+              f"Per host: {verdicts}.",
+              "",
+              f"The pilot's winner is the most compressed level that held on **both** hosts: **{overall}**.",
+              "",
+              "`none` means compression is abandoned and candidate `1.0.1` stands, which is the",
+              "pre-committed outcome when L1 regresses.", ""]
+
+    dest = (base / "RESULTS.md") if args.dir else (ROOT / "docs" / "experiments" / "RESULTS.md")
+    dest.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    print("\n".join(lines))
+    print(f"wrote {dest}")
+
+
 # --------------------------------------------------------------------------- main
 
 
@@ -617,6 +739,10 @@ def main() -> None:
     screen.add_argument("--timeout", type=int, default=600)
     screen.add_argument("--redo", action="store_true")
     screen.set_defaults(func=cmd_screen)
+
+    report = sub.add_parser("report")
+    report.add_argument("--dir", help="override the record directory")
+    report.set_defaults(func=cmd_report)
 
     score = sub.add_parser("score")
     score.add_argument("--dir", help="override the record directory")
