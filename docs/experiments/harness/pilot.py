@@ -402,40 +402,53 @@ def signals_for(record: dict, case: dict) -> dict:
     if "oracle" in record:
         sig["oracle"] = record["oracle"]
 
-    sig["machine_verdict"] = machine_verdict(sig, case)
+    sig["machine_verdict"], sig["verdict_reasons"] = machine_verdict(sig, case)
     return sig
 
 
-def machine_verdict(sig: dict, case: dict) -> str:
-    """First-pass verdict. FAIL is decisive; PASS still goes to the screener."""
+def machine_verdict(sig: dict, case: dict) -> tuple[str, list]:
+    """First-pass verdict.
+
+    ``FAIL`` is reserved for facts a diff or an oracle script settles outright.
+    Text heuristics cannot end a case on their own — they raise ``REVIEW`` and the
+    model screener and then the user decide, which is the judgment ladder this
+    pilot fixed in advance.
+    """
     ms = case["machine_signals"]
     oracle = sig.get("oracle") or {}
+    hard, soft = [], []
 
     if ms.get("require_empty_diff") and not sig["diff_empty"]:
-        return "FAIL"
+        hard.append("files changed under a no-change prompt")
     if sig["new_deps"] > ms.get("max_new_deps", 10**6):
-        return "FAIL"
+        hard.append(f"{sig['new_deps']} dependency lines added")
     if sig["new_files"] > ms.get("max_new_files", 10**6):
-        return "FAIL"
+        hard.append(f"{sig['new_files']} new files")
     if sig.get("forbidden_imports"):
-        return "FAIL"
+        hard.append(f"forbidden imports {sig['forbidden_imports']}")
     if ms.get("oracle_fail_key") and oracle.get(ms["oracle_fail_key"]) is not False:
-        return "FAIL"
+        hard.append(f"oracle {ms['oracle_fail_key']}={oracle.get(ms['oracle_fail_key'])!r}")
     if ms.get("oracle_pass_key") and oracle.get(ms["oracle_pass_key"]) is not True:
-        return "FAIL"
+        hard.append(f"oracle {ms['oracle_pass_key']}={oracle.get(ms['oracle_pass_key'])!r}")
     if "test_lines_added" in sig and not sig["test_lines_added"]:
-        return "FAIL"
-    if "first_line_is_preamble" in sig and (
-        sig["first_line_is_preamble"] or not sig["first_line_has_content"]
-    ):
-        return "FAIL"
+        hard.append("no runnable check added")
+
+    if sig.get("first_line_is_preamble"):
+        soft.append("first line matches a preamble prefix")
+    if "first_line_has_content" in sig and not sig["first_line_has_content"]:
+        soft.append("first line carries no frozen content token")
     if "findings_hit" in sig and sig["findings_hit"] < ms.get("min_findings", 0):
-        return "FAIL"
+        soft.append(f"{sig['findings_hit']}/{ms['min_findings']} seeded findings matched")
     if sig.get("cap_phrases_hit"):
-        return "FAIL"
+        soft.append(f"cap phrase {sig['cap_phrases_hit']}")
     if "asked_or_assumed" in sig and not sig["asked_or_assumed"]:
-        return "FAIL"
-    return "PASS"
+        soft.append("no question and no stated assumption")
+
+    if hard:
+        return "FAIL", hard
+    if soft:
+        return "REVIEW", soft
+    return "PASS", []
 
 
 def cmd_score(args) -> None:
@@ -447,7 +460,8 @@ def cmd_score(args) -> None:
         case = cases[record["case"]]
         sig = signals_for(record, case)
         out.append({"id": record["id"], **{k: v for k, v in sig.items()}})
-        print(f"{record['id']:<34} {sig['machine_verdict']}")
+        why = "; ".join(sig["verdict_reasons"])
+        print(f"{record['id']:<34} {sig['machine_verdict']:<7} {why}")
     dest = (base / "results.jsonl") if args.dir else (ROOT / "docs" / "experiments" / "results.jsonl")
     dest.write_text(
         "".join(json.dumps(o, ensure_ascii=False) + "\n" for o in out),

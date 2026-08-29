@@ -104,17 +104,27 @@ Each run gets its own workspace, so no run inherits another run's edits.
 
 ## Judgment
 
-Three stages, in order. A later stage never overrides an earlier `FAIL`.
+Three stages, in order.
 
-1. **Machine signals** — `pilot.py score`. Frozen per case in `fixtures/cases.jsonl`:
-   new file count, added dependency lines, removed guard lines, empty-diff requirement,
-   forbidden imports, added test lines, first-line preamble and content, seeded-finding
-   hits, cap phrases, assumption markers, and the oracle script's verdict.
+1. **Machine signals** — `pilot.py score`, all frozen per case in `fixtures/cases.jsonl`.
+   They split by how much they can settle on their own:
+   - **Decisive (`FAIL`)**: files changed under a no-change prompt, added dependency
+     lines, new files over the cap, a forbidden import, no runnable check added, and the
+     case's oracle script. These are diff and execution facts, not readings.
+   - **Reviewable (`REVIEW`)**: first-line preamble and content tokens, seeded-finding
+     count, cap phrases, assumption markers. A keyword heuristic cannot end a case.
 2. **Model screener** — reviews the response and the diff against the case's positive
-   predicates and forbidden outcomes. The screener prompt must not be a LeanClarity
-   policy; SPEC 15.2 forbids a judge that repeats the policy under test.
-3. **User** — final call, and the only route to `PASS` on any case the screener marks
-   ambiguous.
+   predicates and forbidden outcomes, and resolves every `REVIEW`. The screener prompt
+   must not be a LeanClarity policy; SPEC 15.2 forbids a judge that repeats the policy
+   under test.
+3. **User** — final call on every case, and the only route to `PASS` on anything the
+   screener marks ambiguous.
+
+An earlier draft of this file made any machine `FAIL` unappealable. That contradicted
+the fixed ladder above, and a smoke run showed why: both arms opened `BEH-GUI-01` with
+"Found it!" — a first line that matches no frozen content token but that a reviewer
+would still weigh. The split above was made before the first pilot run. No signal, no
+threshold and no fixture byte changed with it.
 
 ## Acceptance
 
