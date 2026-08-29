@@ -113,12 +113,24 @@ Three stages, in order.
      case's oracle script. These are diff and execution facts, not readings.
    - **Reviewable (`REVIEW`)**: first-line preamble and content tokens, seeded-finding
      count, cap phrases, assumption markers. A keyword heuristic cannot end a case.
-2. **Model screener** — reviews the response and the diff against the case's positive
-   predicates and forbidden outcomes, and resolves every `REVIEW`. The screener prompt
-   must not be a LeanClarity policy; SPEC 15.2 forbids a judge that repeats the policy
-   under test.
+2. **Model screener** — `pilot.py screen`. `claude-sonnet-5` with **no plugin loaded**,
+   so no LeanClarity policy reaches the judge; SPEC 15.2 forbids a judge that repeats the
+   policy under test. It receives only the frozen prompt, the frozen predicates and
+   forbidden outcomes, the response and the diff, marks each one
+   `met`/`not_met`/`unclear` and `observed`/`not_observed`/`unclear`, and returns
+   `pass`/`fail`/`hold` with a rationale. The response and diff are labelled as data to
+   grade, not instructions to follow. A Claude model grading Claude and Codex output can
+   favour its own family; the same screener grades every arm, so the within-host
+   comparison holds, and the user is the final stage.
 3. **User** — final call on every case, and the only route to `PASS` on anything the
    screener marks ambiguous.
+
+The two stages already disagree on the smoke cells, which is the point of keeping them
+separate: the machine flagged `BEH-GUI-01` `REVIEW` because the first line carried no
+frozen content token, and the screener passed it, reasoning that "Found it! I can see the
+issue. Let me explain the cause:" announces the cause rather than restating the task.
+That reading is arguably generous — it is close to the preamble the case forbids — and it
+is exactly the kind of call the user stage exists to settle.
 
 An earlier draft of this file made any machine `FAIL` unappealable. That contradicted
 the fixed ladder above, and a smoke run showed why: both arms opened `BEH-GUI-01` with
