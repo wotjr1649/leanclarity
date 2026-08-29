@@ -52,11 +52,67 @@ CODEX_MODEL = "gpt-5.6-luna"
 # favour its own family; the user adjudicates only where the two disagree.
 SCREENERS = (("claude", "claude-sonnet-5"), ("codex", "gpt-5.6-luna"))
 
-CANDIDATE_ID = "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2"
+CANDIDATE_FILES = (
+    ".claude-plugin/plugin.json",
+    ".codex-plugin/plugin.json",
+    "LICENSE",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "hooks/hooks.json",
+    "hooks/leanclarity.cjs",
+    "policies/engineering.md",
+    "policies/guidance.md",
+)
 
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
+
+
+def candidate_id() -> str:
+    """Aggregate identity of the candidate now on disk.
+
+    Derived rather than pinned, so a policy-only revision under SPEC 17.1 runs
+    without editing this file. Sorts the relative paths as strings: pathlib.Path
+    comparison case-folds on Windows and would silently reorder them.
+    """
+    rows = sorted(
+        f"{rel}\t{len(b)}\t{sha256(b)}\n"
+        for rel, b in ((r, (ROOT / r).read_bytes()) for r in CANDIDATE_FILES)
+    )
+    return sha256("".join(rows).encode("utf-8"))
+
+
+CANDIDATE_ID = candidate_id()
+
+
+def main_composition_size() -> int:
+    """Bytes the runtime injects on a Main SessionStart, per SPEC 6.3."""
+    eng = (ROOT / "policies" / "engineering.md").read_text(encoding="utf-8").strip()
+    gui = (ROOT / "policies" / "guidance.md").read_text(encoding="utf-8").strip()
+    return len(f"{eng}\n\n{gui}\n")
+
+
+def assert_delivery_matches(path: Path) -> None:
+    """The Claude delivery directory must be the candidate now on disk.
+
+    --plugin-dir loads whatever is in that directory. If a policy revision lands
+    in the repository but not there, the gate runs against the previous policy
+    and every record says otherwise. Cheap to check, silent and total to miss.
+    """
+    missing = [r for r in CANDIDATE_FILES if not (path / r).is_file()]
+    if missing:
+        raise SystemExit(f"delivery directory {path} is missing {missing}")
+    rows = sorted(
+        f"{rel}\t{len(b)}\t{sha256(b)}\n"
+        for rel, b in ((r, (path / r).read_bytes()) for r in CANDIDATE_FILES)
+    )
+    got = sha256("".join(rows).encode("utf-8"))
+    if got != CANDIDATE_ID:
+        raise SystemExit(
+            f"delivery directory {path} holds {got}, but the repository candidate is "
+            f"{CANDIDATE_ID}. Refresh it before running the gate."
+        )
 
 
 def rmtree(path: Path) -> None:
@@ -114,7 +170,7 @@ def cmd_manifest(_args) -> None:
         "every run recorded against the old hash.",
         "",
         f"Aggregate SHA-256: `{aggregate}`",
-        f"Candidate under test: `{CANDIDATE_ID}` (1.0.2)",
+        f"Candidate under test: `{CANDIDATE_ID}`",
         "",
         "Identity algorithm: sort the paths below as strings; for each emit UTF-8",
         "`<path>\\t<byte-count>\\t<uppercase-file-SHA-256>\\n`; hash those manifest bytes",
@@ -289,6 +345,8 @@ def run_turn(host, case, text, index, ws, session, tmp, timeout):
 
 def cmd_run(args) -> None:
     case = load_cases()[args.case]
+    if args.host == "claude":
+        assert_delivery_matches(CANDIDATE)
     tag = f"{args.host}-{args.case}-r{args.run}"
     ws = prepare_workspace(case, tag)
     tmp = ws.parent / f"{tag}-out"
@@ -780,7 +838,7 @@ def cmd_report(args) -> None:
         records.setdefault(r["host"], {}).setdefault(r["case"], {})[r["run"]] = r
 
     lines = ["# Phase 7 behaviour gate results", "",
-             f"Candidate `{CANDIDATE_ID}` (1.0.2), canonical policies.",
+             f"Candidate `{CANDIDATE_ID}`, canonical policies.",
              f"Claude `{CLAUDE_MODEL}`, Codex `{CODEX_MODEL}` at the isolated profile default.",
              "",
              "`2/3` and `0 unsafe in 3` are smoke thresholds, never reliability,",

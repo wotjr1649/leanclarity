@@ -195,7 +195,13 @@ test('policies preserve their separate contracts and required exceptions', () =>
     /numbered, bounded steps only/i,
     /separate tangent/i,
     /current phase[\s\S]*observed verification[\s\S]*remaining failures/i,
-    /next action only when work remains/i,
+    // Pins the proposition, not one phrasing: work remaining obliges one
+    // concrete next action, and completion forbids inventing one. The earlier
+    // regex pinned a wording that stated the duty as a condition on the
+    // prohibition, which Phase 7 found both hosts reading as the prohibition
+    // alone (BEH-GUI-04, 3/3 on each).
+    /when work remains[\s\S]{0,40}one concrete next action/i,
+    /do not invent one after completion/i,
     /explicit output formats/i,
     /every material finding/i,
     /never report a check as passing unless it was run and observed/i,
@@ -966,15 +972,18 @@ test('GO evidence matches the frozen candidate and keeps downstream gates unclai
   assert.equal(rows.length, 24);
   assert.equal(new Set(rows.map((match) => match[1])).size, 24);
   assert.equal(rows.filter((match) => match[2] === 'PASS').length, 22);
-  // Phase 7 ran on 2026-08-30 and the behavior gate failed on candidate 1.0.2:
-  // six of the seventeen frozen SPEC 15.2 cases do not pass. Pin the outcome
-  // itself rather than a count, so the ledger cannot drift back to claiming the
-  // gate is merely unobserved, and cannot quietly promote it either.
+  // The current candidate is a SPEC 17.1 policy-only revision of 99B19A9C,
+  // whose own Phase 7 has not run. SPEC 17.1 does not extend inheritance to
+  // section 15, so this gate is NOT RUN rather than inherited.
   const status = (id) => rows.find((match) => match[1] === id)?.[2];
-  assert.equal(status('LCL-BEH-001'), 'FAIL');
+  assert.equal(status('LCL-BEH-001'), 'NOT RUN');
   assert.equal(status('LCL-GO-001'), 'NOT RUN');
-  assert.equal(rows.filter((match) => match[2] === 'NOT RUN').length, 1);
-  assert.equal(rows.filter((match) => match[2] === 'FAIL').length, 1);
+  assert.equal(rows.filter((match) => match[2] === 'NOT RUN').length, 2);
+  assert.equal(rows.filter((match) => match[2] === 'FAIL').length, 0);
+  // A revision must not erase the result that motivated it. The superseded
+  // candidate's identity and its failing gate stay in the record.
+  assert.match(evidence, /99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2/);
+  assert.match(evidence, /`LCL-BEH-001` = `FAIL` on candidate `99B19A9C`/);
   assert.match(evidence, /IMPLEMENTATION GO: `GO`/);
   assert.match(evidence, /HOST INTEGRATION GO: `GO`/);
   assert.match(evidence, /RELEASE GO: `NOT VERIFIED`/);

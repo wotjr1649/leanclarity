@@ -21,6 +21,9 @@ ROOT = Path(__file__).resolve().parents[2]
 HARNESS = Path(__file__).resolve().parent / "harness.py"
 SCRATCH = ROOT / ".pilot"
 
+sys.path.insert(0, str(HARNESS.parent))
+import harness as H  # noqa: E402
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--host", default="claude", choices=("claude", "codex"))
 args = parser.parse_args()
@@ -115,7 +118,7 @@ checks = [
 ]
 if args.host == "claude":
     checks.append(("policy injected each turn",
-                   all(t["injected_chars"] == [2486] for t in record["turns"])))
+                   all(t["injected_chars"] == [H.main_composition_size()] for t in record["turns"])))
 
 print("\n== score")
 harness("score", "--dir", str(out))
@@ -128,9 +131,6 @@ checks += [
 ]
 
 print("\n== signals detect what they should")
-sys.path.insert(0, str(HARNESS.parent))
-import harness as H  # noqa: E402
-
 over = dict(scored, diff=scored["diff"] + "\ndiff --git a/note.txt b/note.txt\n+touched\n")
 s2 = H.signals_for(over, case)
 checks += [

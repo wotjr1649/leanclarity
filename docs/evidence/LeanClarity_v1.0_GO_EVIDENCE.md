@@ -4,7 +4,7 @@
 
 This record covers PLAN Phases 1–7: the local deterministic `IMPLEMENTATION GO` gate, the real-host `HOST INTEGRATION GO` gate, and the Phase 7 semantic behavior gate. `PASS` in the requirement table means the stated deterministic slice passed on the frozen candidate; it does not substitute for the behavior evidence recorded under Phase 7 behavior results or for the final-release audit, which is `NOT RUN`.
 
-The behavior gate **fails** on candidate `1.0.2`: five of the seventeen frozen SPEC 15.2 cases do not pass. `RELEASE GO` and `COMPLETE GO` therefore stay unclaimed.
+The behavior gate **failed** on candidate `99B19A9C`: five of the seventeen frozen SPEC 15.2 cases did not pass. The current candidate `FC6CDCBA` is a SPEC 17.1 policy-only revision made in response, and its own behavior gate has **not run**. `RELEASE GO` and `COMPLETE GO` stay unclaimed either way.
 
 Re-verified on 2026-08-29 after the marketplace catalogs described under Artifact were added for installs from the repository `https://github.com/wotjr1649/leanclarity` and the Phase 6 host workspaces were prepared; that re-verification kept the `1.0.0` candidate bytes unchanged.
 
@@ -16,7 +16,7 @@ Revised earlier on 2026-08-29 to candidate `1.0.1` under SPEC document version 1
 
 - LeanClarity version: `1.0.2` (SPEC document version 1.3; the `1.0.1` candidate was `07C93E43D22B20AF651702059ACEC3D5FDDB837F8EB78BBC2A4334343045F4D0` and the `1.0.0` candidate was `F3C0096EADA6575D0E6CB9827BA979249C7D0EC0D84D108A69F31264BF91E902`)
 - Candidate root: `D:\AI_DEV\leancue`
-- Candidate SHA-256: `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`
+- Candidate SHA-256: `FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD` (a policy-only revision of `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`; both declare plugin version `1.0.2` because SPEC 17.1 requires the manifests byte-identical, so the aggregate hash is what distinguishes them)
 - Candidate identity algorithm: sort the declared candidate paths; for each path emit UTF-8 `<path>\t<byte-count>\t<uppercase-file-SHA-256>\n`; hash those manifest bytes with SHA-256.
 - Local OS/architecture: Microsoft Windows 11 Pro `10.0.26200`, x64
 - Local Node.js: `v24.19.0`
@@ -36,7 +36,7 @@ Revised earlier on 2026-08-29 to candidate `1.0.1` under SPEC document version 1
 | `hooks/hooks.json` | 724 | `DAD1F45EB9BF28A518D386D7925D829EDCBC22DC25817509E4CC02CE323E66BF` |
 | `hooks/leanclarity.cjs` | 12189 | `702C2F2DDC54251219EE59D03FF1CD9B60975272B48AB18E7C856407B3BEE8EB` |
 | `policies/engineering.md` | 1176 | `E819E185493315773449596FBCDF48219C12F65839FB1A094F757632257EAA25` |
-| `policies/guidance.md` | 1309 | `D50C059F0498CEE86C8F36A57441ECF5C16827A21A17E1712DE15E57621ED7D8` |
+| `policies/guidance.md` | 1305 | `A49AF8D605F471B91D87A2790EABC4A38267FE04C44A2602EE5251F0979DDCFF` |
 
 `tests/` and `docs/evidence/` are verification assets and are not candidate distribution bytes.
 
@@ -92,7 +92,7 @@ The artifact hash in every row is the aggregate candidate identity above.
 | `LCL-PKG-001` | Local manifests, paths, README, candidate bytes, and the local catalog; live Codex session discovery deferred | `node --test --test-concurrency=1 tests/leanclarity.test.cjs`; `claude plugin validate <materialized candidate> --strict`; `claude plugin validate . --strict`; workspace-`CODEX_HOME` `codex plugin marketplace add` / `list` / `add` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Node `v24.19.0`; Claude Code `2.1.250` validator; Codex CLI `0.150.1` workspace home | Three candidate JSON files parse; metadata agrees; shared paths exist; README matches behavior; strict Claude validation passed for the plugin manifest (materialized candidate) and the marketplace catalog (repo root); the local catalog names only `leanclarity` and stays out of the candidate; Codex discovered and installed `leanclarity@leancue` `1.0.0` from the Phase 6 workspace catalog with exactly the nine candidate files | PASS | manifest, hook-map, README, candidate, catalog, JSON/link tests; Codex host results |
 | `LCL-MIG-001` | No automatic migration/coexistence mutation | `node --test --test-concurrency=1 tests/leanclarity.test.cjs` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Local source/docs audit | No old alias/state import/detection code; README provides manual host-control guidance only | PASS | README coexistence section; production static/package tests |
 | `LCL-LIC-001` | Distribution license and pinned attribution | `node --test --test-concurrency=1 tests/leanclarity.test.cjs` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Local artifact audit | LeanClarity MIT license and two complete upstream MIT notices, URLs, revisions, copyrights, and derived-policy paths are present | PASS | `LICENSE`; `THIRD_PARTY_NOTICES.md`; notice test |
-| `LCL-BEH-001` | Phase 7 real-host/model 3-run semantic smoke | `python tests/behavior-fixtures/harness.py batch --host claude` and `--host codex`, then `score`, `screen`, `report` | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Claude Code `2.1.251` `-p` on `claude-haiku-4-5-20251001`; Codex CLI `0.150.1` `codex exec` on `gpt-5.6-luna` at effort `none`; isolated profiles | 102 runs over the 17 frozen cases. Twelve pass on both hosts and all three critical cases pass with zero unsafe simplification in eighteen runs. Five do not pass: `BEH-GUI-04` and `BEH-GUI-07` on both hosts, `BEH-ENG-02`, `BEH-ENG-05` and `BEH-ENG-06` on Claude | FAIL | Phase 7 behavior results below; `docs/evidence/phase7-runs/` |
+| `LCL-BEH-001` | Phase 7 real-host/model 3-run semantic smoke | Not run on this candidate — PLAN Phase 7 | `FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD` | Claude/Codex not yet exercised on the revised policy | The predecessor `99B19A9C` failed this gate on five of seventeen cases; this candidate revises `policies/guidance.md` bullet 5 in response and its own Phase 7 has not run. SPEC 17.1 inheritance does not cover section 15 | NOT RUN | Phase 7 behavior results — candidate `99B19A9C`; Succession status |
 | `LCL-GO-001` | Full tested-release identity and all-gate audit belong to Phase 8 | Not run — PLAN Phase 8 | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | Release surface not exercised | Phase 5 candidate identity is frozen and HOST INTEGRATION is `GO`, but the behavior gate fails on this candidate, so RELEASE and COMPLETE stay unclaimed and there is no release artifact to audit | NOT RUN | PLAN Phase 8; Final gates below |
 
 ## Deterministic local results
@@ -277,11 +277,72 @@ No runtime truncation, summarization, partial injection, or `additionalContextLi
 
 SPEC `1.2` adds section 17.1, which lets a candidate differing only in `policies/*.md` inherit a predecessor's host observations for hook wiring, state and lifecycle while re-running the context measurement and the host context-limit proof, and which leaves section 15 behavior acceptance fully outside the inheritance.
 
-Nothing is inherited today, and section 17.1 has never been exercised. Candidate `1.0.2` is the first candidate whose `HOST INTEGRATION GO` is complete, so it is the first possible predecessor; no successor exists. The rule stands ready and unused.
+Section 17.1 is exercised for the first time by the revision recorded below. Candidate `99B19A9C` was the first candidate whose `HOST INTEGRATION GO` was complete, which made it the first possible predecessor; `FC6CDCBA` is its policy-only successor.
 
 Candidate identity, plugin version and the distribution byte set are unchanged by SPEC `1.2`.
 
 The `1.0.1` to `1.0.2` revision is **not** a policy-only revision and inherits nothing under 17.1. It changes the runtime, both manifests and `README.md` and leaves both policy files byte-identical, which is the exact inverse of the rule's condition. Every Codex host row observed on `1.0.1` was therefore re-observed on `1.0.2`; so were the Claude rows, for the same reason (see Phase 6 row coverage).
+
+### Policy-only revision `99B19A9C` → `FC6CDCBA` (2026-08-30)
+
+SPEC 17.1 applies for the first time. `BEH-GUI-04` failed the Phase 7 gate on both
+hosts, 3/3 each, with both screeners agreeing that turn one never named the one
+piece of work still open. The anchoring bullet stated its obligation as a
+condition on a prohibition, which is consistent with models carrying away the
+prohibition alone. Only `policies/guidance.md` changes, and only its fifth
+bullet:
+
+```text
+-  Give one concrete next action only when work remains for the user; do not invent one after completion.
++  When work remains for the user, give one concrete next action. Do not invent one after completion.
+```
+
+The proposition is unchanged from SPEC 6.2 item 5 — work remaining obliges one
+concrete next action, completion forbids inventing one — so no SPEC revision is
+required. What changes is that the obligation is now a sentence of its own rather
+than a subordinate clause.
+
+Section 10.1 allows each failing case one revision. This spends `BEH-GUI-04`'s.
+`BEH-GUI-07`, `BEH-ENG-02`, `BEH-ENG-05` and `BEH-ENG-06` are recorded as product
+limitations with their revision chances **unspent**: three of them pass on Codex
+under identical policy text, which points at model capability rather than
+wording, and `BEH-GUI-07` asks for a behaviour the compression literature
+classes as counter-intuitive and measures failing regardless of encoding.
+
+**This revision cannot close the gate**, and was not made to. Four cases remain
+failing under any branch reachable from here. The justification is that the
+policy under-stated an obligation SPEC lists among the behaviours it preserves.
+
+### Qualification under 17.1
+
+| Requirement | Status |
+|---|---|
+| Differs from predecessor only in `policies/*.md` | Yes — eight of the nine candidate files are byte-identical; only `policies/guidance.md` differs |
+| Both manifests byte-identical | Yes. Both still declare `"version": "1.0.2"`, which 17.1 requires and which means two distinct candidates share a version string. The aggregate hash is the identity |
+| `hooks/hooks.json`, `hooks/leanclarity.cjs`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md` byte-identical | Yes |
+| Predecessor rows were `PASS` on a frozen candidate | Yes — every Phase 6 row on `99B19A9C`, recorded under Phase 6 row coverage |
+| Both byte sets and their aggregates recorded | Yes — Artifact section and the table above |
+| Same host, host version, surface | Yes — Windows 11 Pro `10.0.26200` x64, Claude Code `2.1.251`, Codex CLI `0.150.1` |
+
+### Inherited from `99B19A9C`
+
+Plugin discovery and trust; hook map registration and event dispatch;
+`SessionStart` source classification and the section 8.2 clean/inherited
+boundary; exact command intercept and prompt block; saved setting read, write,
+readback and cross-session persistence; state validity and atomic replace; data
+root ownership and creation; Subagent scope; host control when the plugin or its
+hooks are disabled.
+
+### Not inherited — must be re-observed on `FC6CDCBA`
+
+- Section 11 per-file and composition measurement. Main falls from `2486` to
+  `2482` characters; Subagent is unchanged at `1176` because
+  `policies/engineering.md` did not change.
+- The context-limit observation on both hosts: no Claude file-preview
+  replacement, and no Codex `additionalContext` spill, at the new composed size.
+- **All of section 15.** SPEC 17.1 places behavior acceptance outside the
+  inheritance entirely, so the full 17 cases × 3 runs × 2 hosts runs again
+  against the same frozen fixtures.
 
 ### Compression pilot: no level is promoted (2026-08-29)
 
@@ -326,9 +387,11 @@ Every row below is observed on candidate `1.0.2`, `99B19A9CD0F1A4B3EF9FDC71C7839
 
 Nothing is inherited from `1.0.1`. Every row above was produced against the `1.0.2` byte set.
 
-## Phase 7 behavior results
+## Phase 7 behavior results — candidate `99B19A9C`
 
-PLAN Phase 7 executed 2026-08-30 against candidate `1.0.2` with its canonical policies unchanged.
+These are the results for the **superseded** candidate `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`, and they are the reason the policy-only revision below exists. They are kept, not replaced: the revision's own Phase 7 has not run.
+
+PLAN Phase 7 executed 2026-08-30 against candidate `99B19A9C` with its canonical policies unchanged.
 Execution design frozen before the first run in
 [`LeanClarity_v1.0_PHASE7_PROTOCOL.md`](LeanClarity_v1.0_PHASE7_PROTOCOL.md); fixtures frozen at
 aggregate `69E18885AA1509C04D7D59B2F9B360CAECC850DF723D7EBC8BF7C7C697DF4DD4`
@@ -380,7 +443,7 @@ zero observed unsafe simplification in all three.
 
 ### Gate
 
-**`LCL-BEH-001` = `FAIL` on candidate `1.0.2`.** Twelve of seventeen cases pass on both hosts. Five
+**`LCL-BEH-001` = `FAIL` on candidate `99B19A9C`.** Twelve of seventeen cases pass on both hosts. Five
 do not: `BEH-GUI-04` and `BEH-GUI-07` on both hosts, and `BEH-ENG-02`, `BEH-ENG-05` and
 `BEH-ENG-06` on Claude alone.
 
