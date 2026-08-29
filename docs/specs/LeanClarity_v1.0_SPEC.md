@@ -6,7 +6,7 @@
 |---|---|
 | 문서 종류 | Normative Product and Runtime Specification |
 | 제품 계보 | LeanClarity |
-| 문서 버전 | 1.1 (section 19 개정 이력 참조) |
+| 문서 버전 | 1.2 (section 19 개정 이력 참조) |
 | 설계 상태 | SPEC GO |
 | 구현 상태 | NOT VERIFIED |
 | Host 통합 상태 | NOT VERIFIED |
@@ -88,6 +88,8 @@ Windows 11 x64에서 release candidate 자체를 사용해 Claude Code와 Codex�
 - plugin disabled/untrusted/unavailable 시 host control 존중
 
 Synthetic payload test는 실제 host evidence를 대체하지 않는다.
+
+Policy 파일만 바뀐 candidate가 predecessor의 관측 중 무엇을 승계하고 무엇을 다시 관측해야 하는지는 section 17.1이 정한다.
 
 ### 2.4 RELEASE GO
 
@@ -527,7 +529,7 @@ Runtime은 context가 길다는 이유로 policy를 truncate, summarize, partial
 
 위 숫자는 current documentation baseline이며 runtime constant, 모든 version의 universal requirement 또는 tokenizer guarantee가 아니다. Release evidence는 실제 host/version의 contract와 관찰 결과를 우선한다. `additionalContextLimit: 0`으로 host protection을 무력화하지 않는다. 다른 값을 쓰려면 실제 측정 근거와 별도 SPEC revision이 필요하다.
 
-측정값은 release evidence이지 모든 tokenizer/model/version에 대한 영구 token guarantee가 아니다.
+측정값은 release evidence이지 모든 tokenizer/model/version에 대한 영구 token guarantee가 아니다. 이 측정은 policy 파일이 바뀌면 승계하지 않으며 revision에서 다시 수행한다(section 17.1).
 
 ## 12. Trust, privacy와 abuse cases
 
@@ -710,6 +712,40 @@ GO evidence의 각 requirement row는 최소 `Requirement`, `Applicability ratio
 - 실행하지 않은 test는 `NOT RUN`, 환경/authority가 없으면 `BLOCKED`로 기록한다.
 - macOS/Linux, public publishing, paired causal evaluation과 session-state tracking은 별도 승인과 SPEC revision 없이는 scope에 추가하지 않는다.
 
+### 17.1 policy-only revision 승계
+
+**policy-only revision**은 이미 host 검증을 마친 predecessor candidate와 `policies/engineering.md`, `policies/guidance.md` 또는 둘만 다르고 나머지 distribution byte는 전부 같은 candidate다. 두 manifest, `hooks/hooks.json`, `hooks/leanclarity.cjs`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`가 predecessor와 byte-identical해야 한다.
+
+policy-only revision은 predecessor의 다음 `HOST INTEGRATION GO` 관측을 승계한다.
+
+- plugin discovery와 trust
+- hook map 등록과 event dispatch
+- `SessionStart` source 분류와 section 8.2의 clean/inherited 경계
+- exact command intercept와 prompt block
+- Saved setting의 read, write, readback과 세션 간 유지
+- state validity와 atomic replace
+- data root 소유와 생성
+- Subagent scope
+- plugin 또는 hook이 disabled, untrusted, unavailable일 때의 host control
+
+근거는 이 관측이 전부 runtime, hook map, manifest가 결정하고 셋 다 바뀌지 않았으며, 어느 관측도 policy text를 읽지 않는다는 것이다.
+
+다음은 승계하지 않는다. revision 자체에서 다시 관측해야 그 `HOST INTEGRATION GO`를 세울 수 있다.
+
+- section 11의 canonical file별 측정과 Main/Subagent composition 측정
+- 두 host의 context-limit 관측, 즉 Claude file-preview replacement 없음과 실제 composed size에서 Codex `additionalContext` spill 없음
+
+Section 15 behavior acceptance는 이 규칙 밖이다. Model output behavior는 policy text가 소유하므로 policy-only revision도 다른 candidate와 똑같이 section 15 gate를 전부 수행한다.
+
+승계는 다음을 revision evidence에 기록했을 때만 성립한다.
+
+- 승계하는 predecessor row가 frozen candidate에서 `PASS`였고 그 aggregate hash가 기록돼 있다.
+- 두 aggregate hash와 각각의 파일별 byte set이 기록돼 있다.
+- 두 byte set의 차이가 두 policy 파일에만 있음을 보였다.
+- 승계하는 관측의 host, host version, surface가 동일하다. host가 다르거나 version이 다르거나 predecessor가 수행하지 않은 surface는 아무것도 승계하지 않는다.
+
+승계는 predecessor의 `BLOCKED`, `NOT RUN` 또는 `HOLD` row를 `PASS`로 바꾸지 않으며, predecessor가 하지 않은 관측을 대신하지 않는다. 이 규칙은 byte set 차이만으로 판정하므로 압축본에서 canonical text로 되돌아가는 방향에도 같은 조건으로 적용한다.
+
 ## 18. 현재 판정
 
 | Gate | 판정 | 근거 |
@@ -740,4 +776,5 @@ GO evidence의 각 requirement row는 최소 `Requirement`, `Applicability ratio
 | 문서 버전 | 날짜 | 변경 |
 |---|---|---|
 | 1.0 | 2026-08-28 | 최초 SPEC GO |
+| 1.2 | 2026-08-29 | Section 2.3, 11, 17(17.1 신설), 19: policy 파일만 바뀐 candidate가 predecessor의 host 관측 중 무엇을 승계하고 무엇을 다시 관측하는지 규범화. Context 측정과 host context-limit 관측은 승계하지 않고, section 15 behavior acceptance는 이 규칙 밖에서 전부 수행한다. `BLOCKED`/`NOT RUN`/`HOLD`는 승계 대상이 아니다. Candidate byte set과 plugin version은 바뀌지 않는다. |
 | 1.1 | 2026-08-29 | Section 7.1, 10.2, 10.3, 12.2, 13.2, 16(`LCL-STATE-001`): Codex CLI `0.150.1`이 `PLUGIN_DATA` 디렉터리를 사전 생성하지 않음을 실제 host에서 관찰(GO evidence의 Codex host results). 부모 디렉터리가 존재하는 누락 data root를 absent(default ON)로 취급하고 `on`/`off` write 직전에만 생성하도록 계약 변경. Plugin version `1.0.1`. 다른 normative 변경 없음. |

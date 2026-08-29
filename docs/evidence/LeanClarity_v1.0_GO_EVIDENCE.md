@@ -55,8 +55,8 @@ The catalogs follow the pinned upstream repositories' layout (Ponytail and i-hav
 - Anthropic Claude Code hooks: https://code.claude.com/docs/en/hooks
 - Anthropic plugin reference: https://code.claude.com/docs/en/plugins-reference
 - Node.js file system API: https://nodejs.org/api/fs.html
-- Canonical SPEC SHA-256: `ACB6BA9814E6F8C5B926B8ED494F1C0967A8239210ADED8773D89ABE6A1546FD` (document version 1.1; version 1.0 was `0B633AEE5B54546F70FAB717DEEAF50B125529A0413DF5E1CA12E7BFA039955A`)
-- Canonical PLAN SHA-256: `E30B43CC3A6B43DF74BE1010BA916914DE913E92C1E9DC95D7C3BC81862713C7`
+- Canonical SPEC SHA-256: `E7DC6730FD971EE3751248E19EC8021BE7AA32DBFA15AF0B0EC13A199EDFB819` (document version 1.2; version 1.1 was `ACB6BA9814E6F8C5B926B8ED494F1C0967A8239210ADED8773D89ABE6A1546FD`, version 1.0 was `0B633AEE5B54546F70FAB717DEEAF50B125529A0413DF5E1CA12E7BFA039955A`)
+- Canonical PLAN SHA-256: `61A195B51237B8A992A09AF82152DBFC320329CD4DA7CF8535D379EE98E6E798` (the earlier PLAN was `E30B43CC3A6B43DF74BE1010BA916914DE913E92C1E9DC95D7C3BC81862713C7`)
 - Ponytail: https://github.com/DietrichGebert/ponytail at `2ed6c52c9d7e5e56942508591085fd45dea277d3`
 - i-have-adhd: https://github.com/ayghri/i-have-adhd at `cbe69fb83c08a37cf54d5ec9ec6bb88c8bc9973c`
 
@@ -183,6 +183,14 @@ No runtime truncation, summarization, partial injection, or `additionalContextLi
 | Phase 6 Codex host | Same applicable host surfaces, including native plugin-data ownership and no context spill | NOT RUN | Candidate `1.0.0` failed on a fresh Codex install (no pre-created `PLUGIN_DATA` directory); candidate `1.0.1` on the real profile injects the Main composition and blocks control prompts on both the exec surface and the interactive TUI with no pre-created directory, its first interactive write created the data directory and `state.json`, and a persisted OFF suppressed injection in the two sessions started afterwards while other plugins' contexts still injected and the `resume` source, host control under `--disable hooks`, the invalid-state no-injection path and the absence of spill are observed on the exec surface (see Codex host results); the Engineering-only `SubagentStart` injection is observed on the exec surface; only the `compact` and `clear` sources are not yet run |
 | Phase 7 behavior smoke | `LCL-ENG-001`, `LCL-GUIDE-001`, `LCL-BEH-001`; 17 cases × 3 runs × 2 hosts | NOT RUN | Requires successful Phase 6 and frozen real host/model settings |
 | Phase 8 release audit | `LCL-GO-001`, release artifact identity, final docs/host/behavior consolidation | NOT RUN | HOST INTEGRATION and behavior gates are incomplete |
+
+## Succession status
+
+SPEC `1.2` adds section 17.1, which lets a candidate differing only in `policies/*.md` inherit a predecessor's host observations for hook wiring, state and lifecycle while re-running the context measurement and the host context-limit proof, and which leaves section 15 behavior acceptance fully outside the inheritance.
+
+Nothing is inherited today. Candidate `1.0.1` has no host-verified predecessor: the `1.0.0` rows do not transfer because that candidate's runtime and manifests differ, and `1.0.1`'s own `HOST INTEGRATION GO` is still open — `BLOCKED` on Claude and two `SessionStart` sources short on Codex. Section 17.1 changes no gate in this record; it fixes in advance what a compression winner would and would not have to re-observe.
+
+Candidate identity, plugin version and the distribution byte set are unchanged by SPEC `1.2`.
 
 ## Residual uncertainty
 

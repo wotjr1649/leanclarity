@@ -54,7 +54,13 @@ therefore effectively a single sharp question about L3.
 | `harness/pilot.py` | build arms, freeze the manifest, run one cell, score every record |
 | `harness/build_cases.py` | regenerates `cases.jsonl`; rerunning must reproduce the same bytes |
 | `runs/<host>/<arm>/` | one JSON record per run: response, diff, oracle output |
-| `SPEC-succession-rule-draft.md` | proposed SPEC 17.1, not in force |
+
+## Promotion path
+
+If a level wins, promoting it is a policy-only revision under SPEC 17.1: the predecessor's
+host observations for hook wiring, state and lifecycle are inherited, the context measurement
+and the host context-limit proof are re-run, and the SPEC section 15 behavior gate runs in
+full. Nothing is inherited until a predecessor actually holds `PASS` rows.
 
 ## Pre-committed rules
 

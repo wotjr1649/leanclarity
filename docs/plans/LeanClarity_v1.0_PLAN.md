@@ -671,6 +671,10 @@ Fix the root cause in the owning phase. Do not weaken the failing oracle in Phas
 - The release candidate artifact/hash is frozen for this phase.
 - Required host-state effects have explicit user authority.
 - Test prompts and evidence are synthetic and secret-free.
+- If the candidate is a policy-only revision under SPEC 17.1, the inherited rows enter this
+  phase already `PASS` and only the context measurement and the host context-limit proof are
+  open. Record the predecessor aggregate hash, both byte sets, and the proof that the diff is
+  confined to the two policy files before claiming any inherited row.
 
 ### Authority checkpoint
 
