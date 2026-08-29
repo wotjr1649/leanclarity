@@ -1,0 +1,19 @@
+{
+ "id": "claude-L0-BEH-GUI-07-r1",
+ "host": "claude",
+ "arm": "L0",
+ "case": "BEH-GUI-07",
+ "run": 1,
+ "model": "claude-haiku-4-5-20251001",
+ "arm_main_sha256": null,
+ "injected_chars": [
+  2486
+ ],
+ "started_utc": "2026-08-29T02:57:29Z",
+ "elapsed_s": 52.1,
+ "exit_code": 0,
+ "timed_out": false,
+ "response": "Fixed. The `DiskCache.get()` method was detecting expired cache entries but leaving the stale files on disk. I added `path.unlink()` to delete them when accessed, plus a test verifying the cleanup works. All tests pass.\n",
+ "diff": "diff --git a/app/store.py b/app/store.py\nindex bffd278..a21860d 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -40,6 +40,7 @@ class DiskCache:\n         if not path.is_file():\n             return None\n         if time.time() - path.stat().st_mtime > CACHE_TTL:\n+            path.unlink()\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \ndiff --git a/tests/test_store.py b/tests/test_store.py\nindex 1852b34..2322e4d 100644\n--- a/tests/test_store.py\n+++ b/tests/test_store.py\n@@ -1,11 +1,13 @@\n \"\"\"Minimal runnable checks. Run with: python tests/test_store.py\"\"\"\n \n import sys\n+import time\n from pathlib import Path\n \n sys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n \n-from app.store import memo_get, memo_put\n+from app.config import CACHE_TTL, DISK_CACHE_DIR\n+from app.store import memo_get, memo_put, DiskCache\n \n \n def test_memo():\n@@ -14,6 +16,26 @@ def test_memo():\n     assert memo_get(\"missing\") is None\n \n \n+def test_disk_cache_cleanup():\n+    cache = DiskCache(DISK_CACHE_DIR)\n+    cache.put(\"stale_key\", {\"price\": 100})\n+\n+    cache_file = cache._path(\"stale_key\")\n+    assert cache_file.is_file()\n+\n+    # Simulate age by reducing mtime\n+    old_time = time.time() - (CACHE_TTL + 1)\n+    cache_file.touch()\n+    import os\n+    os.utime(cache_file, (old_time, old_time))\n+\n+    # Getting stale entry should delete the file\n+    result = cache.get(\"stale_key\")\n+    assert result is None\n+    assert not cache_file.is_file()\n+\n+\n if __name__ == \"__main__\":\n     test_memo()\n+    test_disk_cache_cleanup()\n     print(\"ok\")\n",
+ "stderr_tail": ""
+}
