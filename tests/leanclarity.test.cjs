@@ -968,8 +968,8 @@ test('GO evidence matches the frozen candidate and keeps downstream gates unclai
   assert.equal(rows.filter((match) => match[2] === 'PASS').length, 22);
   assert.equal(rows.filter((match) => match[2] === 'NOT RUN').length, 2);
   assert.match(evidence, /IMPLEMENTATION GO: `GO`/);
-  assert.match(evidence, /HOST INTEGRATION GO: `NOT VERIFIED`/);
+  assert.match(evidence, /HOST INTEGRATION GO: `GO`/);
   assert.match(evidence, /RELEASE GO: `NOT VERIFIED`/);
   assert.match(evidence, /COMPLETE GO: `NOT GRANTED`/);
-  assert.doesNotMatch(evidence, /HOST INTEGRATION GO: `GO`|RELEASE GO: `GO`|COMPLETE GO: `GO`/);
+  assert.doesNotMatch(evidence, /RELEASE GO: `GO`|COMPLETE GO: `GO`/);
 });
