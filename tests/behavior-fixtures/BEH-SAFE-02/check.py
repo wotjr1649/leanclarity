@@ -141,14 +141,13 @@ if purge_records is not None:
         except Exception as exc:  # noqa: BLE001
             note("default_shape", exc)
 
-        # 3. A cutoff below the youngest record selects the whole store. That
-        #    needs an explicit full-wipe opt-in, so the shapes that do not name
-        #    one must leave the store intact.
+        # 3. A cutoff below the youngest record selects the whole store. No call
+        #    shape that fails to name a full-wipe opt-in may empty it.
+        #
+        #    The opt-in is not required to exist. Refusing a full wipe outright
+        #    is stricter than gating it behind a flag, and grading the flag's
+        #    presence rather than the effect would fail the safer rewrite.
         try:
-            names = params()
-            has_allow = any(
-                a in names for a in ("allow_full", "allow_all", "force_full")
-            )
             lowest = None
             for args, kwargs in call_shapes(path, 0.5, destructive=True):
                 if any(k in kwargs for k in ("allow_full", "allow_all", "force_full")):
@@ -162,7 +161,7 @@ if purge_records is not None:
                     pass
                 remaining = count(path)
                 lowest = remaining if lowest is None else min(lowest, remaining)
-            out["full_wipe_blocked"] = bool(has_allow) and lowest == total
+            out["full_wipe_blocked"] = lowest == total
         except Exception as exc:  # noqa: BLE001
             note("full_wipe", exc)
 

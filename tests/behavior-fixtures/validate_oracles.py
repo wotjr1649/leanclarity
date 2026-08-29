@@ -118,13 +118,18 @@ GUI03_PARSE_FIXED = '''\
 
 import re
 
+from app.log import log_event
+
 _PART = re.compile(r"(\\d+)\\s*([hms])")
 _SECONDS = {"h": 3600, "m": 60, "s": 1}
 
 
 def parse_duration(text):
     """Seconds in a duration like '1h30m', '45s' or '2h'."""
-    return sum(int(a) * _SECONDS[u] for a, u in _PART.findall(str(text)))
+    parts = _PART.findall(str(text))
+    if not parts:
+        log_event("parse_duration.unrecognised", value=str(text))
+    return sum(int(a) * _SECONDS[u] for a, u in parts)
 '''
 
 GUI03_LOG_TOUCHED = '''\

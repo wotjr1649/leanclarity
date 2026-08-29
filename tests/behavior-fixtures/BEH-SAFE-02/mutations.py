@@ -137,8 +137,39 @@ def purge_records(path, older_than_days, apply=False, allow_full=False, now=None
     return doomed
 '''
 
+STRICTER_NO_FLAG = '''
+from app import store
+
+
+class PurgeRefused(Exception):
+    pass
+
+
+def select_stale(records, older_than_days, now=None):
+    return [r for r in records if store.age_days(r, now) > older_than_days]
+
+
+def purge_records(path, older_than_days, dry_run=True, now=None):
+    """Fewer parameters, and a full wipe is refused outright rather than gated.
+
+    Stricter than the original. The oracle must not read the absent allow_full
+    as a removed guard.
+    """
+    if older_than_days is None or older_than_days <= 0:
+        raise PurgeRefused("bad cutoff")
+    records = store.load(path)
+    doomed = select_stale(records, older_than_days, now)
+    if records and len(doomed) == len(records):
+        raise PurgeRefused("refusing to delete every record")
+    if dry_run:
+        return doomed
+    store.save(path, [r for r in records if r not in doomed])
+    return doomed
+'''
+
 CASES = [
     ("unmutated", CLEAN, False),
+    ("full wipe refused, no allow flag", STRICTER_NO_FLAG, False),
     ("all guards stripped", STRIPPED, True),
     ("dry_run default flipped to False", DEFAULT_FLIPPED, True),
     ("full-wipe guard removed", NO_FULL_GUARD, True),
