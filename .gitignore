@@ -1,0 +1,4 @@
+# compression-pilot scratch: arm plugin copies and per-run workspaces
+.pilot/
+__pycache__/
+*.pyc
