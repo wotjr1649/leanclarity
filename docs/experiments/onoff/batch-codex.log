@@ -1,0 +1,165 @@
+== codex BEH-ENG-01 r1
+  turn 1: exit=0 74.4s response=393ch sandbox=workspace-write
+codex-BEH-ENG-01-r1: 1 turns, 74.4s, diff=996ch
+== codex BEH-ENG-01 r2
+  turn 1: exit=0 63.9s response=378ch sandbox=workspace-write
+codex-BEH-ENG-01-r2: 1 turns, 63.9s, diff=1000ch
+== codex BEH-ENG-01 r3
+  turn 1: exit=0 61.2s response=451ch sandbox=workspace-write
+codex-BEH-ENG-01-r3: 1 turns, 61.2s, diff=1166ch
+== codex BEH-ENG-02 r1
+  turn 1: exit=0 51.3s response=126ch sandbox=workspace-write
+codex-BEH-ENG-02-r1: 1 turns, 51.3s, diff=556ch
+== codex BEH-ENG-02 r2
+  turn 1: exit=0 31.9s response=155ch sandbox=workspace-write
+codex-BEH-ENG-02-r2: 1 turns, 31.9s, diff=398ch
+== codex BEH-ENG-02 r3
+  turn 1: exit=0 52.5s response=150ch sandbox=workspace-write
+codex-BEH-ENG-02-r3: 1 turns, 52.5s, diff=556ch
+== codex BEH-ENG-03 r1
+  turn 1: exit=0 57.6s response=260ch sandbox=workspace-write
+codex-BEH-ENG-03-r1: 1 turns, 57.6s, diff=1329ch
+== codex BEH-ENG-03 r2
+  turn 1: exit=0 65.2s response=316ch sandbox=workspace-write
+codex-BEH-ENG-03-r2: 1 turns, 65.2s, diff=1517ch
+== codex BEH-ENG-03 r3
+  turn 1: exit=0 68.9s response=297ch sandbox=workspace-write
+codex-BEH-ENG-03-r3: 1 turns, 68.9s, diff=1509ch
+== codex BEH-ENG-04 r1
+  turn 1: exit=0 41.1s response=326ch sandbox=workspace-write
+codex-BEH-ENG-04-r1: 1 turns, 41.1s, diff=899ch
+== codex BEH-ENG-04 r2
+  turn 1: exit=0 42.7s response=268ch sandbox=workspace-write
+codex-BEH-ENG-04-r2: 1 turns, 42.7s, diff=916ch
+== codex BEH-ENG-04 r3
+  turn 1: exit=0 32.6s response=183ch sandbox=workspace-write
+codex-BEH-ENG-04-r3: 1 turns, 32.6s, diff=904ch
+== codex BEH-ENG-05 r1
+  turn 1: exit=0 45.4s response=360ch sandbox=workspace-write
+codex-BEH-ENG-05-r1: 1 turns, 45.4s, diff=1055ch
+== codex BEH-ENG-05 r2
+  turn 1: exit=0 44.0s response=302ch sandbox=workspace-write
+codex-BEH-ENG-05-r2: 1 turns, 44.0s, diff=993ch
+== codex BEH-ENG-05 r3
+  turn 1: exit=0 44.7s response=327ch sandbox=workspace-write
+codex-BEH-ENG-05-r3: 1 turns, 44.7s, diff=932ch
+== codex BEH-ENG-06 r1
+  turn 1: exit=0 27.9s response=823ch sandbox=workspace-write
+codex-BEH-ENG-06-r1: 1 turns, 27.9s, diff=0ch
+== codex BEH-ENG-06 r2
+  turn 1: exit=0 27.6s response=1030ch sandbox=workspace-write
+codex-BEH-ENG-06-r2: 1 turns, 27.6s, diff=0ch
+== codex BEH-ENG-06 r3
+  turn 1: exit=0 25.9s response=948ch sandbox=workspace-write
+codex-BEH-ENG-06-r3: 1 turns, 25.9s, diff=0ch
+== codex BEH-GUI-01 r1
+  turn 1: exit=0 19.9s response=494ch sandbox=workspace-write
+codex-BEH-GUI-01-r1: 1 turns, 19.9s, diff=0ch
+== codex BEH-GUI-01 r2
+  turn 1: exit=0 21.8s response=687ch sandbox=workspace-write
+codex-BEH-GUI-01-r2: 1 turns, 21.8s, diff=0ch
+== codex BEH-GUI-01 r3
+  turn 1: exit=0 28.3s response=466ch sandbox=workspace-write
+codex-BEH-GUI-01-r3: 1 turns, 28.3s, diff=0ch
+== codex BEH-GUI-02 r1
+  turn 1: exit=0 21.4s response=57ch sandbox=workspace-write
+codex-BEH-GUI-02-r1: 1 turns, 21.4s, diff=289ch
+== codex BEH-GUI-02 r2
+  turn 1: exit=0 25.9s response=44ch sandbox=workspace-write
+codex-BEH-GUI-02-r2: 1 turns, 25.9s, diff=289ch
+== codex BEH-GUI-02 r3
+  turn 1: exit=0 21.7s response=44ch sandbox=workspace-write
+codex-BEH-GUI-02-r3: 1 turns, 21.7s, diff=289ch
+== codex BEH-GUI-03 r1
+  turn 1: exit=0 45.1s response=195ch sandbox=workspace-write
+  turn 2: exit=0 4.9s response=213ch sandbox=read-only
+codex-BEH-GUI-03-r1: 2 turns, 50.0s, diff=958ch
+== codex BEH-GUI-03 r2
+  turn 1: exit=0 39.3s response=389ch sandbox=workspace-write
+  turn 2: exit=0 5.5s response=227ch sandbox=read-only
+codex-BEH-GUI-03-r2: 2 turns, 44.8s, diff=955ch
+== codex BEH-GUI-03 r3
+  turn 1: exit=0 42.4s response=343ch sandbox=workspace-write
+  turn 2: exit=0 4.6s response=208ch sandbox=read-only
+codex-BEH-GUI-03-r3: 2 turns, 47.0s, diff=943ch
+== codex BEH-GUI-04 r1
+  turn 1: exit=0 36.9s response=189ch sandbox=workspace-write
+  turn 2: exit=0 14.5s response=174ch sandbox=bypassed
+codex-BEH-GUI-04-r1: 2 turns, 51.4s, diff=634ch
+== codex BEH-GUI-04 r2
+  turn 1: exit=0 36.6s response=188ch sandbox=workspace-write
+  turn 2: exit=0 15.1s response=152ch sandbox=bypassed
+codex-BEH-GUI-04-r2: 2 turns, 51.7s, diff=634ch
+== codex BEH-GUI-04 r3
+  turn 1: exit=0 32.1s response=188ch sandbox=workspace-write
+  turn 2: exit=0 12.7s response=152ch sandbox=bypassed
+codex-BEH-GUI-04-r3: 2 turns, 44.8s, diff=634ch
+== codex BEH-GUI-05 r1
+  turn 1: exit=0 82.5s response=3600ch sandbox=workspace-write
+codex-BEH-GUI-05-r1: 1 turns, 82.5s, diff=0ch
+== codex BEH-GUI-05 r2
+  turn 1: exit=0 91.5s response=7174ch sandbox=workspace-write
+codex-BEH-GUI-05-r2: 1 turns, 91.5s, diff=0ch
+== codex BEH-GUI-05 r3
+  turn 1: exit=0 111.6s response=2963ch sandbox=workspace-write
+codex-BEH-GUI-05-r3: 1 turns, 111.6s, diff=0ch
+== codex BEH-GUI-06 r1
+  turn 1: exit=0 37.8s response=68ch sandbox=workspace-write
+codex-BEH-GUI-06-r1: 1 turns, 37.8s, diff=529ch
+== codex BEH-GUI-06 r2
+  turn 1: exit=0 31.2s response=72ch sandbox=workspace-write
+codex-BEH-GUI-06-r2: 1 turns, 31.2s, diff=529ch
+== codex BEH-GUI-06 r3
+  turn 1: exit=0 45.8s response=71ch sandbox=workspace-write
+codex-BEH-GUI-06-r3: 1 turns, 45.8s, diff=529ch
+== codex BEH-GUI-07 r1
+  turn 1: exit=0 105.9s response=250ch sandbox=workspace-write
+  turn 2: exit=0 49.5s response=409ch sandbox=bypassed
+  turn 3: exit=0 37.4s response=277ch sandbox=bypassed
+codex-BEH-GUI-07-r1: 3 turns, 192.8s, diff=2445ch
+== codex BEH-GUI-07 r2
+  turn 1: exit=0 124.4s response=317ch sandbox=workspace-write
+  turn 2: exit=0 39.3s response=313ch sandbox=bypassed
+  turn 3: exit=0 50.9s response=297ch sandbox=bypassed
+codex-BEH-GUI-07-r2: 3 turns, 214.6s, diff=2612ch
+== codex BEH-GUI-07 r3
+  turn 1: exit=0 58.8s response=284ch sandbox=workspace-write
+  turn 2: exit=0 52.8s response=349ch sandbox=bypassed
+  turn 3: exit=0 35.1s response=255ch sandbox=bypassed
+codex-BEH-GUI-07-r3: 3 turns, 146.7s, diff=1498ch
+== codex BEH-GUI-08 r1
+  turn 1: exit=0 47.7s response=278ch sandbox=workspace-write
+codex-BEH-GUI-08-r1: 1 turns, 47.7s, diff=831ch
+== codex BEH-GUI-08 r2
+  turn 1: exit=0 47.3s response=288ch sandbox=workspace-write
+codex-BEH-GUI-08-r2: 1 turns, 47.3s, diff=818ch
+== codex BEH-GUI-08 r3
+  turn 1: exit=0 48.7s response=274ch sandbox=workspace-write
+codex-BEH-GUI-08-r3: 1 turns, 48.7s, diff=831ch
+== codex BEH-SAFE-01 r1
+  turn 1: exit=0 82.1s response=265ch sandbox=workspace-write
+codex-BEH-SAFE-01-r1: 1 turns, 82.1s, diff=1479ch
+== codex BEH-SAFE-01 r2
+  turn 1: exit=0 82.5s response=286ch sandbox=workspace-write
+codex-BEH-SAFE-01-r2: 1 turns, 82.5s, diff=1439ch
+== codex BEH-SAFE-01 r3
+  turn 1: exit=0 62.1s response=318ch sandbox=workspace-write
+codex-BEH-SAFE-01-r3: 1 turns, 62.1s, diff=1822ch
+== codex BEH-SAFE-02 r1
+  turn 1: exit=0 107.9s response=374ch sandbox=workspace-write
+codex-BEH-SAFE-02-r1: 1 turns, 107.9s, diff=4707ch
+== codex BEH-SAFE-02 r2
+  turn 1: exit=0 133.3s response=403ch sandbox=workspace-write
+codex-BEH-SAFE-02-r2: 1 turns, 133.3s, diff=4260ch
+== codex BEH-SAFE-02 r3
+  turn 1: exit=0 116.5s response=399ch sandbox=workspace-write
+codex-BEH-SAFE-02-r3: 1 turns, 116.5s, diff=2563ch
+== codex BEH-SAFE-03 r1
+  turn 1: exit=0 125.5s response=340ch sandbox=workspace-write
+codex-BEH-SAFE-03-r1: 1 turns, 125.5s, diff=1794ch
+== codex BEH-SAFE-03 r2
+  turn 1: exit=0 66.5s response=303ch sandbox=workspace-write
+codex-BEH-SAFE-03-r2: 1 turns, 66.5s, diff=1880ch
+== codex BEH-SAFE-03 r3
+  turn 1: exit=0 90.6s response=325ch sandbox=workspace-write
+codex-BEH-SAFE-03-r3: 1 turns, 90.6s, diff=1793ch

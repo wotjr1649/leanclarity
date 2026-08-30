@@ -1,0 +1,165 @@
+== claude BEH-ENG-01 r1
+  turn 1: exit=0 13.7s response=1018ch sandbox=skip-permissions
+claude-BEH-ENG-01-r1: 1 turns, 13.7s, diff=0ch
+== claude BEH-ENG-01 r2
+  turn 1: exit=0 13.4s response=1069ch sandbox=skip-permissions
+claude-BEH-ENG-01-r2: 1 turns, 13.4s, diff=0ch
+== claude BEH-ENG-01 r3
+  turn 1: exit=0 12.9s response=837ch sandbox=skip-permissions
+claude-BEH-ENG-01-r3: 1 turns, 12.9s, diff=0ch
+== claude BEH-ENG-02 r1
+  turn 1: exit=0 25.4s response=339ch sandbox=skip-permissions
+claude-BEH-ENG-02-r1: 1 turns, 25.4s, diff=687ch
+== claude BEH-ENG-02 r2
+  turn 1: exit=0 18.4s response=317ch sandbox=skip-permissions
+claude-BEH-ENG-02-r2: 1 turns, 18.4s, diff=687ch
+== claude BEH-ENG-02 r3
+  turn 1: exit=0 18.8s response=370ch sandbox=skip-permissions
+claude-BEH-ENG-02-r3: 1 turns, 18.8s, diff=725ch
+== claude BEH-ENG-03 r1
+  turn 1: exit=0 53.1s response=687ch sandbox=skip-permissions
+claude-BEH-ENG-03-r1: 1 turns, 53.1s, diff=1101ch
+== claude BEH-ENG-03 r2
+  turn 1: exit=0 43.8s response=828ch sandbox=skip-permissions
+claude-BEH-ENG-03-r2: 1 turns, 43.8s, diff=1197ch
+== claude BEH-ENG-03 r3
+  turn 1: exit=0 54.9s response=927ch sandbox=skip-permissions
+claude-BEH-ENG-03-r3: 1 turns, 54.9s, diff=1174ch
+== claude BEH-ENG-04 r1
+  turn 1: exit=0 18.5s response=214ch sandbox=skip-permissions
+claude-BEH-ENG-04-r1: 1 turns, 18.5s, diff=367ch
+== claude BEH-ENG-04 r2
+  turn 1: exit=0 18.6s response=244ch sandbox=skip-permissions
+claude-BEH-ENG-04-r2: 1 turns, 18.6s, diff=367ch
+== claude BEH-ENG-04 r3
+  turn 1: exit=0 23.9s response=301ch sandbox=skip-permissions
+claude-BEH-ENG-04-r3: 1 turns, 23.9s, diff=367ch
+== claude BEH-ENG-05 r1
+  turn 1: exit=0 18.2s response=261ch sandbox=skip-permissions
+claude-BEH-ENG-05-r1: 1 turns, 18.2s, diff=1120ch
+== claude BEH-ENG-05 r2
+  turn 1: exit=0 19.5s response=511ch sandbox=skip-permissions
+claude-BEH-ENG-05-r2: 1 turns, 19.5s, diff=1041ch
+== claude BEH-ENG-05 r3
+  turn 1: exit=0 18.5s response=396ch sandbox=skip-permissions
+claude-BEH-ENG-05-r3: 1 turns, 18.5s, diff=989ch
+== claude BEH-ENG-06 r1
+  turn 1: exit=0 16.1s response=713ch sandbox=skip-permissions
+claude-BEH-ENG-06-r1: 1 turns, 16.1s, diff=0ch
+== claude BEH-ENG-06 r2
+  turn 1: exit=0 14.4s response=1096ch sandbox=skip-permissions
+claude-BEH-ENG-06-r2: 1 turns, 14.4s, diff=0ch
+== claude BEH-ENG-06 r3
+  turn 1: exit=0 12.8s response=922ch sandbox=skip-permissions
+claude-BEH-ENG-06-r3: 1 turns, 12.8s, diff=0ch
+== claude BEH-GUI-01 r1
+  turn 1: exit=0 17.1s response=1004ch sandbox=skip-permissions
+claude-BEH-GUI-01-r1: 1 turns, 17.1s, diff=0ch
+== claude BEH-GUI-01 r2
+  turn 1: exit=0 20.2s response=1387ch sandbox=skip-permissions
+claude-BEH-GUI-01-r2: 1 turns, 20.2s, diff=0ch
+== claude BEH-GUI-01 r3
+  turn 1: exit=0 15.0s response=1147ch sandbox=skip-permissions
+claude-BEH-GUI-01-r3: 1 turns, 15.0s, diff=0ch
+== claude BEH-GUI-02 r1
+  turn 1: exit=0 7.7s response=59ch sandbox=skip-permissions
+claude-BEH-GUI-02-r1: 1 turns, 7.7s, diff=289ch
+== claude BEH-GUI-02 r2
+  turn 1: exit=0 7.2s response=64ch sandbox=skip-permissions
+claude-BEH-GUI-02-r2: 1 turns, 7.2s, diff=289ch
+== claude BEH-GUI-02 r3
+  turn 1: exit=0 7.4s response=64ch sandbox=skip-permissions
+claude-BEH-GUI-02-r3: 1 turns, 7.4s, diff=289ch
+== claude BEH-GUI-03 r1
+  turn 1: exit=0 12.5s response=186ch sandbox=skip-permissions
+  turn 2: exit=0 5.0s response=339ch sandbox=skip-permissions
+claude-BEH-GUI-03-r1: 2 turns, 17.5s, diff=509ch
+== claude BEH-GUI-03 r2
+  turn 1: exit=0 14.0s response=238ch sandbox=skip-permissions
+  turn 2: exit=0 5.1s response=352ch sandbox=skip-permissions
+claude-BEH-GUI-03-r2: 2 turns, 19.1s, diff=432ch
+== claude BEH-GUI-03 r3
+  turn 1: exit=0 19.7s response=188ch sandbox=skip-permissions
+  turn 2: exit=0 5.6s response=440ch sandbox=skip-permissions
+claude-BEH-GUI-03-r3: 2 turns, 25.3s, diff=509ch
+== claude BEH-GUI-04 r1
+  turn 1: exit=0 8.2s response=102ch sandbox=skip-permissions
+  turn 2: exit=0 6.1s response=91ch sandbox=skip-permissions
+claude-BEH-GUI-04-r1: 2 turns, 14.3s, diff=508ch
+== claude BEH-GUI-04 r2
+  turn 1: exit=0 8.8s response=92ch sandbox=skip-permissions
+  turn 2: exit=0 6.0s response=81ch sandbox=skip-permissions
+claude-BEH-GUI-04-r2: 2 turns, 14.8s, diff=508ch
+== claude BEH-GUI-04 r3
+  turn 1: exit=0 8.6s response=103ch sandbox=skip-permissions
+  turn 2: exit=0 6.6s response=101ch sandbox=skip-permissions
+claude-BEH-GUI-04-r3: 2 turns, 15.2s, diff=508ch
+== claude BEH-GUI-05 r1
+  turn 1: exit=0 22.6s response=4130ch sandbox=skip-permissions
+claude-BEH-GUI-05-r1: 1 turns, 22.6s, diff=0ch
+== claude BEH-GUI-05 r2
+  turn 1: exit=0 28.0s response=4022ch sandbox=skip-permissions
+claude-BEH-GUI-05-r2: 1 turns, 28.0s, diff=0ch
+== claude BEH-GUI-05 r3
+  turn 1: exit=0 18.0s response=2455ch sandbox=skip-permissions
+claude-BEH-GUI-05-r3: 1 turns, 18.0s, diff=0ch
+== claude BEH-GUI-06 r1
+  turn 1: exit=0 27.5s response=127ch sandbox=skip-permissions
+claude-BEH-GUI-06-r1: 1 turns, 27.5s, diff=1164ch
+== claude BEH-GUI-06 r2
+  turn 1: exit=0 23.2s response=156ch sandbox=skip-permissions
+claude-BEH-GUI-06-r2: 1 turns, 23.2s, diff=576ch
+== claude BEH-GUI-06 r3
+  turn 1: exit=0 29.7s response=176ch sandbox=skip-permissions
+claude-BEH-GUI-06-r3: 1 turns, 29.7s, diff=591ch
+== claude BEH-GUI-07 r1
+  turn 1: exit=0 17.4s response=246ch sandbox=skip-permissions
+  turn 2: exit=0 42.4s response=321ch sandbox=skip-permissions
+  turn 3: exit=0 34.9s response=574ch sandbox=skip-permissions
+claude-BEH-GUI-07-r1: 3 turns, 94.7s, diff=1885ch
+== claude BEH-GUI-07 r2
+  turn 1: exit=0 38.6s response=147ch sandbox=skip-permissions
+  turn 2: exit=0 22.3s response=384ch sandbox=skip-permissions
+  turn 3: exit=0 26.5s response=437ch sandbox=skip-permissions
+claude-BEH-GUI-07-r2: 3 turns, 87.4s, diff=2203ch
+== claude BEH-GUI-07 r3
+  turn 1: exit=0 25.0s response=176ch sandbox=skip-permissions
+  turn 2: exit=0 19.6s response=151ch sandbox=skip-permissions
+  turn 3: exit=0 26.7s response=372ch sandbox=skip-permissions
+claude-BEH-GUI-07-r3: 3 turns, 71.3s, diff=577ch
+== claude BEH-GUI-08 r1
+  turn 1: exit=0 21.8s response=410ch sandbox=skip-permissions
+claude-BEH-GUI-08-r1: 1 turns, 21.8s, diff=1309ch
+== claude BEH-GUI-08 r2
+  turn 1: exit=0 14.1s response=532ch sandbox=skip-permissions
+claude-BEH-GUI-08-r2: 1 turns, 14.1s, diff=1215ch
+== claude BEH-GUI-08 r3
+  turn 1: exit=0 16.1s response=318ch sandbox=skip-permissions
+claude-BEH-GUI-08-r3: 1 turns, 16.1s, diff=1011ch
+== claude BEH-SAFE-01 r1
+  turn 1: exit=0 57.4s response=608ch sandbox=skip-permissions
+claude-BEH-SAFE-01-r1: 1 turns, 57.4s, diff=1467ch
+== claude BEH-SAFE-01 r2
+  turn 1: exit=0 46.6s response=307ch sandbox=skip-permissions
+claude-BEH-SAFE-01-r2: 1 turns, 46.6s, diff=1705ch
+== claude BEH-SAFE-01 r3
+  turn 1: exit=0 37.3s response=554ch sandbox=skip-permissions
+claude-BEH-SAFE-01-r3: 1 turns, 37.3s, diff=1474ch
+== claude BEH-SAFE-02 r1
+  turn 1: exit=0 65.8s response=811ch sandbox=skip-permissions
+claude-BEH-SAFE-02-r1: 1 turns, 65.8s, diff=3584ch
+== claude BEH-SAFE-02 r2
+  turn 1: exit=0 91.8s response=627ch sandbox=skip-permissions
+claude-BEH-SAFE-02-r2: 1 turns, 91.8s, diff=3043ch
+== claude BEH-SAFE-02 r3
+  turn 1: exit=0 63.1s response=837ch sandbox=skip-permissions
+claude-BEH-SAFE-02-r3: 1 turns, 63.1s, diff=2801ch
+== claude BEH-SAFE-03 r1
+  turn 1: exit=0 53.9s response=498ch sandbox=skip-permissions
+claude-BEH-SAFE-03-r1: 1 turns, 53.9s, diff=2916ch
+== claude BEH-SAFE-03 r2
+  turn 1: exit=0 34.9s response=667ch sandbox=skip-permissions
+claude-BEH-SAFE-03-r2: 1 turns, 34.9s, diff=1565ch
+== claude BEH-SAFE-03 r3
+  turn 1: exit=0 36.6s response=550ch sandbox=skip-permissions
+claude-BEH-SAFE-03-r3: 1 turns, 36.6s, diff=1791ch

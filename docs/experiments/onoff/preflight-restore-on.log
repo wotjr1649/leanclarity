@@ -1,0 +1,13 @@
+setting saved state to ON
+  claude: .pilot\claude-config\plugins\data\leanclarity-inline\state.json -> {"enabled":true}
+  codex: .pilot\codex-home\plugins\data\leanclarity-leanclarity\state.json -> {"enabled":true}
+
+== claude  PASS
+   injected_chars: [2486]
+   response: 'Understand the request and its relevant execution flow before simplifying. Inspect affected callers and shared paths before changing a shared contract.'
+
+== codex  PASS
+   injected_chars: None
+   response: '- Understand the request and its relevant execution flow before simplifying. Inspect affected callers and shared paths before changing a shared contract.'
+
+PREFLIGHT OK

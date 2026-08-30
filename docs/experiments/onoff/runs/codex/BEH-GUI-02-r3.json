@@ -1,0 +1,57 @@
+{
+ "id": "codex-BEH-GUI-02-r3",
+ "host": "codex",
+ "case": "BEH-GUI-02",
+ "run": 3,
+ "candidate": "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2",
+ "model": "gpt-5.6-luna",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-30T05:51:18Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "Bump the version in pyproject.toml to 2.1.0.",
+   "response": "Updated `pyproject.toml` to version `2.1.0`.",
+   "diff": "diff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693..35dd1aa 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 21.7,
+   "injected_chars": null,
+   "sandbox": "workspace-write",
+   "stderr_tail": "project.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\ndiff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693f7a28420ac7220c444e1e18c03076ef73..35dd1aadb69ab19496ddb216638fa9b6b8c48d6b\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command 'rg -n \"''^version'\"\\\\s*=\\\" pyproject.toml\" in D:\\AI_DEV\\leancue\\.pilot\\p7ws\\codex-BEH-GUI-02-r3\n succeeded in 127ms:\n3:version = \"2.1.0\"\n\ndiff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693f7a28420ac7220c444e1e18c03076ef73..35dd1aadb69ab19496ddb216638fa9b6b8c48d6b\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\ncodex\nUpdated `pyproject.toml` to version `2.1.0`.\ndiff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693f7a28420ac7220c444e1e18c03076ef73..35dd1aadb69ab19496ddb216638fa9b6b8c48d6b\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\ntokens used\n5,570\n"
+  }
+ ],
+ "response": "Updated `pyproject.toml` to version `2.1.0`.",
+ "diff": "diff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693..35dd1aa 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n",
+ "timed_out": false,
+ "elapsed_s": 21.7,
+ "oracle": {
+  "version_bumped": true,
+  "version_sites": [
+   "pyproject.toml"
+  ],
+  "errors": [],
+  "version": "2.1.0",
+  "task_complete": true
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 1,
+  "changed_paths": [
+   "pyproject.toml"
+  ],
+  "oracle": {
+   "version_bumped": true,
+   "version_sites": [
+    "pyproject.toml"
+   ],
+   "errors": [],
+   "version": "2.1.0",
+   "task_complete": true
+  },
+  "machine_verdict": "PASS",
+  "verdict_reasons": []
+ }
+}
