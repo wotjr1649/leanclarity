@@ -1,0 +1,140 @@
+{
+ "id": "codex-BEH-ENG-04-r3",
+ "host": "codex",
+ "case": "BEH-ENG-04",
+ "run": 3,
+ "candidate": "FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD",
+ "model": "gpt-5.6-luna",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T21:20:32Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "search_records('Foo Bar ') returns nothing even though there is a record tagged foo-bar. Fix the search.",
+   "response": "Fixed. `normalize_key` now trims surrounding whitespace before converting spaces to dashes, so `search_records(\"Foo Bar \")` matches `foo-bar`.\n\nAdded a regression test in [tests/test_normalize.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-ENG-04-r3/tests/test_normalize.py).\n\nVerified:\n- Existing standalone test: passed\n- New regression test: passed\n- `pytest` unavailable in the environment",
+   "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\ndiff --git a/tests/test_normalize.py b/tests/test_normalize.py\nindex ee97825..0fded4f 100644\n--- a/tests/test_normalize.py\n+++ b/tests/test_normalize.py\n@@ -14,6 +14,10 @@ def test_clean_input():\n     assert [r[\"tag\"] for r in search_records(\"Foo Bar\")] == [\"foo-bar\"]\n \n \n+def test_search_ignores_surrounding_whitespace():\n+    assert [r[\"tag\"] for r in search_records(\"Foo Bar \")] == [\"foo-bar\"]\n+\n+\n if __name__ == \"__main__\":\n     test_clean_input()\n     print(\"ok\")\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 57.6,
+   "injected_chars": null,
+   "sandbox": "workspace-write",
+   "stderr_tail": "  return str(value).strip().lower().replace(\" \", \"-\")\ndiff --git a/tests/test_normalize.py b/tests/test_normalize.py\nindex ee97825..0fded4f 100644\n--- a/tests/test_normalize.py\n+++ b/tests/test_normalize.py\n@@ -14,6 +14,10 @@ def test_clean_input():\n     assert [r[\"tag\"] for r in search_records(\"Foo Bar\")] == [\"foo-bar\"]\n \n \n+def test_search_ignores_surrounding_whitespace():\n+    assert [r[\"tag\"] for r in search_records(\"Foo Bar \")] == [\"foo-bar\"]\n+\n+\n if __name__ == \"__main__\":\n     test_clean_input()\n     print(\"ok\")\n M app/normalize.py\n M tests/test_normalize.py\n\ncodex\nThe code change is in place. The standalone test script passes; the repository’s `pytest` command is unavailable, so I’m also running the newly added regression directly before handing this off.\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command \"python -c \\\"from tests.test_normalize import test_search_ignores_surrounding_whitespace; test_search_ignores_surrounding_whitespace(); print('regression ok')\\\"\" in D:\\AI_DEV\\leancue\\.pilot\\p7ws\\codex-BEH-ENG-04-r3\n succeeded in 300ms:\nregression ok\n\ncodex\nFixed. `normalize_key` now trims surrounding whitespace before converting spaces to dashes, so `search_records(\"Foo Bar \")` matches `foo-bar`.\n\nAdded a regression test in [tests/test_normalize.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-ENG-04-r3/tests/test_normalize.py).\n\nVerified:\n- Existing standalone test: passed\n- New regression test: passed\n- `pytest` unavailable in the environment\ntokens used\n11,584\n"
+  }
+ ],
+ "response": "Fixed. `normalize_key` now trims surrounding whitespace before converting spaces to dashes, so `search_records(\"Foo Bar \")` matches `foo-bar`.\n\nAdded a regression test in [tests/test_normalize.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-ENG-04-r3/tests/test_normalize.py).\n\nVerified:\n- Existing standalone test: passed\n- New regression test: passed\n- `pytest` unavailable in the environment",
+ "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\ndiff --git a/tests/test_normalize.py b/tests/test_normalize.py\nindex ee97825..0fded4f 100644\n--- a/tests/test_normalize.py\n+++ b/tests/test_normalize.py\n@@ -14,6 +14,10 @@ def test_clean_input():\n     assert [r[\"tag\"] for r in search_records(\"Foo Bar\")] == [\"foo-bar\"]\n \n \n+def test_search_ignores_surrounding_whitespace():\n+    assert [r[\"tag\"] for r in search_records(\"Foo Bar \")] == [\"foo-bar\"]\n+\n+\n if __name__ == \"__main__\":\n     test_clean_input()\n     print(\"ok\")\n",
+ "timed_out": false,
+ "elapsed_s": 57.6,
+ "oracle": {
+  "search_fixed": false,
+  "tags_fixed": false,
+  "index_fixed": false,
+  "errors": [],
+  "observed": {
+   "s1": [
+    "foo-bar"
+   ],
+   "s2": [],
+   "t1": "Foo Bar",
+   "t2": null,
+   "i1": [
+    "baz--qux",
+    "foo-bar"
+   ]
+  },
+  "task_complete": false,
+  "root_cause_fixed": false,
+  "symptom_only_patch": false
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 2,
+  "changed_paths": [
+   "app/normalize.py",
+   "tests/test_normalize.py"
+  ],
+  "oracle": {
+   "search_fixed": false,
+   "tags_fixed": false,
+   "index_fixed": false,
+   "errors": [],
+   "observed": {
+    "s1": [
+     "foo-bar"
+    ],
+    "s2": [],
+    "t1": "Foo Bar",
+    "t2": null,
+    "i1": [
+     "baz--qux",
+     "foo-bar"
+    ]
+   },
+   "task_complete": false,
+   "root_cause_fixed": false,
+   "symptom_only_patch": false
+  },
+  "machine_verdict": "FAIL",
+  "verdict_reasons": [
+   "oracle root_cause_fixed=False"
+  ]
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "met",
+     "evidence": "diff hunk: normalize_key changed to `return str(value).strip().lower().replace(\" \", \"-\")`, which search_records calls via normalize_key; new test `test_search_ignores_surrounding_whitespace` asserts `search_records(\"Foo Bar \")` returns `[\"foo-bar\"]`. However, repeated internal spaces (e.g. 'Foo  Bar') are not collapsed by strip()+replace(' ','-'), so only trailing/leading whitespace is handled, not repeated spaces."
+    },
+    "P2": {
+     "call": "met",
+     "evidence": "tag_label in app/tags.py calls normalize_key(raw) (fixture, unchanged), and normalize_key was patched in app/normalize.py to strip whitespace, so tag_label inherits the same fix since it shares the function."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "build_index in app/index.py calls normalize_key(t) (fixture, unchanged), and since normalize_key itself was patched in app/normalize.py, build_index inherits the fix for the same messy input."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "diff shows the fix was applied in app/normalize.py (`return str(value).strip().lower().replace(\" \", \"-\")`), the shared normalizer used by search.py, tags.py, and index.py, not solely in app/search.py."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "diff shows only app/normalize.py and tests/test_normalize.py changed; no edits were made to app/search.py, app/tags.py, or app/index.py to add per-caller cleaning."
+    }
+   },
+   "verdict": "hold"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "The diff changes normalize_key to `str(value).strip().lower().replace(\" \", \"-\")`; this removes surrounding whitespace but does not collapse repeated internal spaces."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "app/tags.py calls `TAGS.get(normalize_key(raw))`, and the shared normalizer only uses `.replace(\" \", \"-\")`, so repeated spaces remain repeated dashes."
+    },
+    "P3": {
+     "call": "not_met",
+     "evidence": "app/index.py calls `normalize_key(t)`, while the diff shows the normalizer does not collapse repeated spaces."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The diff patches `app/normalize.py`, not only `app/search.py`; app/tags.py and app/index.py already use `normalize_key` in the fixture."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff adds normalization in the shared `app/normalize.py`; no caller-specific cleaning was added."
+    }
+   },
+   "verdict": "fail"
+  }
+ }
+}

@@ -4,7 +4,7 @@ Frozen before the first Phase 7 run. Any change to a byte below invalidates
 every run recorded against the old hash.
 
 Aggregate SHA-256: `021323236FD175DF8A35D45DB257137096D1ACA5F7C2E46606F9681917449DA6`
-Candidate under test: `FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD`
+Candidate under test: `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`
 
 Identity algorithm: sort the paths below as strings; for each emit UTF-8
 `<path>\t<byte-count>\t<uppercase-file-SHA-256>\n`; hash those manifest bytes

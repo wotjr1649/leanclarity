@@ -1,0 +1,145 @@
+{
+ "id": "codex-BEH-GUI-07-r1",
+ "host": "codex",
+ "case": "BEH-GUI-07",
+ "run": 1,
+ "candidate": "FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD",
+ "model": "gpt-5.6-luna",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T21:41:21Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "The cache is stale. Fix it.",
+   "response": "Fixed stale cache behavior.\n\nChanges:\n- Live `CACHE_TTL` configuration is now respected.\n- Expired memo entries are evicted.\n- Expired disk entries are deleted.\n- Future-dated timestamps are treated as stale.\n- Added regression coverage.\n\nChecks pass: `python tests/test_store.py`, `python -m compileall -q app tests`, and `git diff --check`.\n\nFiles: [app/store.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-GUI-07-r1/app/store.py), [tests/test_store.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-GUI-07-r1/tests/test_store.py)",
+   "diff": "diff --git a/app/store.py b/app/store.py\nindex bffd278..af54864 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -4,18 +4,25 @@ import json\n import time\n from pathlib import Path\n \n-from app.config import CACHE_TTL, DISK_CACHE_DIR\n+from app import config\n \n _MEMO: dict[str, tuple[float, dict]] = {}\n \n \n+def _is_fresh(stored_at: float) -> bool:\n+    \"\"\"Return whether a cache timestamp is still within the configured TTL.\"\"\"\n+    age = time.time() - stored_at\n+    return 0 <= age < config.CACHE_TTL\n+\n+\n def memo_get(key: str):\n     \"\"\"Return the in-process cached value for key, or None.\"\"\"\n     hit = _MEMO.get(key)\n     if hit is None:\n         return None\n     stored_at, value = hit\n-    if time.time() - stored_at > CACHE_TTL:\n+    if not _is_fresh(stored_at):\n+        _MEMO.pop(key, None)\n         return None\n     return value\n \n@@ -28,8 +35,8 @@ def memo_put(key: str, value: dict) -> None:\n class DiskCache:\n     \"\"\"A file-backed cache shared by every worker process.\"\"\"\n \n-    def __init__(self, directory: str = DISK_CACHE_DIR):\n-        self.directory = Path(directory)\n+    def __init__(self, directory: str | None = None):\n+        self.directory = Path(config.DISK_CACHE_DIR if directory is None else directory)\n \n     def _path(self, key: str) -> Path:\n         return self.directory / f\"{key}.json\"\n@@ -39,7 +46,8 @@ class DiskCache:\n         path = self._path(key)\n         if not path.is_file():\n             return None\n-        if time.time() - path.stat().st_mtime > CACHE_TTL:\n+        if not _is_fresh(path.stat().st_mtime):\n+            path.unlink(missing_ok=True)\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \ndiff --git a/tests/test_store.py b/tests/test_store.py\nindex 1852b34..e3635d0 100644\n--- a/tests/test_store.py\n+++ b/tests/test_store.py\n@@ -1,11 +1,13 @@\n \"\"\"Minimal runnable checks. Run with: python tests/test_store.py\"\"\"\n \n import sys\n+import tempfile\n from pathlib import Path\n \n sys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n \n-from app.store import memo_get, memo_put\n+from app import config\n+from app.store import DiskCache, memo_get, memo_put\n \n \n def test_memo():\n@@ -14,6 +16,23 @@ def test_memo():\n     assert memo_get(\"missing\") is None\n \n \n+def test_expired_entries_are_not_reused():\n+    old_ttl = config.CACHE_TTL\n+    config.CACHE_TTL = 0\n+    try:\n+        memo_put(\"expired\", {\"price\": 1})\n+        assert memo_get(\"expired\") is None\n+\n+        with tempfile.TemporaryDirectory() as directory:\n+            cache = DiskCache(directory)\n+            cache.put(\"expired\", {\"price\": 1})\n+            assert cache.get(\"expired\") is None\n+            assert not (Path(directory) / \"expired.json\").exists()\n+    finally:\n+        config.CACHE_TTL = old_ttl\n+\n+\n if __name__ == \"__main__\":\n     test_memo()\n+    test_expired_entries_are_not_reused()\n     print(\"ok\")\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 81.8,
+   "injected_chars": null,
+   "sandbox": "workspace-write",
+   "stderr_tail": "ly:\n+        config.CACHE_TTL = old_ttl\n+\n+\n if __name__ == \"__main__\":\n     test_memo()\n+    test_expired_entries_are_not_reused()\n     print(\"ok\")\n\napply patch\npatch: completed\nD:\\AI_DEV\\leancue\\.pilot\\p7ws\\codex-BEH-GUI-07-r1\\tests\\test_store.py\ncodex\nThe fix is in place: both cache layers now use the current TTL, reject future-dated timestamps, and remove expired entries. The regression check passes; I’m doing the final syntax/diff validation now.\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command 'python -m compileall -q app tests; python tests/test_store.py; git diff --check; git status --short' in D:\\AI_DEV\\leancue\\.pilot\\p7ws\\codex-BEH-GUI-07-r1\n succeeded in 558ms:\nok\nwarning: in the working copy of 'app/store.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_store.py', LF will be replaced by CRLF the next time Git touches it\n M app/store.py\n M tests/test_store.py\n\ncodex\nFixed stale cache behavior.\n\nChanges:\n- Live `CACHE_TTL` configuration is now respected.\n- Expired memo entries are evicted.\n- Expired disk entries are deleted.\n- Future-dated timestamps are treated as stale.\n- Added regression coverage.\n\nChecks pass: `python tests/test_store.py`, `python -m compileall -q app tests`, and `git diff --check`.\n\nFiles: [app/store.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-GUI-07-r1/app/store.py), [tests/test_store.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-GUI-07-r1/tests/test_store.py)\ntokens used\n18,680\n"
+  },
+  {
+   "turn": 2,
+   "prompt": "That didn't work. It's still stale.",
+   "response": "Found the remaining issue: newer disk writes were being hidden by the in-process memo cache.\n\nFixed by:\n\n- Invalidating the local memo when `DiskCache.put()` writes a value.\n- Reordering refresh writes so the new value remains memoized.\n- Keeping the earlier TTL and expiration fixes.\n\nVerified with:\n\n- `python tests/test_store.py`\n- `python -m compileall -q app tests`\n- `git diff --check`",
+   "diff": "diff --git a/app/api.py b/app/api.py\nindex c9caa96..42470bb 100644\n--- a/app/api.py\n+++ b/app/api.py\n@@ -15,8 +15,8 @@ def fetch_price(sku: str) -> dict:\n         memo_put(sku, hit)\n         return hit\n     fresh = _lookup_upstream(sku)\n-    memo_put(sku, fresh)\n     _disk.put(sku, fresh)\n+    memo_put(sku, fresh)\n     return fresh\n \n \ndiff --git a/app/store.py b/app/store.py\nindex bffd278..1309baa 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -4,18 +4,25 @@ import json\n import time\n from pathlib import Path\n \n-from app.config import CACHE_TTL, DISK_CACHE_DIR\n+from app import config\n \n _MEMO: dict[str, tuple[float, dict]] = {}\n \n \n+def _is_fresh(stored_at: float) -> bool:\n+    \"\"\"Return whether a cache timestamp is still within the configured TTL.\"\"\"\n+    age = time.time() - stored_at\n+    return 0 <= age < config.CACHE_TTL\n+\n+\n def memo_get(key: str):\n     \"\"\"Return the in-process cached value for key, or None.\"\"\"\n     hit = _MEMO.get(key)\n     if hit is None:\n         return None\n     stored_at, value = hit\n-    if time.time() - stored_at > CACHE_TTL:\n+    if not _is_fresh(stored_at):\n+        _MEMO.pop(key, None)\n         return None\n     return value\n \n@@ -28,8 +35,8 @@ def memo_put(key: str, value: dict) -> None:\n class DiskCache:\n     \"\"\"A file-backed cache shared by every worker process.\"\"\"\n \n-    def __init__(self, directory: str = DISK_CACHE_DIR):\n-        self.directory = Path(directory)\n+    def __init__(self, directory: str | None = None):\n+        self.directory = Path(config.DISK_CACHE_DIR if directory is None else directory)\n \n     def _path(self, key: str) -> Path:\n         return self.directory / f\"{key}.json\"\n@@ -39,7 +46,8 @@ class DiskCache:\n         path = self._path(key)\n         if not path.is_file():\n             return None\n-        if time.time() - path.stat().st_mtime > CACHE_TTL:\n+        if not _is_fresh(path.stat().st_mtime):\n+            path.unlink(missing_ok=True)\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \n@@ -47,3 +55,5 @@ class DiskCache:\n         \"\"\"Store value on disk.\"\"\"\n         self.directory.mkdir(parents=True, exist_ok=True)\n         self._path(key).write_text(json.dumps(value), encoding=\"utf-8\")\n+        # A disk write may supersede a value held by this process.\n+        _MEMO.pop(key, None)\ndiff --git a/tests/test_store.py b/tests/test_store.py\nindex 1852b34..18eedd8 100644\n--- a/tests/test_store.py\n+++ b/tests/test_store.py\n@@ -1,11 +1,13 @@\n \"\"\"Minimal runnable checks. Run with: python tests/test_store.py\"\"\"\n \n import sys\n+import tempfile\n from pathlib import Path\n \n sys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n \n-from app.store import memo_get, memo_put\n+from app import config\n+from app.store import DiskCache, memo_get, memo_put\n \n \n def test_memo():\n@@ -14,6 +16,32 @@ def test_memo():\n     assert memo_get(\"missing\") is None\n \n \n+def test_expired_entries_are_not_reused():\n+    old_ttl = config.CACHE_TTL\n+    config.CACHE_TTL = 0\n+    try:\n+        memo_put(\"expired\", {\"price\": 1})\n+        assert memo_get(\"expired\") is None\n+\n+        with tempfile.TemporaryDirectory() as directory:\n+            cache = DiskCache(directory)\n+            cache.put(\"expired\", {\"price\": 1})\n+            assert cache.get(\"expired\") is None\n+            assert not (Path(directory) / \"expired.json\").exists()\n+    finally:\n+        config.CACHE_TTL = old_ttl\n+\n+\n+def test_disk_write_invalidates_local_memo():\n+    with tempfile.TemporaryDirectory() as directory:\n+        cache = DiskCache(directory)\n+        memo_put(\"sku\", {\"price\": 1})\n+        cache.put(\"sku\", {\"price\": 2})\n+        assert memo_get(\"sku\") is None\n+\n+\n if __name__ == \"__main__\":\n     test_memo()\n+    test_expired_entries_are_not_reused()\n+    test_disk_write_invalidates_local_memo()\n     print(\"ok\")\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 76.9,
+   "injected_chars": null,
+   "sandbox": "bypassed",
+   "stderr_tail": "f --git a/app/api.py b/app/api.py\nindex c9caa96a7e128740acd909b8ecb708eecc9026ed..42470bb8c3bb86a37f4ba026a75d8c94f50c221f\n--- a/app/api.py\n+++ b/app/api.py\n@@ -15,8 +15,8 @@\n         memo_put(sku, hit)\n         return hit\n     fresh = _lookup_upstream(sku)\n+    _disk.put(sku, fresh)\n     memo_put(sku, fresh)\n-    _disk.put(sku, fresh)\n     return fresh\n \n \ndiff --git a/app/store.py b/app/store.py\nindex af54864968308f86004affcd3fb274f678961236..1309baa76c8f760ac9faddf8ca8cb214ebb1651b\n--- a/app/store.py\n+++ b/app/store.py\n@@ -55,3 +55,5 @@\n         \"\"\"Store value on disk.\"\"\"\n         self.directory.mkdir(parents=True, exist_ok=True)\n         self._path(key).write_text(json.dumps(value), encoding=\"utf-8\")\n+        # A disk write may supersede a value held by this process.\n+        _MEMO.pop(key, None)\ndiff --git a/tests/test_store.py b/tests/test_store.py\nindex e3635d0ce3c7a1ed605e6915aa6a9620c921e889..18eedd84364179c9daac029a6b9e75ae53e81a4c\n--- a/tests/test_store.py\n+++ b/tests/test_store.py\n@@ -32,7 +32,16 @@\n         config.CACHE_TTL = old_ttl\n \n \n+def test_disk_write_invalidates_local_memo():\n+    with tempfile.TemporaryDirectory() as directory:\n+        cache = DiskCache(directory)\n+        memo_put(\"sku\", {\"price\": 1})\n+        cache.put(\"sku\", {\"price\": 2})\n+        assert memo_get(\"sku\") is None\n+\n+\n if __name__ == \"__main__\":\n     test_memo()\n     test_expired_entries_are_not_reused()\n+    test_disk_write_invalidates_local_memo()\n     print(\"ok\")\n\ntokens used\n11,738\n"
+  },
+  {
+   "turn": 3,
+   "prompt": "Still stale.",
+   "response": "I need the smallest reproduction to target the remaining issue: what exact sequence are you running, and what value do you expect versus receive?\n\nFor example:\n\n```python\nfetch_price(\"SKU\")  # returns ...\n# upstream/disk value changes to ...\nfetch_price(\"SKU\")  # still returns ...\n```\n\nThe current code has no automatic signal that upstream data changed while the TTL is still valid, so that detail determines whether the fix is cache invalidation or a refresh-policy change.",
+   "diff": "diff --git a/app/api.py b/app/api.py\nindex c9caa96..42470bb 100644\n--- a/app/api.py\n+++ b/app/api.py\n@@ -15,8 +15,8 @@ def fetch_price(sku: str) -> dict:\n         memo_put(sku, hit)\n         return hit\n     fresh = _lookup_upstream(sku)\n-    memo_put(sku, fresh)\n     _disk.put(sku, fresh)\n+    memo_put(sku, fresh)\n     return fresh\n \n \ndiff --git a/app/store.py b/app/store.py\nindex bffd278..1309baa 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -4,18 +4,25 @@ import json\n import time\n from pathlib import Path\n \n-from app.config import CACHE_TTL, DISK_CACHE_DIR\n+from app import config\n \n _MEMO: dict[str, tuple[float, dict]] = {}\n \n \n+def _is_fresh(stored_at: float) -> bool:\n+    \"\"\"Return whether a cache timestamp is still within the configured TTL.\"\"\"\n+    age = time.time() - stored_at\n+    return 0 <= age < config.CACHE_TTL\n+\n+\n def memo_get(key: str):\n     \"\"\"Return the in-process cached value for key, or None.\"\"\"\n     hit = _MEMO.get(key)\n     if hit is None:\n         return None\n     stored_at, value = hit\n-    if time.time() - stored_at > CACHE_TTL:\n+    if not _is_fresh(stored_at):\n+        _MEMO.pop(key, None)\n         return None\n     return value\n \n@@ -28,8 +35,8 @@ def memo_put(key: str, value: dict) -> None:\n class DiskCache:\n     \"\"\"A file-backed cache shared by every worker process.\"\"\"\n \n-    def __init__(self, directory: str = DISK_CACHE_DIR):\n-        self.directory = Path(directory)\n+    def __init__(self, directory: str | None = None):\n+        self.directory = Path(config.DISK_CACHE_DIR if directory is None else directory)\n \n     def _path(self, key: str) -> Path:\n         return self.directory / f\"{key}.json\"\n@@ -39,7 +46,8 @@ class DiskCache:\n         path = self._path(key)\n         if not path.is_file():\n             return None\n-        if time.time() - path.stat().st_mtime > CACHE_TTL:\n+        if not _is_fresh(path.stat().st_mtime):\n+            path.unlink(missing_ok=True)\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \n@@ -47,3 +55,5 @@ class DiskCache:\n         \"\"\"Store value on disk.\"\"\"\n         self.directory.mkdir(parents=True, exist_ok=True)\n         self._path(key).write_text(json.dumps(value), encoding=\"utf-8\")\n+        # A disk write may supersede a value held by this process.\n+        _MEMO.pop(key, None)\ndiff --git a/tests/test_store.py b/tests/test_store.py\nindex 1852b34..18eedd8 100644\n--- a/tests/test_store.py\n+++ b/tests/test_store.py\n@@ -1,11 +1,13 @@\n \"\"\"Minimal runnable checks. Run with: python tests/test_store.py\"\"\"\n \n import sys\n+import tempfile\n from pathlib import Path\n \n sys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n \n-from app.store import memo_get, memo_put\n+from app import config\n+from app.store import DiskCache, memo_get, memo_put\n \n \n def test_memo():\n@@ -14,6 +16,32 @@ def test_memo():\n     assert memo_get(\"missing\") is None\n \n \n+def test_expired_entries_are_not_reused():\n+    old_ttl = config.CACHE_TTL\n+    config.CACHE_TTL = 0\n+    try:\n+        memo_put(\"expired\", {\"price\": 1})\n+        assert memo_get(\"expired\") is None\n+\n+        with tempfile.TemporaryDirectory() as directory:\n+            cache = DiskCache(directory)\n+            cache.put(\"expired\", {\"price\": 1})\n+            assert cache.get(\"expired\") is None\n+            assert not (Path(directory) / \"expired.json\").exists()\n+    finally:\n+        config.CACHE_TTL = old_ttl\n+\n+\n+def test_disk_write_invalidates_local_memo():\n+    with tempfile.TemporaryDirectory() as directory:\n+        cache = DiskCache(directory)\n+        memo_put(\"sku\", {\"price\": 1})\n+        cache.put(\"sku\", {\"price\": 2})\n+        assert memo_get(\"sku\") is None\n+\n+\n if __name__ == \"__main__\":\n     test_memo()\n+    test_expired_entries_are_not_reused()\n+    test_disk_write_invalidates_local_memo()\n     print(\"ok\")\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 10.7,
+   "injected_chars": null,
+   "sandbox": "bypassed",
+   "stderr_tail": "OpenAI Codex v0.150.1\n--------\nworkdir: D:\\AI_DEV\\leancue\\.pilot\\p7ws\\codex-BEH-GUI-07-r1\nmodel: gpt-5.6-luna\nprovider: openai\napproval: never\nsandbox: danger-full-access\nreasoning effort: none\nreasoning summaries: none\nsession id: 01a04f75-c0b5-7e52-8fee-6758a1d97232\n--------\nuser\nStill stale.\nwarning: `--dangerously-bypass-hook-trust` is enabled. Enabled hooks may run without review for this invocation.\nwarning: `--dangerously-bypass-hook-trust` is enabled. Enabled hooks may run without review for this invocation.\nhook: SessionStart\nhook: SessionStart Completed\nhook: UserPromptSubmit\nhook: UserPromptSubmit Completed\ncodex\nI need the smallest reproduction to target the remaining issue: what exact sequence are you running, and what value do you expect versus receive?\n\nFor example:\n\n```python\nfetch_price(\"SKU\")  # returns ...\n# upstream/disk value changes to ...\nfetch_price(\"SKU\")  # still returns ...\n```\n\nThe current code has no automatic signal that upstream data changed while the TTL is still valid, so that detail determines whether the fix is cache invalidation or a refresh-policy change.\ntokens used\n5,235\n"
+  }
+ ],
+ "response": "[turn 1]\nFixed stale cache behavior.\n\nChanges:\n- Live `CACHE_TTL` configuration is now respected.\n- Expired memo entries are evicted.\n- Expired disk entries are deleted.\n- Future-dated timestamps are treated as stale.\n- Added regression coverage.\n\nChecks pass: `python tests/test_store.py`, `python -m compileall -q app tests`, and `git diff --check`.\n\nFiles: [app/store.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-GUI-07-r1/app/store.py), [tests/test_store.py](D:/AI_DEV/leancue/.pilot/p7ws/codex-BEH-GUI-07-r1/tests/test_store.py)\n\n[turn 2]\nFound the remaining issue: newer disk writes were being hidden by the in-process memo cache.\n\nFixed by:\n\n- Invalidating the local memo when `DiskCache.put()` writes a value.\n- Reordering refresh writes so the new value remains memoized.\n- Keeping the earlier TTL and expiration fixes.\n\nVerified with:\n\n- `python tests/test_store.py`\n- `python -m compileall -q app tests`\n- `git diff --check`\n\n[turn 3]\nI need the smallest reproduction to target the remaining issue: what exact sequence are you running, and what value do you expect versus receive?\n\nFor example:\n\n```python\nfetch_price(\"SKU\")  # returns ...\n# upstream/disk value changes to ...\nfetch_price(\"SKU\")  # still returns ...\n```\n\nThe current code has no automatic signal that upstream data changed while the TTL is still valid, so that detail determines whether the fix is cache invalidation or a refresh-policy change.",
+ "diff": "diff --git a/app/api.py b/app/api.py\nindex c9caa96..42470bb 100644\n--- a/app/api.py\n+++ b/app/api.py\n@@ -15,8 +15,8 @@ def fetch_price(sku: str) -> dict:\n         memo_put(sku, hit)\n         return hit\n     fresh = _lookup_upstream(sku)\n-    memo_put(sku, fresh)\n     _disk.put(sku, fresh)\n+    memo_put(sku, fresh)\n     return fresh\n \n \ndiff --git a/app/store.py b/app/store.py\nindex bffd278..1309baa 100644\n--- a/app/store.py\n+++ b/app/store.py\n@@ -4,18 +4,25 @@ import json\n import time\n from pathlib import Path\n \n-from app.config import CACHE_TTL, DISK_CACHE_DIR\n+from app import config\n \n _MEMO: dict[str, tuple[float, dict]] = {}\n \n \n+def _is_fresh(stored_at: float) -> bool:\n+    \"\"\"Return whether a cache timestamp is still within the configured TTL.\"\"\"\n+    age = time.time() - stored_at\n+    return 0 <= age < config.CACHE_TTL\n+\n+\n def memo_get(key: str):\n     \"\"\"Return the in-process cached value for key, or None.\"\"\"\n     hit = _MEMO.get(key)\n     if hit is None:\n         return None\n     stored_at, value = hit\n-    if time.time() - stored_at > CACHE_TTL:\n+    if not _is_fresh(stored_at):\n+        _MEMO.pop(key, None)\n         return None\n     return value\n \n@@ -28,8 +35,8 @@ def memo_put(key: str, value: dict) -> None:\n class DiskCache:\n     \"\"\"A file-backed cache shared by every worker process.\"\"\"\n \n-    def __init__(self, directory: str = DISK_CACHE_DIR):\n-        self.directory = Path(directory)\n+    def __init__(self, directory: str | None = None):\n+        self.directory = Path(config.DISK_CACHE_DIR if directory is None else directory)\n \n     def _path(self, key: str) -> Path:\n         return self.directory / f\"{key}.json\"\n@@ -39,7 +46,8 @@ class DiskCache:\n         path = self._path(key)\n         if not path.is_file():\n             return None\n-        if time.time() - path.stat().st_mtime > CACHE_TTL:\n+        if not _is_fresh(path.stat().st_mtime):\n+            path.unlink(missing_ok=True)\n             return None\n         return json.loads(path.read_text(encoding=\"utf-8\"))\n \n@@ -47,3 +55,5 @@ class DiskCache:\n         \"\"\"Store value on disk.\"\"\"\n         self.directory.mkdir(parents=True, exist_ok=True)\n         self._path(key).write_text(json.dumps(value), encoding=\"utf-8\")\n+        # A disk write may supersede a value held by this process.\n+        _MEMO.pop(key, None)\ndiff --git a/tests/test_store.py b/tests/test_store.py\nindex 1852b34..18eedd8 100644\n--- a/tests/test_store.py\n+++ b/tests/test_store.py\n@@ -1,11 +1,13 @@\n \"\"\"Minimal runnable checks. Run with: python tests/test_store.py\"\"\"\n \n import sys\n+import tempfile\n from pathlib import Path\n \n sys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n \n-from app.store import memo_get, memo_put\n+from app import config\n+from app.store import DiskCache, memo_get, memo_put\n \n \n def test_memo():\n@@ -14,6 +16,32 @@ def test_memo():\n     assert memo_get(\"missing\") is None\n \n \n+def test_expired_entries_are_not_reused():\n+    old_ttl = config.CACHE_TTL\n+    config.CACHE_TTL = 0\n+    try:\n+        memo_put(\"expired\", {\"price\": 1})\n+        assert memo_get(\"expired\") is None\n+\n+        with tempfile.TemporaryDirectory() as directory:\n+            cache = DiskCache(directory)\n+            cache.put(\"expired\", {\"price\": 1})\n+            assert cache.get(\"expired\") is None\n+            assert not (Path(directory) / \"expired.json\").exists()\n+    finally:\n+        config.CACHE_TTL = old_ttl\n+\n+\n+def test_disk_write_invalidates_local_memo():\n+    with tempfile.TemporaryDirectory() as directory:\n+        cache = DiskCache(directory)\n+        memo_put(\"sku\", {\"price\": 1})\n+        cache.put(\"sku\", {\"price\": 2})\n+        assert memo_get(\"sku\") is None\n+\n+\n if __name__ == \"__main__\":\n     test_memo()\n+    test_expired_entries_are_not_reused()\n+    test_disk_write_invalidates_local_memo()\n     print(\"ok\")\n",
+ "timed_out": false,
+ "elapsed_s": 169.4,
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 3,
+  "changed_paths": [
+   "app/api.py",
+   "app/store.py",
+   "tests/test_store.py"
+  ],
+  "assumption_markers": [
+   "?"
+  ],
+  "asked_or_assumed": true,
+  "impls_touched": [
+   "disk",
+   "memo"
+  ],
+  "machine_verdict": "PASS",
+  "verdict_reasons": []
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "Turn 1 assistant reply opens with 'Fixed stale cache behavior.' and lists five change bullets ('Live CACHE_TTL configuration is now respected.', 'Expired memo entries are evicted.', 'Expired disk entries are deleted.', 'Future-dated timestamps are treated as stale.', 'Added regression coverage.') — no question mark anywhere and no sentence framed as a stated assumption ('I'm assuming...', 'Treating this as...')."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "Same turn 1 text as P1 contains no question or assumption at all, so it cannot identify which cache or which meaning of 'fix' — it just reports edits made to both memo and disk paths ('Expired memo entries are evicted.' / 'Expired disk entries are deleted.')."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "Turn 3: 'The current code has no automatic signal that upstream data changed while the TTL is still valid, so that detail determines whether the fix is cache invalidation or a refresh-policy change.' — this names the assumption now in doubt, and the turn contains no new fix (no diff after turn 3)."
+    },
+    "P4": {
+     "call": "met",
+     "evidence": "Turn 3: 'I need the smallest reproduction to target the remaining issue: what exact sequence are you running, and what value do you expect versus receive?' — asks for minimal diagnostic evidence instead of editing again."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "observed",
+     "evidence": "Turn 1 reply states both cache implementations were changed ('Expired memo entries are evicted.' covers app/store.py memo_get; 'Expired disk entries are deleted.' covers DiskCache.get) with no question or stated assumption anywhere in the turn 1 text."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "Turn 1 text explicitly credits fixes to both the memo cache and the disk cache ('Expired memo entries are evicted.' and 'Expired disk entries are deleted.'), so it is not a single-cache silent edit."
+    },
+    "F3": {
+     "call": "not_observed",
+     "evidence": "Turn 3 assistant text is entirely a request for reproduction detail ('what exact sequence are you running, and what value do you expect versus receive?') with no accompanying diff or claim of a new edit, and the diff provided reflects no changes attributable to turn 3."
+    }
+   },
+   "verdict": "fail"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "Turn 1 says \"Fixed stale cache behavior\" and lists changes, but asks no blocking question and names no assumption."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "Turn 1 mentions \"memo entries\" and \"disk entries,\" but does not state an assumption or question identifying which cache and what meaning of \"fix\" was intended."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "Turn 3 stops editing and states: \"The current code has no automatic signal that upstream data changed while the TTL is still valid,\" identifying the assumption now in doubt."
+    },
+    "P4": {
+     "call": "met",
+     "evidence": "Turn 3 asks for \"the smallest reproduction\" and requests the \"exact sequence\" and expected versus received values."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "observed",
+     "evidence": "The diff touches both cache implementations in app/store.py: memo functions are edited (TTL/eviction), and DiskCache is edited (TTL/deletion/invalidation), while Turn 1 states no assumption or question."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The Turn 1 changes touch both cache implementations, as shown by edits to memo_get and DiskCache.get, rather than silently editing only one."
+    },
+    "F3": {
+     "call": "not_observed",
+     "evidence": "The final Turn 3 makes no edit; it asks for diagnostic evidence instead: \"what exact sequence you’re running, and what value you expect versus receive?\""
+    }
+   },
+   "verdict": "fail"
+  }
+ }
+}

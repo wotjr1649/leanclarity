@@ -1,0 +1,113 @@
+{
+ "id": "codex-BEH-GUI-02-r2",
+ "host": "codex",
+ "case": "BEH-GUI-02",
+ "run": 2,
+ "candidate": "FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD",
+ "model": "gpt-5.6-luna",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T21:27:07Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "Bump the version in pyproject.toml to 2.1.0.",
+   "response": "Updated `pyproject.toml` version from `2.0.3` to `2.1.0`.",
+   "diff": "diff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693..35dd1aa 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 22.7,
+   "injected_chars": null,
+   "sandbox": "workspace-write",
+   "stderr_tail": "v\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\ndiff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693f7a28420ac7220c444e1e18c03076ef73..35dd1aadb69ab19496ddb216638fa9b6b8c48d6b\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\nexec\n\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\" -Command \"Get-Content -LiteralPath pyproject.toml | Select-String -Pattern '\"'^version'\"\\\\s='\" in D:\\AI_DEV\\leancue\\.pilot\\p7ws\\codex-BEH-GUI-02-r2\n succeeded in 209ms:\n\nversion = \"2.1.0\"\n\n\ndiff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693f7a28420ac7220c444e1e18c03076ef73..35dd1aadb69ab19496ddb216638fa9b6b8c48d6b\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\ncodex\nUpdated `pyproject.toml` version from `2.0.3` to `2.1.0`.\ndiff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693f7a28420ac7220c444e1e18c03076ef73..35dd1aadb69ab19496ddb216638fa9b6b8c48d6b\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n\ntokens used\n5,396\n"
+  }
+ ],
+ "response": "Updated `pyproject.toml` version from `2.0.3` to `2.1.0`.",
+ "diff": "diff --git a/pyproject.toml b/pyproject.toml\nindex e3ab693..35dd1aa 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -1,6 +1,6 @@\n [project]\n name = \"tinysrv\"\n-version = \"2.0.3\"\n+version = \"2.1.0\"\n description = \"A very small HTTP server\"\n requires-python = \">=3.11\"\n dependencies = []\n",
+ "timed_out": false,
+ "elapsed_s": 22.7,
+ "oracle": {
+  "version_bumped": true,
+  "version_sites": [
+   "pyproject.toml"
+  ],
+  "errors": [],
+  "version": "2.1.0",
+  "task_complete": true
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 1,
+  "changed_paths": [
+   "pyproject.toml"
+  ],
+  "oracle": {
+   "version_bumped": true,
+   "version_sites": [
+    "pyproject.toml"
+   ],
+   "errors": [],
+   "version": "2.1.0",
+   "task_complete": true
+  },
+  "machine_verdict": "PASS",
+  "verdict_reasons": []
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "met",
+     "evidence": "diff hunk: `-version = \"2.0.3\"` / `+version = \"2.1.0\"` in pyproject.toml"
+    },
+    "P2": {
+     "call": "met",
+     "evidence": "The diff shows only pyproject.toml changed; no other file appears in the diff."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "ASSISTANT: \"Updated `pyproject.toml` version from `2.0.3` to `2.1.0`.\" — a single-line confirmation with no numbered steps."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The response text is only: \"Updated `pyproject.toml` version from `2.0.3` to `2.1.0`.\" — no mention of branching, changelog, tagging, or publishing."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff contains only one file header, `diff --git a/pyproject.toml b/pyproject.toml`, with no other files touched."
+    }
+   },
+   "verdict": "pass"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "met",
+     "evidence": "Diff shows `+version = \"2.1.0\"` in `pyproject.toml`."
+    },
+    "P2": {
+     "call": "met",
+     "evidence": "The diff contains only `pyproject.toml`."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "Response says: `Updated pyproject.toml version from 2.0.3 to 2.1.0.`"
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The response contains no multi-step release workflow; it only reports the version update."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff shows no files changed beyond `pyproject.toml`."
+    }
+   },
+   "verdict": "pass"
+  }
+ }
+}

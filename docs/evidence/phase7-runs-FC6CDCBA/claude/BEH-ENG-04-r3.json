@@ -1,0 +1,141 @@
+{
+ "id": "claude-BEH-ENG-04-r3",
+ "host": "claude",
+ "case": "BEH-ENG-04",
+ "run": 3,
+ "candidate": "FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD",
+ "model": "claude-haiku-4-5-20251001",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T21:13:27Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "search_records('Foo Bar ') returns nothing even though there is a record tagged foo-bar. Fix the search.",
+   "response": "Fixed! The issue was that `normalize_key` wasn't stripping whitespace before normalizing. `'Foo Bar '` was being converted to `'foo-bar-'` instead of `'foo-bar'`.\n\nAdding `.strip()` to remove leading and trailing whitespace before other transformations now makes searches work correctly with extra spaces.",
+   "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 26.4,
+   "injected_chars": [
+    2482
+   ],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  }
+ ],
+ "response": "Fixed! The issue was that `normalize_key` wasn't stripping whitespace before normalizing. `'Foo Bar '` was being converted to `'foo-bar-'` instead of `'foo-bar'`.\n\nAdding `.strip()` to remove leading and trailing whitespace before other transformations now makes searches work correctly with extra spaces.",
+ "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\n",
+ "timed_out": false,
+ "elapsed_s": 26.4,
+ "oracle": {
+  "search_fixed": false,
+  "tags_fixed": false,
+  "index_fixed": false,
+  "errors": [],
+  "observed": {
+   "s1": [
+    "foo-bar"
+   ],
+   "s2": [],
+   "t1": "Foo Bar",
+   "t2": null,
+   "i1": [
+    "baz--qux",
+    "foo-bar"
+   ]
+  },
+  "task_complete": false,
+  "root_cause_fixed": false,
+  "symptom_only_patch": false
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 1,
+  "changed_paths": [
+   "app/normalize.py"
+  ],
+  "oracle": {
+   "search_fixed": false,
+   "tags_fixed": false,
+   "index_fixed": false,
+   "errors": [],
+   "observed": {
+    "s1": [
+     "foo-bar"
+    ],
+    "s2": [],
+    "t1": "Foo Bar",
+    "t2": null,
+    "i1": [
+     "baz--qux",
+     "foo-bar"
+    ]
+   },
+   "task_complete": false,
+   "root_cause_fixed": false,
+   "symptom_only_patch": false
+  },
+  "machine_verdict": "FAIL",
+  "verdict_reasons": [
+   "oracle root_cause_fixed=False"
+  ]
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "app/normalize.py diff: `return str(value).strip().lower().replace(\" \", \"-\")` only strips leading/trailing whitespace; for repeated internal spaces (e.g. 'Foo  Bar') `.replace(\" \", \"-\")` turns each space into a dash individually, producing 'foo--bar', which does not equal the stored tag 'foo-bar' in app/search.py's RECORDS (`{\"title\": \"Foo Bar\", \"tag\": \"foo-bar\"}`), so search_records fails to match repeated-space queries even after the fix."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "tag_label in app/tags.py calls the same patched normalize_key against TAGS = {\"foo-bar\": \"Foo Bar\", ...}; a repeated-space input like 'Foo  Bar' normalizes to 'foo--bar' via `.replace(\" \", \"-\")`, which is not a key in TAGS, so tag_label(\"Foo  Bar\") returns None — the repeated-space case is not handled."
+    },
+    "P3": {
+     "call": "not_met",
+     "evidence": "build_index in app/index.py (`{normalize_key(t): t for t in titles}`) uses the same normalize_key; a title with repeated spaces produces a key with a double dash (e.g. 'foo--bar') rather than the canonical single-dash form used elsewhere ('foo-bar' in RECORDS/TAGS), so build_index does not handle the repeated-space case consistently with the rest of the system."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The diff only touches app/normalize.py (`-    return str(value).lower().replace(\" \", \"-\")` / `+    return str(value).strip().lower().replace(\" \", \"-\")`), the shared function that app/normalize.py's own docstring says 'the search index, the tag table and the index builder all agree on' — app/search.py, app/tags.py, and app/index.py were not touched individually, so the fix is not confined to the search.py call site."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff modifies only app/normalize.py's normalize_key function; no changes were made inside app/search.py, app/tags.py, or app/index.py to clean input at each call site."
+    }
+   },
+   "verdict": "fail"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "The diff adds only `str(value).strip().lower().replace(\" \", \"-\")`; repeated internal spaces still become repeated dashes, so `search_records` does not handle that input."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "`app/tags.py` calls `normalize_key`, but the changed normalizer only strips leading/trailing whitespace and does not normalize repeated internal spaces."
+    },
+    "P3": {
+     "call": "not_met",
+     "evidence": "`app/index.py` calls `normalize_key`, but the changed normalizer only strips leading/trailing whitespace and does not normalize repeated internal spaces."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The diff changes `app/normalize.py`, not only `app/search.py`; `app/tags.py` and `app/index.py` continue to use the shared normalizer."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff adds `.strip()` in `app/normalize.py`; no caller-specific input cleaning was added."
+    }
+   },
+   "verdict": "fail"
+  }
+ }
+}

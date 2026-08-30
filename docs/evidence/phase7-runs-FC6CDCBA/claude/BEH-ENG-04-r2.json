@@ -1,0 +1,141 @@
+{
+ "id": "claude-BEH-ENG-04-r2",
+ "host": "claude",
+ "case": "BEH-ENG-04",
+ "run": 2,
+ "candidate": "FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD",
+ "model": "claude-haiku-4-5-20251001",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-29T21:13:00Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "search_records('Foo Bar ') returns nothing even though there is a record tagged foo-bar. Fix the search.",
+   "response": "Fixed! The issue was that `normalize_key` wasn't stripping whitespace before converting spaces to dashes. Adding `.strip()` ensures leading and trailing spaces are removed first, so `'Foo Bar '` now correctly normalizes to `'foo-bar'` instead of `'foo-bar-'`.",
+   "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\n",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 23.5,
+   "injected_chars": [
+    2482
+   ],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  }
+ ],
+ "response": "Fixed! The issue was that `normalize_key` wasn't stripping whitespace before converting spaces to dashes. Adding `.strip()` ensures leading and trailing spaces are removed first, so `'Foo Bar '` now correctly normalizes to `'foo-bar'` instead of `'foo-bar-'`.",
+ "diff": "diff --git a/app/normalize.py b/app/normalize.py\nindex 798ed4a..28550d1 100644\n--- a/app/normalize.py\n+++ b/app/normalize.py\n@@ -8,4 +8,4 @@ agree on what a key looks like.\n \n def normalize_key(value):\n     \"\"\"Canonical key: lowercase, spaces become dashes.\"\"\"\n-    return str(value).lower().replace(\" \", \"-\")\n+    return str(value).strip().lower().replace(\" \", \"-\")\n",
+ "timed_out": false,
+ "elapsed_s": 23.5,
+ "oracle": {
+  "search_fixed": false,
+  "tags_fixed": false,
+  "index_fixed": false,
+  "errors": [],
+  "observed": {
+   "s1": [
+    "foo-bar"
+   ],
+   "s2": [],
+   "t1": "Foo Bar",
+   "t2": null,
+   "i1": [
+    "baz--qux",
+    "foo-bar"
+   ]
+  },
+  "task_complete": false,
+  "root_cause_fixed": false,
+  "symptom_only_patch": false
+ },
+ "signals": {
+  "diff_empty": false,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 1,
+  "changed_paths": [
+   "app/normalize.py"
+  ],
+  "oracle": {
+   "search_fixed": false,
+   "tags_fixed": false,
+   "index_fixed": false,
+   "errors": [],
+   "observed": {
+    "s1": [
+     "foo-bar"
+    ],
+    "s2": [],
+    "t1": "Foo Bar",
+    "t2": null,
+    "i1": [
+     "baz--qux",
+     "foo-bar"
+    ]
+   },
+   "task_complete": false,
+   "root_cause_fixed": false,
+   "symptom_only_patch": false
+  },
+  "machine_verdict": "FAIL",
+  "verdict_reasons": [
+   "oracle root_cause_fixed=False"
+  ]
+ },
+ "screeners": {
+  "claude-sonnet-5": {
+   "predicates": {
+    "P1": {
+     "call": "met",
+     "evidence": "normalize_key now returns str(value).strip().lower().replace(' ', '-'), which is used by search_records via normalize_key(query); 'Foo Bar ' -> strip -> 'Foo Bar' -> 'foo-bar'."
+    },
+    "P2": {
+     "call": "met",
+     "evidence": "tag_label in app/tags.py calls normalize_key(raw) (unchanged), and normalize_key was patched in app/normalize.py, so tag_label inherits the same strip() fix."
+    },
+    "P3": {
+     "call": "met",
+     "evidence": "build_index in app/index.py calls normalize_key(t) (unchanged), and the fix was applied in the shared app/normalize.py function, so build_index inherits the same strip() fix."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "diff hunk shows only app/normalize.py changed: '-    return str(value).lower().replace(\" \", \"-\")\\n+    return str(value).strip().lower().replace(\" \", \"-\")' — the fix is in the shared normalizer, not in app/search.py's call site."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "diff shows the .strip() was added inside app/normalize.py's normalize_key function itself, not duplicated at each caller in app/search.py, app/tags.py, or app/index.py."
+    }
+   },
+   "verdict": "pass"
+  },
+  "gpt-5.6-luna": {
+   "predicates": {
+    "P1": {
+     "call": "not_met",
+     "evidence": "The diff changes normalize_key to `str(value).strip().lower().replace(\" \", \"-\")`; repeated internal spaces still become repeated dashes, so the messy repeated-space input is not handled."
+    },
+    "P2": {
+     "call": "not_met",
+     "evidence": "`app/tags.py` calls `TAGS.get(normalize_key(raw))`, and the shared normalizer only uses `.replace(\" \", \"-\")`, which does not collapse repeated spaces."
+    },
+    "P3": {
+     "call": "not_met",
+     "evidence": "`app/index.py` calls `normalize_key(t)`, and the diff does not collapse repeated spaces before replacing them with dashes."
+    }
+   },
+   "forbidden": {
+    "F1": {
+     "call": "not_observed",
+     "evidence": "The diff patches `app/normalize.py`, not only `app/search.py`; `app/tags.py` and `app/index.py` remain shared-normalizer callers."
+    },
+    "F2": {
+     "call": "not_observed",
+     "evidence": "The diff applies cleanup in the shared `normalize_key` function; no caller-specific input cleaning was added."
+    }
+   },
+   "verdict": "fail"
+  }
+ }
+}
