@@ -364,7 +364,11 @@ question, deliberately not folded into this one.
 ### Product limitations recorded
 
 Each of the five keeps or spends its one revision under 10.1 as noted, and each
-stays `HOLD` for the purposes of `COMPLETE GO`.
+stays `HOLD` for the purposes of `COMPLETE GO`. `BEH-ENG-06` was reclassified on
+2026-08-30 as a defect in this gate's own instruments rather than a product
+limitation; it stays `HOLD` on the frozen fixture regardless, and protocol 10.7
+governs what that reclassification is worth to a future fixture revision. See
+*Phase 7 closed*.
 
 | Case | Hosts | Revision under 10.1 | Why |
 |---|---|---|---|
@@ -372,7 +376,7 @@ stays `HOLD` for the purposes of `COMPLETE GO`.
 | `BEH-GUI-07` | both | unspent | Both hosts edited both cache implementations in turn one with no stated assumption. The bullet already says exactly what to do; the behaviour is what the compression literature classes as counter-intuitive and measures failing regardless of encoding |
 | `BEH-ENG-02` | Claude | unspent | Passes on Codex under identical policy text |
 | `BEH-ENG-05` | Claude | unspent | Passes on Codex under identical policy text; reproduces the compression pilot exactly |
-| `BEH-ENG-06` | Claude | unspent | The behaviour the case exists to test held on all six runs with an empty diff; it failed on finding quality, which its own screener note says is not required |
+| `BEH-ENG-06` | Claude | unspent | **Instrument defect, not a product limitation.** P2 measures `BEH-GUI-05`'s SPEC 15.2 row, not this one's; the behaviour this row names held 6/6 with an empty diff on both hosts, and every Claude `FAIL` is P2 alone |
 
 Passing on the other host explains a failure without discharging it: SPEC 15.1
 requires the threshold per host, so these remain failures of this gate.
@@ -536,12 +540,23 @@ Recorded because they shaped the results and should not be repeated:
 - **The screener prompt cannot express that the deciding evidence is an absence.** Cost seven holds.
 - **`BEH-ENG-03` names `requirements.txt` in its machine signals but omits it from
   `screener_files`**, so a screener was asked to judge a file it was never shown.
+- **`BEH-ENG-04`'s oracle demands a defect the prompt never reports.** `root_cause_fixed` also
+  probes `'  Baz  Qux '`, repeated interior spaces, while the prompt reports exactly one failing
+  input and the workspace ships no data, test or docstring hinting at a second. All six runs
+  edited the shared normalizer and patched no caller, so `symptom_only_patch` was `False`
+  everywhere; the oracle read the unreported second symptom as a failure to fix the root cause.
+  Adjudicated `PASS` on all six without re-invoking any model. Either the prompt should name both
+  symptoms or the oracle should probe only the one it names.
 - **`BEH-GUI-03` P3 is a conditional and its P4 is undefined over an empty open set.** Both
   underspecified; together they produced four holds.
 - **`BEH-ENG-06` P2 pins two required findings while its `screener_note` says finding all four
   seeded defects is not required.** The two pull against each other, and that is where the case
   failed — on finding quality, not on the review-only inference the case exists to test, which held
-  on all six runs with an empty diff.
+  on all six runs with an empty diff. Sharpened 2026-08-30: P2 does not implement this case's
+  SPEC 15.2 row at all. That row is `a report or explanation-only request does not force an
+  implementation` / `unsolicited code mutation`, which P1, F1 and F2 measure and which held 6/6 on
+  both hosts. Naming every seeded finding is `BEH-GUI-05`'s row. Every Claude `FAIL` on this case
+  is P2 alone, so the case is an instrument defect rather than a product limitation.
 - **`BEH-SAFE-03` workspace declares no Python floor**, so there was no fixture-level statement a
   response could have violated. That absence is what let two competent screeners disagree.
 - **The Claude screener returned four structurally incomplete replies**, dropping a predicate call
@@ -565,6 +580,99 @@ freeze. They belong to any future revision of this gate.
   no text on the subject by design. Its result is a non-attributable base-host observation; the pass
   is not credited to LeanClarity.
 - No paired ON/OFF comparison was run, so no causal or base-host-relative claim follows.
+
+## Phase 7 closed: the three decisions of 2026-08-30
+
+The failed gate and the discarded revision left three questions open. All three are settled
+here. Protocol sections 10.6 and 10.7 carry the forward-applying rules; this section carries
+the grounds.
+
+### The `FAIL` sits outside the gate's noise floor. The adoption rule does not.
+
+The 8-in-102 flip rate implies a per-run pass probability `p = 0.9591` (from `2p(1-p) = 8/102`),
+and that same value reproduces protocol 10.4's headline figure: cell pass `0.995121`,
+`1 - 0.995121^34 = 15.3%`. Recomputed 2026-08-30.
+
+At that rate one cell failing three runs in a row has probability `0.0409^3 = 6.8e-5`, and
+`BEH-GUI-04`'s six consecutive failures across two candidates `4.7e-9`. **Every one of the five
+failing cases failed 3/3 on the host it failed on.** None is a marginal cell, and no plausible
+noise model reaches them.
+
+So the noise floor does not threaten this verdict. What it threatens is section 10.2's ability
+to **accept** a fix: with a 34-cell suite dropping at least one cell 15.3% of the time under no
+change at all, "regress nothing" rejects roughly one harmless revision in six. That asymmetry is
+what 10.4 was written for, and why it was made symmetric.
+
+### Decision 1 — buy no runs; fix the procedure anyway
+
+No further runs are purchased. The concurrent paired baseline (+102 per revision) and the
+17-case stability characterisation (+340, amortised) are instruments for a revision loop, and
+decision 2 stops that loop. Both stay unbought.
+
+The procedure is fixed now regardless, as protocol 10.6, for the reason 10.4 gave about itself:
+settling it when a revision is actually on the table means settling it from the seat that wants
+that revision to pass. 10.6 makes 10.4's second attribution route concrete — expand only the
+cells whose verdict changed, seven runs more to ten, attribution at three or more failures — and
+records its measured ceiling with it: 0.66% false alarm per cell, 83% power against a drop to
+`p = 0.60`, and only 32% against `p = 0.80`. Catching that last one would take 39 runs per cell,
+1,326 per gate. The blindness is 10.4 being honest about what a gate can see, not 10.6 being
+weak.
+
+### Decision 2 — none of the four remaining revisions is spent
+
+`BEH-GUI-07`, `BEH-ENG-02`, `BEH-ENG-05` and `BEH-ENG-06` keep their unspent 10.1 budgets. Three
+independent grounds, in the order that settles it:
+
+1. **No permitted revision can move a gate.** `BEH-GUI-04` spent its one revision under 10.1 and
+   failed again, so 10.3 records it as a product limitation and it stays `HOLD`; PLAN Phase 8
+   holds that any applicable `HOLD` prevents `COMPLETE GO`; and 10.1 forbids that case a second
+   attempt. **`COMPLETE GO` is therefore not grantable on this candidate and this fixture freeze
+   whatever the other four do.** A revision costs 102 runs and buys no gate.
+2. **For three of the four, the causal variable is already controlled.** `BEH-ENG-02`,
+   `BEH-ENG-05` and `BEH-ENG-06` pass on Codex under byte-identical policy text — text held
+   constant, model varied, outcome varied — so the text is not the discriminating variable, and a
+   revision intervenes on the one factor already shown not to explain the difference. For
+   `BEH-GUI-07` the same conclusion arrives from the other direction: five distinct encodings of
+   that requirement (pilot `L0`, `L1`, `L2`, `L3` and the Phase 7 canonical text) produced 30
+   failures and no passes across both hosts.
+3. **The layer with confirmed defects is the instrument, not the text.** Counting what this gate
+   found after the freeze gives eight defects in its own instruments and zero policy defects
+   confirmed reachable by wording. Spending policy revisions first would revise the layer with no
+   confirmed defect, judged by the layer that has eight.
+
+### Decision 3 — stop at Phase 7 and record the state
+
+**(a) Stop.** `LCL-BEH-001` is terminal for candidate `1.0.2` on fixture freeze
+`021323236FD175DF8A35D45DB257137096D1ACA5F7C2E46606F9681917449DA6`. Phase 8 is not entered: its
+entry condition is that the applicable Phase 0–7 rows are `PASS`, which is not met, so the
+release/package/docs/license audit is not run and no part of it is reported as observed.
+
+**(c) Re-running the gate** is excluded by decision 2.
+
+**(b) Narrowing the SPEC claim is not argued, and this is the argument for not arguing it.**
+10.3 declined to pre-approve that escape but left a later, separately grounded SPEC revision
+open. The available ground would be that the failures are model-specific, three of them passing
+on Codex under identical text. But protocol section 9 already scopes every claim in this gate to
+the two pinned models at their pinned settings, and the failures sit **inside** that scope.
+Narrowing further means removing rows from SPEC 15.2, which is exactly the escape 10.3 named.
+No separate argument is available, so none is made.
+
+**What stays open.** A fixture revision under 10.5, carrying the eight recorded instrument
+conditions, would be a new freeze and a new gate on a new candidate identity. Protocol 10.7,
+added today, fixes what crosses that boundary: the 10.1 revision budget carries over by default,
+so "revise the fixture" cannot become the unlimited-retry path 10.1 exists to prevent. It
+reverts for a case only where a pre-recorded instrument defect changed what that case measures -
+today that is `BEH-ENG-06` and nothing else.
+
+### What this session did not do
+
+- No fixture byte changed. `BEH-ENG-06`'s P2 stays as frozen: protocol section 8 forbids editing
+  an oracle after seeing bad responses, and unlike the `BEH-SAFE-02` correction — which turned a
+  vacuous `True` into a real measurement, ran before adjudication, and re-scored from recorded
+  diffs without re-invoking a model — correcting P2 would turn failures into passes.
+- No verdict changed. `LCL-BEH-001` stays `FAIL`; all five cases stay `HOLD`.
+- No model, setting or oracle was touched after seeing results.
+- Nothing was pushed, published or tagged.
 
 ## Residual uncertainty
 
@@ -595,3 +703,10 @@ under the identical policy, which points at model capability rather than wording
 fail on both hosts, `BEH-GUI-04` turns on a bullet that subordinates its positive duty to a
 prohibition, and `BEH-GUI-07` asks for a behaviour the compression literature classes as
 counter-intuitive and measures failing regardless of how it is written.
+
+**These are the final gate values for this candidate on this fixture freeze.** Under protocol 10.1
+`BEH-GUI-04` has spent its one revision and cannot have another, so its `HOLD` is permanent here and
+`COMPLETE GO` is not merely ungranted but **not grantable** on candidate `1.0.2` at fixture freeze
+`02132323…`. Reaching it requires a fixture revision under 10.5 and 10.7, which is a new freeze, a
+new gate and a new candidate identity. The grounds for stopping here rather than revising further
+are recorded under *Phase 7 closed*.
