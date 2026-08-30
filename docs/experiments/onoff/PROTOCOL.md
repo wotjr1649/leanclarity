@@ -125,7 +125,8 @@ Screeners run only if the machine verdicts move, and then only on discordant run
 
 ## What this study cannot say
 
-- **The arms are not interleaved.** ON ran earlier the same day; OFF runs after it.
+- **The arms are not interleaved.** ON ran `2026-08-29 16:23-17:27Z`; OFF runs
+  `2026-08-30 05:34-06:28Z`, about thirteen hours later.
   Window drift in the serving stack is a confound this design does not remove, and
   protocol 10.4 recorded 8 of 102 machine verdicts flipping between two runs of the
   same suite four bytes apart. A binary-side difference at or below that magnitude is

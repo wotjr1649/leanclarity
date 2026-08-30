@@ -34,6 +34,18 @@ single bullet and was already established as unable to change any case outcome. 
 moved the instrument 5 units. Removing the entire policy moved it 8. **The noise is
 62% the size of the whole effect being measured.**
 
+**Run windows.** ON `2026-08-29 16:23-17:27Z`, control `2026-08-29 21:08-22:06Z`,
+OFF `2026-08-30 05:34-06:28Z`. The arms are not interleaved and the ON-to-OFF gap is
+about thirteen hours against the control's four, so the control measures drift over a
+smaller window than the one it is used to discount. The discount is therefore
+conservative in the right direction.
+
+A second noise estimate needs no control arm at all: within a single arm, two runs of
+the same cell under identical conditions disagree on the machine verdict **8 of 102
+run-pairs (7.8%)** in ON, 10 of 102 (9.8%) in the control arm and 4 of 102 (3.9%) in
+OFF. The four-byte control's between-arm flip rate is 8 of 102 — **exactly the rate at
+which the identical arm disagrees with itself.**
+
 Protocol 10.4 and 10.6 reached the same conclusion arithmetically, from the flip rate.
 This is the first direct measurement of it, and it is worse than the arithmetic
 suggested, because the noise is not only large but **asymmetric**:
@@ -111,10 +123,17 @@ is SPEC 15.2's *"non-trivial logic change에 최소 runnable check를 남긴다"
 Engineering bullet 8, *"leave the smallest runnable check that would fail if the
 behavior regressed."*
 
-This is one cell. It is not significant on its own (`n = 1` cell, `2 × 0.5³ = 0.25` if
-its three runs were independent, which they are not). It is recorded as the single
-place in this suite where the policy demonstrably and reproducibly changed what a
-model did.
+**Revised 2026-08-30 after adding the control arm.** The four-byte control ran this
+cell too, and it is `PASS/PASS/PASS` with `test_lines_added` `True` on all three, churn
+`29/28/29` against ON's `28/29/28`. So across two independent ON candidates the cell is
+`6/6 True` with zero within-arm disagreement, against OFF's `0/3`. Treating the nine
+observations as exchangeable under the null, the exact permutation probability that all
+three `False` land in the OFF arm is `1 / C(9,3) = 0.012`. Both screeners also returned
+`fail` on all three OFF runs, unanimously.
+
+It is still one cell, and one cell is not a suite. But it is the only cell in this
+study whose result survives the control, and calling it "not significant" understated
+it: the control supplies three more ON observations and they are perfectly stable.
 
 It also completes a story the gate had left half-told: `BEH-ENG-05` is one of the five
 Phase 7 failures — it fails on Claude `3/3` both with and without the policy. So on
