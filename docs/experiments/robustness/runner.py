@@ -38,6 +38,7 @@ STANDIN = HERE / "standin.md"
 RUNS = HERE / "runs"
 
 CASES = ("BEH-ENG-05", "BEH-GUI-07", "BEH-SAFE-02", "BEH-ENG-06")
+WS_SUFFIX = ""
 RUN_NUMBERS = tuple(range(1, 7))
 EFFORT = "high"
 
@@ -57,7 +58,11 @@ def set_arm(host: str, arm: str) -> None:
 
 
 def prepare(case: dict, host: str, tag: str) -> Path:
-    ws = harness.prepare_workspace(case, tag)
+    # WS_SUFFIX lets a retry use a fresh scratch directory. prepare_workspace
+    # rmtree-s the old one, and on Windows an orphaned host process that still
+    # has it as its cwd holds it open (WinError 32). Renaming the scratch path
+    # avoids both deleting and killing anything.
+    ws = harness.prepare_workspace(case, tag + WS_SUFFIX)
     if host == "codex":
         (ws / "AGENTS.md").write_text(STANDIN.read_text(encoding="utf-8"),
                                       encoding="utf-8", newline="\n")
@@ -206,7 +211,9 @@ def main() -> None:
     ap.add_argument("--run", type=int, choices=RUN_NUMBERS)
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--redo", action="store_true")
+    ap.add_argument("--ws-suffix", default="", help="scratch dir suffix for retries")
     args = ap.parse_args()
+    globals()["WS_SUFFIX"] = args.ws_suffix
 
     ids = [args.case] if args.case else list(CASES)
     runs = [args.run] if args.run else list(RUN_NUMBERS)

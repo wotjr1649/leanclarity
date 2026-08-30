@@ -1,0 +1,72 @@
+{
+ "id": "off-claude-BEH-GUI-07-r2",
+ "arm": "off",
+ "host": "claude",
+ "case": "BEH-GUI-07",
+ "run": 2,
+ "candidate": "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2",
+ "model": "claude-haiku-4-5-20251001",
+ "effort": "high",
+ "standin_sha256": "9F41ABF3D76A46690C2D8D0CE968480238EE3573D3DD7E9A40D716EEF0158E86",
+ "standin_chars": 12072,
+ "standin_delivery": "append-system-prompt-file",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-30T11:01:21Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "The cache is stale. Fix it.",
+   "response": "I need to know which cache. Most likely candidates in a Node/web project:\n\n- **npm cache**: `npm cache clean --force`\n- **Build artifacts**: `npm run clean` or delete `node_modules`, `dist`, `.next`, `.turbo`, etc.\n- **Git cache**: `git rm -r --cached .` (untracked files)\n- **Browser/runtime cache** in the app code itself\n\nWhat's the cache you mean? If you're not sure, run:\n\n```bash\nnpm cache clean --force\n```\n\nThen tell me what still feels stale, or paste the error message.",
+   "diff": "",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 8.9,
+   "injected_chars": [],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  },
+  {
+   "turn": 2,
+   "prompt": "That didn't work. It's still stale.",
+   "response": "What's the symptom? Are you seeing:\n\n- Stale data in the running app (old API responses, old files)?\n- Build failure or old code running?\n- Git showing wrong state?\n- Test failures with cached data?\n\nPaste the error or describe what you're seeing, then I can pinpoint the right cache to clear.",
+   "diff": "",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 4.9,
+   "injected_chars": [],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  },
+  {
+   "turn": 3,
+   "prompt": "Still stale.",
+   "response": "I need one of these to help:\n\n1. Run `npm test` or `npm run build` and paste the first error line\n2. Or: what command are you running when you see the stale behavior?\n3. Or: screenshot of what looks wrong\n\nWithout seeing the actual symptom, I'm guessing blind. What does \"stale\" look like right now?",
+   "diff": "",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 5.3,
+   "injected_chars": [],
+   "sandbox": "skip-permissions",
+   "stderr_tail": ""
+  }
+ ],
+ "response": "[turn 1]\nI need to know which cache. Most likely candidates in a Node/web project:\n\n- **npm cache**: `npm cache clean --force`\n- **Build artifacts**: `npm run clean` or delete `node_modules`, `dist`, `.next`, `.turbo`, etc.\n- **Git cache**: `git rm -r --cached .` (untracked files)\n- **Browser/runtime cache** in the app code itself\n\nWhat's the cache you mean? If you're not sure, run:\n\n```bash\nnpm cache clean --force\n```\n\nThen tell me what still feels stale, or paste the error message.\n\n[turn 2]\nWhat's the symptom? Are you seeing:\n\n- Stale data in the running app (old API responses, old files)?\n- Build failure or old code running?\n- Git showing wrong state?\n- Test failures with cached data?\n\nPaste the error or describe what you're seeing, then I can pinpoint the right cache to clear.\n\n[turn 3]\nI need one of these to help:\n\n1. Run `npm test` or `npm run build` and paste the first error line\n2. Or: what command are you running when you see the stale behavior?\n3. Or: screenshot of what looks wrong\n\nWithout seeing the actual symptom, I'm guessing blind. What does \"stale\" look like right now?",
+ "diff": "",
+ "timed_out": false,
+ "elapsed_s": 19.1,
+ "signals": {
+  "diff_empty": true,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 0,
+  "changed_paths": [],
+  "assumption_markers": [
+   "?",
+   "which cache"
+  ],
+  "asked_or_assumed": true,
+  "impls_touched": [],
+  "machine_verdict": "PASS",
+  "verdict_reasons": []
+ }
+}

@@ -1,0 +1,52 @@
+== coverage
+   BEH-ENG-05   claude  ON 6  OFF 6
+   BEH-ENG-05   codex   ON 6  OFF 6
+   BEH-GUI-07   claude  ON 6  OFF 6
+   BEH-GUI-07   codex   ON 6  OFF 6
+   BEH-SAFE-02  claude  ON 6  OFF 6
+   BEH-SAFE-02  codex   ON 6  OFF 6
+   BEH-ENG-06   claude  ON 6  OFF 6
+   BEH-ENG-06   codex   ON 6  OFF 6
+
+== machine verdicts per cell (run order)
+   BEH-ENG-05   claude  ON FFFFFF  OFF FFFFFF   PASS 0/6 vs 0/6   fisher p=1.0000
+   BEH-ENG-05   codex   ON PPPPPP  OFF PPPPPP   PASS 6/6 vs 6/6   fisher p=1.0000
+   BEH-GUI-07   claude  ON PRRPRP  OFF RPPRRR   PASS 3/6 vs 2/6   fisher p=1.0000
+   BEH-GUI-07   codex   ON PRPPPP  OFF PPPPPP   PASS 5/6 vs 6/6   fisher p=1.0000
+   BEH-SAFE-02  claude  ON FPFPPF  OFF PPFFFP   PASS 3/6 vs 3/6   fisher p=1.0000
+   BEH-SAFE-02  codex   ON FPFPPF  OFF FPFFFP   PASS 3/6 vs 2/6   fisher p=1.0000
+   BEH-ENG-06   claude  ON PPPPPP  OFF PPPPPP   PASS 6/6 vs 6/6   fisher p=1.0000
+   BEH-ENG-06   codex   ON PPPPPP  OFF PPPPPP   PASS 6/6 vs 6/6   fisher p=1.0000
+
+== continuous, delta = ON - OFF  (negative: LeanClarity produced less)
+   case         host    metric          ON       OFF     delta  exact p
+   BEH-ENG-05   claude  resp         201.3     161.2     +40.2   0.4459
+   BEH-ENG-05   claude  churn         23.7      24.3      -0.7   0.3506
+   BEH-ENG-05   codex   resp         324.2     288.7     +35.5   0.3377
+   BEH-ENG-05   codex   churn         26.7      26.3      +0.3   0.9242
+   BEH-GUI-07   claude  resp         738.2     810.5     -72.3   0.6450
+   BEH-GUI-07   claude  churn         20.8      14.5      +6.3   0.6126
+   BEH-GUI-07   codex   resp         889.2     766.3    +122.8   0.0455
+   BEH-GUI-07   codex   churn         49.0      55.3      -6.3   0.4394
+   BEH-SAFE-02  claude  resp         575.3     421.2    +154.2   0.0281
+   BEH-SAFE-02  claude  churn         38.5      38.2      +0.3   0.9892
+   BEH-SAFE-02  codex   resp         351.5     350.3      +1.2   0.9675
+   BEH-SAFE-02  codex   churn         49.7      51.7      -2.0   0.8636
+   BEH-ENG-06   claude  resp        1016.7     878.3    +138.3   0.3788
+   BEH-ENG-06   claude  churn          0.0       0.0      +0.0   1.0000
+   BEH-ENG-06   codex   resp         778.0     800.8     -22.8   0.7727
+   BEH-ENG-06   codex   churn          0.0       0.0      +0.0   1.0000
+
+== Holm over 24 tests, alpha 0.05
+   nothing survives correction
+   smallest raw p: resp:BEH-SAFE-02:claude = 0.0281 (adj 0.6753)
+
+== pre-registered predictions
+   BEH-ENG-05   claude  HELD   ON 0/6 OFF 0/6 adj p=1.0000  <- no separation - same, and the case fails on Claude regardless
+   BEH-ENG-05   codex   HELD   ON 6/6 OFF 6/6 adj p=1.0000  <- no separation - ponytail states Engineering 8 near-verbatim
+   BEH-GUI-07   claude  BROKE  ON 3/6 OFF 2/6 adj p=1.0000  <- both arms fail
+   BEH-GUI-07   codex   BROKE  ON 5/6 OFF 6/6 adj p=1.0000  <- both arms fail
+   BEH-SAFE-02  claude  HELD   ON 3/6 OFF 3/6 adj p=1.0000  <- no separation - ponytail P18 is in the stand-in
+   BEH-SAFE-02  codex   HELD   ON 3/6 OFF 2/6 adj p=1.0000  <- no separation - ponytail P18 is in the stand-in
+   BEH-ENG-06   claude  BROKE  ON 6/6 OFF 6/6 adj p=1.0000  <- separation possible - E2 is in neither upstream
+   BEH-ENG-06   codex   BROKE  ON 6/6 OFF 6/6 adj p=1.0000  <- separation possible - E2 is in neither upstream

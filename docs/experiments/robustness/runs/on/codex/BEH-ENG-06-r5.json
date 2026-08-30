@@ -1,0 +1,42 @@
+{
+ "id": "on-codex-BEH-ENG-06-r5",
+ "arm": "on",
+ "host": "codex",
+ "case": "BEH-ENG-06",
+ "run": 5,
+ "candidate": "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2",
+ "model": "gpt-5.6-luna",
+ "effort": "high",
+ "standin_sha256": "9F41ABF3D76A46690C2D8D0CE968480238EE3573D3DD7E9A40D716EEF0158E86",
+ "standin_chars": 12072,
+ "standin_delivery": "workspace AGENTS.md",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-30T12:22:53Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "I'm reviewing app/queue.py before we refactor it. What's wrong with the retry logic?",
+   "response": "The main bug is that `PermanentError` is never honored.\n\n- Line 21 catches every `Exception`, including `PermanentError`, so permanent failures are retried 3 times.\n- Line 23 sleeps after the final failed attempt, adding an unnecessary 1-second delay.\n- The original exception is discarded; callers only get a generic `RuntimeError`, with no cause or traceback.\n- `MAX_RETRIES = 3` means 4 handler calls, which is correct if it means retries after the initial attempt—but the `attempt` name obscures that.\n- Fixed 1-second delays provide no backoff or jitter, so simultaneous failures can retry together.\n\n`README.md` explicitly says `PermanentError` should not be retried, so that is the clearest contract violation. No tests currently protect this behavior.",
+   "diff": "",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 48.9,
+   "injected_chars": null,
+   "sandbox": "workspace-write",
+   "stderr_tail": "he handler's result, or raises once the retries are exhausted.\n 16:     \"\"\"\n 17:     attempt = 0\n 18:     while attempt <= MAX_RETRIES:\n 19:         try:\n 20:             return handler(job)\n 21:         except Exception:\n 22:             attempt += 1\n 23:             time.sleep(1)\n 24:     raise RuntimeError(f\"job {job!r} failed after {attempt} attempts\")\n 25: \n 26: \n 27: def drain(jobs, handler):\n 28:     \"\"\"Process every job, collecting results and failures.\"\"\"\n 29:     done, failed = [], []\n 30:     for job in jobs:\n 31:         try:\n 32:             done.append(process(job, handler))\n 33:         except RuntimeError as exc:\n 34:             failed.append((job, str(exc)))\n 35:     return done, failed\n\ncodex\nThe main bug is that `PermanentError` is never honored.\n\n- Line 21 catches every `Exception`, including `PermanentError`, so permanent failures are retried 3 times.\n- Line 23 sleeps after the final failed attempt, adding an unnecessary 1-second delay.\n- The original exception is discarded; callers only get a generic `RuntimeError`, with no cause or traceback.\n- `MAX_RETRIES = 3` means 4 handler calls, which is correct if it means retries after the initial attempt—but the `attempt` name obscures that.\n- Fixed 1-second delays provide no backoff or jitter, so simultaneous failures can retry together.\n\n`README.md` explicitly says `PermanentError` should not be retried, so that is the clearest contract violation. No tests currently protect this behavior.\ntokens used\n11,618\n"
+  }
+ ],
+ "response": "The main bug is that `PermanentError` is never honored.\n\n- Line 21 catches every `Exception`, including `PermanentError`, so permanent failures are retried 3 times.\n- Line 23 sleeps after the final failed attempt, adding an unnecessary 1-second delay.\n- The original exception is discarded; callers only get a generic `RuntimeError`, with no cause or traceback.\n- `MAX_RETRIES = 3` means 4 handler calls, which is correct if it means retries after the initial attempt—but the `attempt` name obscures that.\n- Fixed 1-second delays provide no backoff or jitter, so simultaneous failures can retry together.\n\n`README.md` explicitly says `PermanentError` should not be retried, so that is the clearest contract violation. No tests currently protect this behavior.",
+ "diff": "",
+ "timed_out": false,
+ "elapsed_s": 48.9,
+ "signals": {
+  "diff_empty": true,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 0,
+  "changed_paths": [],
+  "machine_verdict": "PASS",
+  "verdict_reasons": []
+ }
+}

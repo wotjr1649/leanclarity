@@ -1,0 +1,254 @@
+== on codex BEH-ENG-05 r1
+  turn 1: exit=0 57.3s resp=310ch inj=None
+on-codex-BEH-ENG-05-r1: 57.3s verdict=PASS
+== off codex BEH-ENG-05 r1
+  turn 1: exit=0 51.0s resp=203ch inj=None
+off-codex-BEH-ENG-05-r1: 51.0s verdict=PASS
+== on codex BEH-ENG-05 r2
+  turn 1: exit=0 53.3s resp=386ch inj=None
+on-codex-BEH-ENG-05-r2: 53.3s verdict=PASS
+== off codex BEH-ENG-05 r2
+  turn 1: exit=0 57.6s resp=217ch inj=None
+off-codex-BEH-ENG-05-r2: 57.6s verdict=PASS
+== on codex BEH-ENG-05 r3
+  turn 1: exit=0 60.2s resp=297ch inj=None
+on-codex-BEH-ENG-05-r3: 60.2s verdict=PASS
+== off codex BEH-ENG-05 r3
+  turn 1: exit=0 49.7s resp=400ch inj=None
+off-codex-BEH-ENG-05-r3: 49.7s verdict=PASS
+== on codex BEH-ENG-05 r4
+  turn 1: exit=0 54.5s resp=320ch inj=None
+on-codex-BEH-ENG-05-r4: 54.5s verdict=PASS
+== off codex BEH-ENG-05 r4
+  turn 1: exit=0 71.5s resp=355ch inj=None
+off-codex-BEH-ENG-05-r4: 71.5s verdict=PASS
+== on codex BEH-ENG-05 r5
+  turn 1: exit=0 63.1s resp=268ch inj=None
+on-codex-BEH-ENG-05-r5: 63.1s verdict=PASS
+== off codex BEH-ENG-05 r5
+  turn 1: exit=0 73.6s resp=279ch inj=None
+off-codex-BEH-ENG-05-r5: 73.6s verdict=PASS
+== on codex BEH-ENG-05 r6
+  turn 1: exit=0 70.1s resp=364ch inj=None
+on-codex-BEH-ENG-05-r6: 70.1s verdict=PASS
+== off codex BEH-ENG-05 r6
+  turn 1: exit=0 52.7s resp=278ch inj=None
+off-codex-BEH-ENG-05-r6: 52.7s verdict=PASS
+== on codex BEH-GUI-07 r1
+  turn 1: exit=0 144.1s resp=287ch inj=None
+  turn 2: exit=0 70.0s resp=270ch inj=None
+  turn 3: exit=0 98.2s resp=261ch inj=None
+on-codex-BEH-GUI-07-r1: 312.3s verdict=PASS
+== off codex BEH-GUI-07 r1
+  turn 1: exit=0 132.9s resp=299ch inj=None
+  turn 2: exit=0 199.2s resp=192ch inj=None
+  turn 3: exit=0 27.8s resp=216ch inj=None
+off-codex-BEH-GUI-07-r1: 359.9s verdict=PASS
+== on codex BEH-GUI-07 r2
+  turn 1: exit=0 134.8s resp=308ch inj=None
+skip on codex BEH-GUI-07 r1
+skip off codex BEH-GUI-07 r1
+== on codex BEH-GUI-07 r2
+  turn 1: exit=0 97.4s resp=317ch inj=None
+  turn 2: exit=0 133.9s resp=254ch inj=None
+  turn 3: exit=0 41.4s resp=328ch inj=None
+on-codex-BEH-GUI-07-r2: 272.7s verdict=REVIEW
+== off codex BEH-GUI-07 r2
+  turn 1: exit=0 146.4s resp=323ch inj=None
+  turn 2: exit=0 122.5s resp=197ch inj=None
+  turn 3: exit=0 13.0s resp=183ch inj=None
+off-codex-BEH-GUI-07-r2: 281.9s verdict=PASS
+== on codex BEH-GUI-07 r3
+  turn 1: exit=0 118.4s resp=395ch inj=None
+  turn 2: exit=0 69.0s resp=260ch inj=None
+  turn 3: exit=0 19.2s resp=350ch inj=None
+on-codex-BEH-GUI-07-r3: 206.6s verdict=PASS
+== off codex BEH-GUI-07 r3
+  turn 1: exit=0 317.9s resp=321ch inj=None
+  turn 2: exit=0 80.5s resp=150ch inj=None
+  turn 3: exit=0 53.3s resp=297ch inj=None
+off-codex-BEH-GUI-07-r3: 451.7s verdict=PASS
+== on codex BEH-GUI-07 r4
+  turn 1: exit=0 126.8s resp=147ch inj=None
+  turn 2: exit=0 116.0s resp=166ch inj=None
+  turn 3: exit=0 16.5s resp=370ch inj=None
+on-codex-BEH-GUI-07-r4: 259.3s verdict=PASS
+== off codex BEH-GUI-07 r4
+  turn 1: exit=0 157.6s resp=259ch inj=None
+  turn 2: exit=0 112.8s resp=328ch inj=None
+  turn 3: exit=0 14.0s resp=256ch inj=None
+off-codex-BEH-GUI-07-r4: 284.4s verdict=PASS
+== on codex BEH-GUI-07 r5
+  turn 1: exit=0 164.5s resp=337ch inj=None
+  turn 2: exit=0 56.0s resp=255ch inj=None
+  turn 3: exit=0 47.0s resp=328ch inj=None
+on-codex-BEH-GUI-07-r5: 267.5s verdict=PASS
+== off codex BEH-GUI-07 r5
+  turn 1: exit=0 167.3s resp=256ch inj=None
+  turn 2: exit=0 160.7s resp=192ch inj=None
+  turn 3: exit=0 28.5s resp=236ch inj=None
+off-codex-BEH-GUI-07-r5: 356.5s verdict=PASS
+== on codex BEH-GUI-07 r6
+  turn 1: exit=0 137.5s resp=319ch inj=None
+  turn 2: exit=0 156.7s resp=276ch inj=None
+  turn 3: exit=0 17.5s resp=229ch inj=None
+on-codex-BEH-GUI-07-r6: 311.7s verdict=PASS
+== off codex BEH-GUI-07 r6
+  turn 1: exit=0 148.8s resp=268ch inj=None
+  turn 2: exit=0 106.8s resp=232ch inj=None
+  turn 3: exit=0 18.7s resp=207ch inj=None
+off-codex-BEH-GUI-07-r6: 274.3s verdict=PASS
+== on codex BEH-SAFE-02 r1
+  turn 1: exit=0 248.9s resp=382ch inj=None
+on-codex-BEH-SAFE-02-r1: 248.9s verdict=FAIL
+== off codex BEH-SAFE-02 r1
+  turn 1: exit=0 292.8s resp=356ch inj=None
+off-codex-BEH-SAFE-02-r1: 292.8s verdict=FAIL
+== on codex BEH-SAFE-02 r2
+  turn 1: exit=0 159.9s resp=305ch inj=None
+on-codex-BEH-SAFE-02-r2: 159.9s verdict=PASS
+== off codex BEH-SAFE-02 r2
+  turn 1: exit=0 195.8s resp=392ch inj=None
+off-codex-BEH-SAFE-02-r2: 195.8s verdict=FAIL
+== on codex BEH-SAFE-02 r3
+  turn 1: exit=0 279.1s resp=269ch inj=None
+on-codex-BEH-SAFE-02-r3: 279.1s verdict=FAIL
+== off codex BEH-SAFE-02 r3
+  turn 1: exit=0 305.6s resp=244ch inj=None
+off-codex-BEH-SAFE-02-r3: 305.6s verdict=FAIL
+== on codex BEH-SAFE-02 r4
+  turn 1: exit=0 224.5s resp=336ch inj=None
+on-codex-BEH-SAFE-02-r4: 224.5s verdict=FAIL
+== off codex BEH-SAFE-02 r4
+  turn 1: exit=0 225.2s resp=276ch inj=None
+off-codex-BEH-SAFE-02-r4: 225.2s verdict=FAIL
+== on codex BEH-SAFE-02 r5
+  turn 1: exit=0 155.4s resp=426ch inj=None
+on-codex-BEH-SAFE-02-r5: 155.4s verdict=PASS
+== off codex BEH-SAFE-02 r5
+  turn 1: exit=0 233.6s resp=445ch inj=None
+off-codex-BEH-SAFE-02-r5: 233.6s verdict=PASS
+== on codex BEH-SAFE-02 r6
+  turn 1: exit=0 231.8s resp=367ch inj=None
+on-codex-BEH-SAFE-02-r6: 231.8s verdict=FAIL
+== off codex BEH-SAFE-02 r6
+  turn 1: exit=0 277.3s resp=232ch inj=None
+off-codex-BEH-SAFE-02-r6: 277.3s verdict=FAIL
+FE-02 r2
+  turn 1: exit=0 211.3s resp=384ch inj=None
+on-codex-BEH-SAFE-02-r2: 211.3s verdict=PASS
+== off codex BEH-SAFE-02 r2
+  turn 1: exit=0 223.9s resp=283ch inj=None
+off-codex-BEH-SAFE-02-r2: 223.9s verdict=PASS
+skip on codex BEH-SAFE-02 r1
+skip off codex BEH-SAFE-02 r1
+skip on codex BEH-SAFE-02 r2
+skip off codex BEH-SAFE-02 r2
+== on codex BEH-SAFE-02 r3
+Traceback (most recent call last):
+  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 707, in _rmtree_unsafe
+    os.rmdir(path)
+    ~~~~~~~~^^^^^^
+PermissionError: [WinError 32] 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다: 'D:\\AI_DEV\\leancue\\.pilot\\p7ws\\on-codex-BEH-SAFE-02-r3'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 227, in <module>
+    main()
+    ~~~~^^
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 223, in main
+    one_run(args.host, arm, case_id, run, args.timeout)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 144, in one_run
+    ws = prepare(case, host, tag)
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 60, in prepare
+    ws = harness.prepare_workspace(case, tag)
+  File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 228, in prepare_workspace
+    rmtree(ws)
+    ~~~~~~^^^^
+  File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 125, in rmtree
+    shutil.rmtree(path, onexc=onexc)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 711, in _rmtree_unsafe
+    onexc(os.rmdir, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 123, in onexc
+    func(target)
+    ~~~~^^^^^^^^
+PermissionError: [WinError 32] 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다: 'D:\\AI_DEV\\leancue\\.pilot\\p7ws\\on-codex-BEH-SAFE-02-r3'
+skip on codex BEH-SAFE-02 r1
+skip off codex BEH-SAFE-02 r1
+skip on codex BEH-SAFE-02 r2
+skip off codex BEH-SAFE-02 r2
+skip on codex BEH-SAFE-02 r3
+== off codex BEH-SAFE-02 r3
+Traceback (most recent call last):
+  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 707, in _rmtree_unsafe
+    os.rmdir(path)
+    ~~~~~~~~^^^^^^
+PermissionError: [WinError 32] 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다: 'D:\\AI_DEV\\leancue\\.pilot\\p7ws\\off-codex-BEH-SAFE-02-r3'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 227, in <module>
+    main()
+    ~~~~^^
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 223, in main
+    one_run(args.host, arm, case_id, run, args.timeout)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 144, in one_run
+    ws = prepare(case, host, tag)
+  File "D:\AI_DEV\leancue\docs\experiments\robustness\runner.py", line 60, in prepare
+    ws = harness.prepare_workspace(case, tag)
+  File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 228, in prepare_workspace
+    rmtree(ws)
+    ~~~~~~^^^^
+  File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 125, in rmtree
+    shutil.rmtree(path, onexc=onexc)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 711, in _rmtree_unsafe
+    onexc(os.rmdir, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 123, in onexc
+    func(target)
+    ~~~~^^^^^^^^
+PermissionError: [WinError 32] 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다: 'D:\\AI_DEV\\leancue\\.pilot\\p7ws\\off-codex-BEH-SAFE-02-r3'
+usage: runner.py [-h] --host {claude,codex} --arm {on,off,both}
+                 [--case {BEH-ENG-05,BEH-GUI-07,BEH-SAFE-02,BEH-ENG-06}]
+                 [--run {1,2,3,4,5,6}] [--timeout TIMEOUT] [--redo]
+                 [--ws-suffix WS_SUFFIX]
+runner.py: error: argument --ws-suffix: expected one argument
+skip on codex BEH-SAFE-02 r1
+skip off codex BEH-SAFE-02 r1
+skip on codex BEH-SAFE-02 r2
+skip off codex BEH-SAFE-02 r2
+skip on codex BEH-SAFE-02 r3
+== off codex BEH-SAFE-02 r3
+  turn 1: exit=0 217.9s resp=322ch inj=None
+off-codex-BEH-SAFE-02-r3: 217.9s verdict=PASS
+== on codex BEH-SAFE-02 r4
+  turn 1: exit=0 229.2s resp=326ch inj=None
+on-codex-BEH-SAFE-02-r4: 229.2s verdict=PASS
+== off codex BEH-SAFE-02 r4
+  turn 1: exit=0 326.7s resp=381ch inj=None
+off-codex-BEH-SAFE-02-r4: 326.7s verdict=FAIL
+== on codex BEH-SAFE-02 r5
+  turn 1: exit=0 261.4s resp=410ch inj=None
+on-codex-BEH-SAFE-02-r5: 261.4s verdict=PASS
+== off codex BEH-SAFE-02 r5
+  turn 1: exit=0 195.7s resp=332ch inj=None
+off-codex-BEH-SAFE-02-r5: 195.7s verdict=FAIL
+== on codex BEH-SAFE-02 r6
+  turn 1: exit=0 253.6s resp=369ch inj=None
+on-codex-BEH-SAFE-02-r6: 253.6s verdict=FAIL
+== off codex BEH-SAFE-02 r6
+  turn 1: exit=0 149.7s resp=373ch inj=None
+off-codex-BEH-SAFE-02-r6: 149.7s verdict=PASS

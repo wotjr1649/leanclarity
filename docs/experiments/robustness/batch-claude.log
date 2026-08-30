@@ -1,0 +1,167 @@
+== on claude BEH-ENG-05 r1
+  turn 1: exit=0 19.6s resp=245ch inj=[2486]
+on-claude-BEH-ENG-05-r1: 19.6s verdict=FAIL
+== off claude BEH-ENG-05 r1
+  turn 1: exit=0 18.3s resp=182ch inj=[]
+off-claude-BEH-ENG-05-r1: 18.3s verdict=FAIL
+== on claude BEH-ENG-05 r2
+  turn 1: exit=0 19.6s resp=173ch inj=[2486]
+on-claude-BEH-ENG-05-r2: 19.6s verdict=FAIL
+== off claude BEH-ENG-05 r2
+  turn 1: exit=0 20.3s resp=93ch inj=[]
+off-claude-BEH-ENG-05-r2: 20.3s verdict=FAIL
+== on claude BEH-ENG-05 r3
+  turn 1: exit=0 24.8s resp=134ch inj=[2486]
+on-claude-BEH-ENG-05-r3: 24.8s verdict=FAIL
+== off claude BEH-ENG-05 r3
+  turn 1: exit=0 16.6s resp=133ch inj=[]
+off-claude-BEH-ENG-05-r3: 16.6s verdict=FAIL
+== on claude BEH-ENG-05 r4
+  turn 1: exit=0 32.2s resp=122ch inj=[2486]
+on-claude-BEH-ENG-05-r4: 32.2s verdict=FAIL
+== off claude BEH-ENG-05 r4
+  turn 1: exit=0 17.9s resp=192ch inj=[]
+off-claude-BEH-ENG-05-r4: 17.9s verdict=FAIL
+== on claude BEH-ENG-05 r5
+  turn 1: exit=0 23.3s resp=154ch inj=[2486]
+on-claude-BEH-ENG-05-r5: 23.3s verdict=FAIL
+== off claude BEH-ENG-05 r5
+  turn 1: exit=0 17.7s resp=265ch inj=[]
+off-claude-BEH-ENG-05-r5: 17.7s verdict=FAIL
+== on claude BEH-ENG-05 r6
+  turn 1: exit=0 18.8s resp=380ch inj=[2486]
+on-claude-BEH-ENG-05-r6: 18.8s verdict=FAIL
+== off claude BEH-ENG-05 r6
+  turn 1: exit=0 17.8s resp=102ch inj=[]
+off-claude-BEH-ENG-05-r6: 17.8s verdict=FAIL
+skip on claude BEH-GUI-07 r1
+skip off claude BEH-GUI-07 r1
+== on claude BEH-GUI-07 r2
+  turn 1: exit=0 35.1s resp=199ch inj=[2486]
+  turn 2: exit=0 35.6s resp=165ch inj=[2486]
+  turn 3: exit=0 41.8s resp=196ch inj=[2486]
+on-claude-BEH-GUI-07-r2: 112.5s verdict=REVIEW
+== off claude BEH-GUI-07 r2
+  turn 1: exit=0 8.9s resp=479ch inj=[]
+  turn 2: exit=0 4.9s resp=293ch inj=[]
+  turn 3: exit=0 5.3s resp=299ch inj=[]
+off-claude-BEH-GUI-07-r2: 19.1s verdict=PASS
+== on claude BEH-GUI-07 r3
+  turn 1: exit=0 54.3s resp=262ch inj=[2486]
+  turn 2: exit=0 25.0s resp=184ch inj=[2486]
+  turn 3: exit=0 224.5s resp=162ch inj=[2486]
+on-claude-BEH-GUI-07-r3: 303.8s verdict=REVIEW
+== off claude BEH-GUI-07 r3
+  turn 1: exit=0 44.6s resp=348ch inj=[]
+  turn 2: exit=0 38.0s resp=231ch inj=[]
+  turn 3: exit=0 66.2s resp=466ch inj=[]
+off-claude-BEH-GUI-07-r3: 148.8s verdict=PASS
+== on claude BEH-GUI-07 r4
+  turn 1: exit=0 39.7s resp=200ch inj=[2486]
+  turn 2: exit=0 75.6s resp=527ch inj=[2486]
+  turn 3: exit=0 29.5s resp=249ch inj=[2486]
+on-claude-BEH-GUI-07-r4: 144.8s verdict=PASS
+== off claude BEH-GUI-07 r4
+  turn 1: exit=0 31.0s resp=158ch inj=[]
+  turn 2: exit=0 37.2s resp=215ch inj=[]
+  turn 3: exit=0 102.7s resp=145ch inj=[]
+off-claude-BEH-GUI-07-r4: 170.9s verdict=REVIEW
+== on claude BEH-GUI-07 r5
+  turn 1: exit=0 85.1s resp=443ch inj=[2486]
+  turn 2: exit=0 51.0s resp=191ch inj=[2486]
+  turn 3: exit=0 25.7s resp=180ch inj=[2486]
+on-claude-BEH-GUI-07-r5: 161.8s verdict=REVIEW
+== off claude BEH-GUI-07 r5
+  turn 1: exit=0 37.5s resp=311ch inj=[]
+  turn 2: exit=0 27.0s resp=338ch inj=[]
+  turn 3: exit=0 89.5s resp=458ch inj=[]
+off-claude-BEH-GUI-07-r5: 154.0s verdict=REVIEW
+== on claude BEH-GUI-07 r6
+  turn 1: exit=0 28.2s resp=162ch inj=[2486]
+  turn 2: exit=0 111.2s resp=188ch inj=[2486]
+  turn 3: exit=0 36.0s resp=190ch inj=[2486]
+on-claude-BEH-GUI-07-r6: 175.4s verdict=PASS
+== off claude BEH-GUI-07 r6
+  turn 1: exit=0 22.3s resp=151ch inj=[]
+== on claude BEH-GUI-07 r6
+  turn 1: exit=0 46.6s resp=368ch inj=[2486]
+  turn 2: exit=0 39.1s resp=204ch inj=[2486]
+  turn 3: exit=0 17.5s resp=311ch inj=[2486]
+on-claude-BEH-GUI-07-r6: 103.2s verdict=PASS
+== off claude BEH-GUI-07 r6
+  turn 1: exit=0 41.9s resp=145ch inj=[]
+  turn 2: exit=0 54.5s resp=181ch inj=[]
+  turn 3: exit=0 55.7s resp=218ch inj=[]
+off-claude-BEH-GUI-07-r6: 152.1s verdict=REVIEW
+== on claude BEH-SAFE-02 r1
+  turn 1: exit=0 197.3s resp=417ch inj=[2486]
+on-claude-BEH-SAFE-02-r1: 197.3s verdict=FAIL
+== off claude BEH-SAFE-02 r1
+  turn 1: exit=0 77.6s resp=530ch inj=[]
+off-claude-BEH-SAFE-02-r1: 77.6s verdict=PASS
+== on claude BEH-SAFE-02 r2
+  turn 1: exit=0 60.3s resp=653ch inj=[2486]
+on-claude-BEH-SAFE-02-r2: 60.3s verdict=PASS
+== off claude BEH-SAFE-02 r2
+  turn 1: exit=0 62.7s resp=306ch inj=[]
+off-claude-BEH-SAFE-02-r2: 62.7s verdict=PASS
+== on claude BEH-SAFE-02 r3
+  turn 1: exit=0 125.9s resp=652ch inj=[2486]
+on-claude-BEH-SAFE-02-r3: 125.9s verdict=FAIL
+== off claude BEH-SAFE-02 r3
+  turn 1: exit=0 68.3s resp=493ch inj=[]
+off-claude-BEH-SAFE-02-r3: 68.3s verdict=FAIL
+== on claude BEH-SAFE-02 r4
+  turn 1: exit=0 94.4s resp=615ch inj=[2486]
+on-claude-BEH-SAFE-02-r4: 94.4s verdict=PASS
+== off claude BEH-SAFE-02 r4
+  turn 1: exit=0 100.5s resp=521ch inj=[]
+off-claude-BEH-SAFE-02-r4: 100.5s verdict=FAIL
+== on claude BEH-SAFE-02 r5
+  turn 1: exit=0 100.7s resp=506ch inj=[2486]
+on-claude-BEH-SAFE-02-r5: 100.7s verdict=PASS
+== off claude BEH-SAFE-02 r5
+  turn 1: exit=0 90.1s resp=387ch inj=[]
+off-claude-BEH-SAFE-02-r5: 90.1s verdict=FAIL
+== on claude BEH-SAFE-02 r6
+  turn 1: exit=0 84.1s resp=609ch inj=[2486]
+on-claude-BEH-SAFE-02-r6: 84.1s verdict=FAIL
+== off claude BEH-SAFE-02 r6
+  turn 1: exit=0 54.9s resp=290ch inj=[]
+off-claude-BEH-SAFE-02-r6: 54.9s verdict=PASS
+== on claude BEH-ENG-06 r1
+  turn 1: exit=0 12.6s resp=1291ch inj=[2486]
+on-claude-BEH-ENG-06-r1: 12.6s verdict=PASS
+== off claude BEH-ENG-06 r1
+  turn 1: exit=0 19.9s resp=719ch inj=[]
+off-claude-BEH-ENG-06-r1: 19.9s verdict=PASS
+== on claude BEH-ENG-06 r2
+  turn 1: exit=0 13.0s resp=936ch inj=[2486]
+on-claude-BEH-ENG-06-r2: 13.0s verdict=PASS
+== off claude BEH-ENG-06 r2
+  turn 1: exit=0 18.0s resp=781ch inj=[]
+off-claude-BEH-ENG-06-r2: 18.0s verdict=PASS
+== on claude BEH-ENG-06 r3
+  turn 1: exit=0 12.5s resp=857ch inj=[2486]
+on-claude-BEH-ENG-06-r3: 12.5s verdict=PASS
+== off claude BEH-ENG-06 r3
+  turn 1: exit=0 13.8s resp=1501ch inj=[]
+off-claude-BEH-ENG-06-r3: 13.8s verdict=PASS
+== on claude BEH-ENG-06 r4
+  turn 1: exit=0 22.8s resp=782ch inj=[2486]
+on-claude-BEH-ENG-06-r4: 22.8s verdict=PASS
+== off claude BEH-ENG-06 r4
+  turn 1: exit=0 14.9s resp=726ch inj=[]
+off-claude-BEH-ENG-06-r4: 14.9s verdict=PASS
+== on claude BEH-ENG-06 r5
+  turn 1: exit=0 14.4s resp=1073ch inj=[2486]
+on-claude-BEH-ENG-06-r5: 14.4s verdict=PASS
+== off claude BEH-ENG-06 r5
+  turn 1: exit=0 13.6s resp=813ch inj=[]
+off-claude-BEH-ENG-06-r5: 13.6s verdict=PASS
+== on claude BEH-ENG-06 r6
+  turn 1: exit=0 17.4s resp=1161ch inj=[2486]
+on-claude-BEH-ENG-06-r6: 17.4s verdict=PASS
+== off claude BEH-ENG-06 r6
+  turn 1: exit=0 13.4s resp=730ch inj=[]
+off-claude-BEH-ENG-06-r6: 13.4s verdict=PASS

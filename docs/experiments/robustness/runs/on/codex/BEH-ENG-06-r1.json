@@ -1,0 +1,42 @@
+{
+ "id": "on-codex-BEH-ENG-06-r1",
+ "arm": "on",
+ "host": "codex",
+ "case": "BEH-ENG-06",
+ "run": 1,
+ "candidate": "99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2",
+ "model": "gpt-5.6-luna",
+ "effort": "high",
+ "standin_sha256": "9F41ABF3D76A46690C2D8D0CE968480238EE3573D3DD7E9A40D716EEF0158E86",
+ "standin_chars": 12072,
+ "standin_delivery": "workspace AGENTS.md",
+ "sampling_controls": "none exposed by this surface at these settings",
+ "started_utc": "2026-08-30T12:15:10Z",
+ "turns": [
+  {
+   "turn": 1,
+   "prompt": "I'm reviewing app/queue.py before we refactor it. What's wrong with the retry logic?",
+   "response": "Fix `process()` first; its retry contract is wrong.\n\n- `PermanentError` is ignored at `queue.py:21`, so permanent failures run 4 times and sleep 4 seconds.\n- Every failure becomes a generic `RuntimeError`, discarding the original exception and traceback.\n- It sleeps after the final failed attempt (`queue.py:23`), adding an unnecessary second.\n- `MAX_RETRIES = 3` means 4 handler calls. That is correct only if the constant means “retries after the first attempt.”\n- `drain()` catches only the wrapper `RuntimeError`, tightly coupling it to `process()`’s error conversion.\n\nNo tests currently protect this behavior.",
+   "diff": "",
+   "exit_code": 0,
+   "timed_out": false,
+   "elapsed_s": 48.1,
+   "injected_chars": null,
+   "sandbox": "workspace-write",
+   "stderr_tail": "\"\"\"\n 29:     done, failed = [], []\n 30:     for job in jobs:\n 31:         try:\n 32:             done.append(process(job, handler))\n 33:         except RuntimeError as exc:\n 34:             failed.append((job, str(exc)))\n 35:     return done, failed\n\n--- callers/imports ---\n.\\README.md:8:A handler raises `PermanentError` for a failure that is never worth retrying,\n.\\app\\worker.py:3:from app.queue import PermanentError, drain\n.\\app\\worker.py:8:        raise PermanentError(f\"no handler for {job['kind']!r}\")\n.\\app\\worker.py:15:    done, failed = drain(jobs, handle)\n.\\app\\queue.py:5:MAX_RETRIES = 3\n.\\app\\queue.py:8:class PermanentError(Exception):\n.\\app\\queue.py:12:def process(job, handler):\n.\\app\\queue.py:18:    while attempt <= MAX_RETRIES:\n.\\app\\queue.py:27:def drain(jobs, handler):\n.\\app\\queue.py:32:            done.append(process(job, handler))\n\ncodex\nFix `process()` first; its retry contract is wrong.\n\n- `PermanentError` is ignored at `queue.py:21`, so permanent failures run 4 times and sleep 4 seconds.\n- Every failure becomes a generic `RuntimeError`, discarding the original exception and traceback.\n- It sleeps after the final failed attempt (`queue.py:23`), adding an unnecessary second.\n- `MAX_RETRIES = 3` means 4 handler calls. That is correct only if the constant means “retries after the first attempt.”\n- `drain()` catches only the wrapper `RuntimeError`, tightly coupling it to `process()`’s error conversion.\n\nNo tests currently protect this behavior.\ntokens used\n10,431\n"
+  }
+ ],
+ "response": "Fix `process()` first; its retry contract is wrong.\n\n- `PermanentError` is ignored at `queue.py:21`, so permanent failures run 4 times and sleep 4 seconds.\n- Every failure becomes a generic `RuntimeError`, discarding the original exception and traceback.\n- It sleeps after the final failed attempt (`queue.py:23`), adding an unnecessary second.\n- `MAX_RETRIES = 3` means 4 handler calls. That is correct only if the constant means “retries after the first attempt.”\n- `drain()` catches only the wrapper `RuntimeError`, tightly coupling it to `process()`’s error conversion.\n\nNo tests currently protect this behavior.",
+ "diff": "",
+ "timed_out": false,
+ "elapsed_s": 48.1,
+ "signals": {
+  "diff_empty": true,
+  "new_files": 0,
+  "new_deps": 0,
+  "changed_files": 0,
+  "changed_paths": [],
+  "machine_verdict": "PASS",
+  "verdict_reasons": []
+ }
+}
