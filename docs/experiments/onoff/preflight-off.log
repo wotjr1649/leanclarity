@@ -1,0 +1,13 @@
+setting saved state to OFF
+  claude: .pilot\claude-config\plugins\data\leanclarity-inline\state.json -> {"enabled":false}
+  codex: .pilot\codex-home\plugins\data\leanclarity-leanclarity\state.json -> {"enabled":false}
+
+== claude  PASS
+   injected_chars: []
+   response: 'NONE'
+
+== codex  PASS
+   injected_chars: None
+   response: 'NONE'
+
+PREFLIGHT OK
