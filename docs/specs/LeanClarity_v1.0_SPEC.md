@@ -6,7 +6,7 @@
 |---|---|
 | 문서 종류 | Normative Product and Runtime Specification |
 | 제품 계보 | LeanClarity |
-| 문서 버전 | 1.3 (section 19 개정 이력 참조) |
+| 문서 버전 | 1.4 (section 19 개정 이력 참조) |
 | 설계 상태 | SPEC GO |
 | 구현 상태 | NOT VERIFIED |
 | Host 통합 상태 | NOT VERIFIED |
@@ -746,6 +746,34 @@ Section 15 behavior acceptance는 이 규칙 밖이다. Model output behavior는
 
 승계는 predecessor의 `BLOCKED`, `NOT RUN` 또는 `HOLD` row를 `PASS`로 바꾸지 않으며, predecessor가 하지 않은 관측을 대신하지 않는다. 이 규칙은 byte set 차이만으로 판정하므로 압축본에서 canonical text로 되돌아가는 방향에도 같은 조건으로 적용한다.
 
+### 17.2 documentation-only revision 승계
+
+**documentation-only revision**은 이미 검증을 마친 predecessor candidate와 `README.md`만 다르고 나머지 distribution byte는 전부 같은 candidate다. 두 manifest, `hooks/hooks.json`, `hooks/leanclarity.cjs`, `policies/engineering.md`, `policies/guidance.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`가 predecessor와 byte-identical해야 한다.
+
+documentation-only revision은 predecessor의 **`HOST INTEGRATION GO` 관측 전부와 section 15 behavior acceptance 전부를 승계한다.**
+
+근거는 `README.md`가 어떤 model context에도 주입되지 않는다는 것이다. Section 11의 canonical file별 측정과 Main/Subagent composition 측정은 `policies/*.md`만 읽고, 두 host의 context-limit 관측은 composed policy size만 본다. Section 15의 어떤 run도 `README.md`를 모델에 전달하지 않는다. Host의 plugin discovery, hook map 등록, event dispatch, command intercept, state, data root, subagent scope는 전부 manifest, hook map과 runtime이 결정한다. `README.md`를 읽는 검증은 section 16의 결정적 operator documentation test 하나뿐이며 그것은 모든 실행에서 돈다.
+
+17.1이 policy-only revision에게 context 측정을 다시 요구하는 이유는 policy text가 실제로 주입되기 때문이다. `README.md`는 주입되지 않으므로 그 이유가 성립하지 않는다.
+
+다시 수행하는 것은 둘뿐이다.
+
+- candidate identity 재계산과 기록. Candidate byte set이 바뀌므로 aggregate hash와 `README.md`의 byte/SHA-256을 evidence에 갱신한다.
+- operator documentation test 전체.
+
+승계는 다음을 revision evidence에 기록했을 때만 성립한다.
+
+- 두 aggregate hash와 각각의 파일별 byte set이 기록돼 있다.
+- 두 byte set의 차이가 `README.md`에만 있음을 보였다.
+- 승계하는 predecessor row가 그 candidate에서 실제로 관측된 값이다.
+
+**남용 방지.** documentation-only revision은 승계한 증거가 지지하지 않는 주장을 `README.md`에 추가하는 데 쓸 수 없다. 이 조건은 문장으로만 두지 않고 기계로 강제한다 — section 16의 operator documentation test는 개선·인과·보증 주장의 **부재**를 검사하는 assertion을 포함해야 하며, 그 assertion이 없으면 이 조항의 승계는 성립하지 않는다. 승계 evidence는 그 assertion이 통과했음을 기록한다.
+
+**이 조항이 필요한 이유.** 17.1만 있으면 문서 한 문장을 고치는 데 host matrix 전수 재관측과 section 15 전체가 든다. 그것은 **거짓 주장을 바로잡는 데 이 SPEC이 매기는 값을 가장 높게 만드는** 규칙이고, 실제로 그 값 때문에 2026-08-31 시점의 frozen candidate가 두 paired ON/OFF study가 반증한 문장을 `README.md`에 실은 채로 남아 있었다. 정정 비용이 방치 비용보다 큰 규칙은 정확성을 벌한다.
+
+승계는 predecessor의 `FAIL`, `BLOCKED`, `NOT RUN` 또는 `HOLD` row를 바꾸지 않는다. `LCL-BEH-001`이 predecessor에서 `FAIL`이면 documentation-only revision에서도 `FAIL`이고, 이 조항은 어떤 gate도 열지 않는다.
+
+
 ## 18. 현재 판정
 
 | Gate | 판정 | 근거 |
@@ -775,6 +803,7 @@ Section 15 behavior acceptance는 이 규칙 밖이다. Model output behavior는
 
 | 문서 버전 | 날짜 | 변경 |
 |---|---|---|
+| 1.4 | 2026-08-31 | Section 17(17.2 신설), 19: `README.md`만 다른 candidate가 predecessor의 host 관측과 section 15 behavior acceptance를 전부 승계하도록 규범화. 근거는 `README.md`가 어떤 model context에도 주입되지 않고, 그것을 읽는 검증이 section 16의 결정적 operator documentation test 하나뿐이라는 것이다. 17.1만으로는 문서 한 문장을 고치는 데 host matrix 전수 재관측과 102 run이 들어, 거짓 주장의 정정 비용이 방치 비용을 넘었다. 남용 방지로 operator documentation test에 개선·인과·보증 주장 부재 assertion을 요구하고, 그것 없이는 승계가 성립하지 않게 했다. 어떤 gate도 열지 않으며 `FAIL`/`HOLD` row를 바꾸지 않는다. Candidate byte set과 plugin version은 이 개정으로 바뀌지 않는다. |
 | 1.0 | 2026-08-28 | 최초 SPEC GO |
 | 1.3 | 2026-08-29 | Section 7.1, 10.2, 10.3, 12.2, 13.2, 16(`LCL-STATE-001`): 격리된 신규 Codex 프로필에서 host가 `<CODEX_HOME>/plugins/data/`를 만들지 않음을 실제 host에서 관찰(GO evidence의 Codex host results). 1.1은 leaf 디렉터리만 다뤄 부모가 없는 신규 설치에서 여전히 주입 0이고 `leanclarity on`도 복구하지 못했다. 존재하지 않는 data root 경로를 깊이와 무관하게 absent(default `ON`)로 읽고, write에서만 그 경로를 재귀 생성하도록 계약 변경. Plugin version `1.0.2`. 다른 normative 변경 없음. |
 | 1.2 | 2026-08-29 | Section 2.3, 11, 17(17.1 신설), 19: policy 파일만 바뀐 candidate가 predecessor의 host 관측 중 무엇을 승계하고 무엇을 다시 관측하는지 규범화. Context 측정과 host context-limit 관측은 승계하지 않고, section 15 behavior acceptance는 이 규칙 밖에서 전부 수행한다. `BLOCKED`/`NOT RUN`/`HOLD`는 승계 대상이 아니다. Candidate byte set과 plugin version은 바뀌지 않는다. |

@@ -59,7 +59,7 @@ The catalogs follow the pinned upstream repositories' layout (Ponytail and i-hav
 - Anthropic Claude Code hooks: https://code.claude.com/docs/en/hooks
 - Anthropic plugin reference: https://code.claude.com/docs/en/plugins-reference
 - Node.js file system API: https://nodejs.org/api/fs.html
-- Canonical SPEC SHA-256: `24D057D203C10C1CD3D3881B7B55AF6FE6D2E3913F7115EC894310F37DFBBA03` (document version 1.3; version 1.2 was `E7DC6730FD971EE3751248E19EC8021BE7AA32DBFA15AF0B0EC13A199EDFB819`, version 1.1 was `ACB6BA9814E6F8C5B926B8ED494F1C0967A8239210ADED8773D89ABE6A1546FD`, version 1.0 was `0B633AEE5B54546F70FAB717DEEAF50B125529A0413DF5E1CA12E7BFA039955A`)
+- Canonical SPEC SHA-256: `A39790C53E6511066F8EA10F91259B5F4B08B9933E15EC6C91C46137CF15E872` (document version 1.4; version 1.3 was `24D057D203C10C1CD3D3881B7B55AF6FE6D2E3913F7115EC894310F37DFBBA03`, version 1.2 was `E7DC6730FD971EE3751248E19EC8021BE7AA32DBFA15AF0B0EC13A199EDFB819`, version 1.1 was `ACB6BA9814E6F8C5B926B8ED494F1C0967A8239210ADED8773D89ABE6A1546FD`, version 1.0 was `0B633AEE5B54546F70FAB717DEEAF50B125529A0413DF5E1CA12E7BFA039955A`)
 - Canonical PLAN SHA-256: `61A195B51237B8A992A09AF82152DBFC320329CD4DA7CF8535D379EE98E6E798` (the earlier PLAN was `E30B43CC3A6B43DF74BE1010BA916914DE913E92C1E9DC95D7C3BC81862713C7`)
 - Ponytail: https://github.com/DietrichGebert/ponytail at `2ed6c52c9d7e5e56942508591085fd45dea277d3`
 - i-have-adhd: https://github.com/ayghri/i-have-adhd at `cbe69fb83c08a37cf54d5ec9ec6bb88c8bc9973c`
@@ -826,6 +826,34 @@ character rather than the count being waved through.
   It is not added now because it would be red against the shipped `README.md`, and leaving
   verification red to record an intention is the failure mode this project spent Phase 7 avoiding.
 
+### SPEC 1.4 adds a documentation-only inheritance rule (2026-08-31)
+
+Correcting the `README.md` claim was the cheapest thing to write and the most expensive thing to
+land. `README.md` is inside the candidate distribution byte set, and SPEC 17.1 grants inheritance
+only to a revision differing in `policies/*.md` alone, so a documentation change re-observed the
+whole Phase 6 host matrix and re-ran section 15 in full — the `1.0.1` to `1.0.2` precedent. **The
+rule priced correcting a false claim above leaving it in place**, and that price is why the
+unsupported sentence was still shipping.
+
+SPEC 17.2 closes that. A candidate differing only in `README.md`, with every other distribution byte
+identical, inherits the predecessor's host observations **and** its section 15 behavior acceptance.
+The ground is that `README.md` reaches no model context: section 11 measures the policy files, the
+context-limit observations look at composed policy size, no section 15 run carries it, and every
+Phase 6 row is determined by the manifests, the hook map and the runtime. One deterministic test
+reads it, and that test runs on every invocation.
+
+Two things are re-done: the candidate identity is recomputed and recorded, and the operator
+documentation test runs in full.
+
+**The abuse guard is mechanical, not a promise.** 17.2 grants nothing unless the operator
+documentation test carries an assertion for the *absence* of an improvement, causal or guarantee
+claim — the gap the Phase 8 pre-audit found. The assertion and the README replacement therefore land
+in the same revision, and the inheritance only becomes available at the moment the claim is gone.
+
+It opens no gate. `LCL-BEH-001` stays `FAIL` on any documentation-only successor, and `COMPLETE GO`
+stays blocked by `BEH-GUI-04`'s spent revision budget under 10.1 and 10.7. Phase 7 executed against
+SPEC 1.3 and that record is unchanged; 17.2 adds a rule and re-observes nothing.
+
 ### Carried to the next revision
 
 `README.md` replacement · the item-9 guard assertion · the precedence clause the decomposition found
@@ -855,7 +883,7 @@ missing · the nine instrument defects under 10.5. One revision, one gate, one c
 
 ## Final gates
 
-- SPEC GO: `GO` (canonical SPEC document version 1.3, `24D057D203C10C1CD3D3881B7B55AF6FE6D2E3913F7115EC894310F37DFBBA03`; PLAN `61A195B51237B8A992A09AF82152DBFC320329CD4DA7CF8535D379EE98E6E798`)
+- SPEC GO: `GO` (canonical SPEC document version 1.4, `A39790C53E6511066F8EA10F91259B5F4B08B9933E15EC6C91C46137CF15E872`; PLAN `61A195B51237B8A992A09AF82152DBFC320329CD4DA7CF8535D379EE98E6E798`)
 - IMPLEMENTATION GO: `GO` (all 22 applicable Phase 1–5 deterministic requirement slices PASS on the frozen candidate)
 - HOST INTEGRATION GO: `GO` (every PLAN Phase 6 row observed on candidate `1.0.2` on both hosts; see Phase 6 row coverage)
 - RELEASE GO: `NOT VERIFIED` — `LCL-BEH-001` is `FAIL` on candidate `1.0.2`, and PLAN Phase 8's package/docs/license audit has not run
