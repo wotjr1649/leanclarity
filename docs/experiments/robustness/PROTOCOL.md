@@ -57,7 +57,7 @@ ON/OFF 연구는 *빈 맥락*에서 정책의 효과를 물었고 "이 계기로
 |---|---|
 | 내용 | `ponytail/skills/ponytail/SKILL.md` 본문 + `i-have-adhd/skills/i-have-adhd/SKILL.md` 본문 |
 | pinned | `2ed6c52c9d7e5e56942508591085fd45dea277d3` · `cbe69fb83c08a37cf54d5ec9ec6bb88c8bc9973c` |
-| 크기 | **12,072자** (frontmatter 제거 후. 원본 파일 합 13,710은 모델에 도달하지 않는다) |
+| 크기 | **12,072자** (frontmatter 제거 후. 원본 파일은 13,710 bytes / 13,429자이고 frontmatter는 모델에 도달하지 않는다). 각 upstream의 자기 hook이 실제로 주입하는 양은 11,584자로 더 작다 — ponytail이 mode 필터로 5,193자, i-have-adhd가 6,391자 |
 | SHA-256 | `9F41ABF3D76A46690C2D8D0CE968480238EE3573D3DD7E9A40D716EEF0158E86` |
 | 생성 | `build_standin.py` — 각 upstream 자신의 hook이 쓰는 것과 같은 frontmatter 정규식 |
 

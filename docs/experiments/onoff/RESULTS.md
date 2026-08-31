@@ -166,8 +166,7 @@ Measured cost, which needs no comparison:
 | | |
 |---|---|
 | Injected per session | 2,486 chars ≈ 622 tokens (Main), 1,176 ≈ 294 (Subagent) |
-| Against the two upstreams' always-on form | 7,791 → 2,486 chars, **68.1% smaller** |
-| Against the two upstreams' skill bodies | 13,710 → 2,486 chars, **81.9% smaller** |
+| Against what the two upstreams actually inject | 11,584 → 2,486 chars, **78.5% smaller** |
 | Ponytail's five auxiliary skills | 10,770 chars carried at zero |
 | Wall clock | about 14.5% slower, suggestive only |
 

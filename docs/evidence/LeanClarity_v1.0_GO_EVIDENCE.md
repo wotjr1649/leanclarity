@@ -743,8 +743,8 @@ comparisons inside study 2 are clean and comparisons to this gate are not attrib
 
 ### What follows for claims
 
-The measured net value of LeanClarity is the merge and the compression, not behaviour: 68.1% smaller
-than the two upstreams' always-on form, 81.9% smaller than their skill bodies, five auxiliary
+The measured net value of LeanClarity is the merge and the compression, not behaviour: **78.5%
+smaller than what the two upstreams actually inject**, five auxiliary
 ponytail skills carried at zero, persistence and mode machinery moved from prose into a hook, at
 2,486 characters and roughly 622 tokens per session.
 

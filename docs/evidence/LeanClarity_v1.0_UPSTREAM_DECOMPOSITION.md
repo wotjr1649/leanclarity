@@ -192,7 +192,7 @@ accessibility basics, **anything explicitly requested**."* LeanClarity E7은 안
 42개 상위 단위 중 **23개 채택, 16개 버림, 2개를 기제로 대체, 1개 명시적 부정**, 그리고 신규 2개.
 
 **통합의 실질은 텍스트 압축이 아니라 기제 치환이다.** 두 상위가 산문으로 선언하던 지속성과
-호출 방식(P2·P17·A16의 절반)이 훅과 saved state로 옮겨갔다. 81.9%의 바이트 감소 중 상당 부분이
+호출 방식(P2·P17·A16의 절반)이 훅과 saved state로 옮겨갔다. 78.5%의 바이트 감소 중 상당 부분이
 거기서 나온다 — 행동 규칙을 줄인 것이 아니라 **행동 규칙을 유지하는 장치를 텍스트에서 코드로**
 옮긴 것이다.
 
@@ -201,12 +201,15 @@ accessibility basics, **anything explicitly requested**."* LeanClarity E7은 안
 
 ## 7. 견고성 연구에 대한 사전 예측 (반증 가능)
 
-대역 지침은 위 두 `SKILL.md`(합 13,710자)다. 분해가 확정한 사실 위에서:
+대역 지침은 위 두 `SKILL.md`의 본문(frontmatter 제거 후 합 12,072자)이다. 각 upstream의
+자기 hook이 실제로 주입하는 양은 11,584자로 조금 더 작다 — ponytail이 mode 필터로 기본 `full`에서
+5,193자를 내고(lite 5,166 / ultra 5,230), i-have-adhd가 6,391자를 낸다. 대역은 필터를 적용하지 않아
+ponytail 쪽이 485자 더 크다. 분해가 확정한 사실 위에서:
 
 1. **`BEH-ENG-05`의 신호는 사라진다.** ponytail P23이 LeanClarity E8과 거의 축자로 같다
    (*"non-trivial logic leaves ONE runnable check behind, the smallest thing that fails if the
    logic breaks"*). 대역이 실린 상태에서는 LeanClarity ON/OFF가 이 케이스를 가르지 못해야 한다.
-   갈린다면 2,486자가 13,710자보다 같은 행동을 더 잘 유도한다는 뜻이고, 그것도 발표할 값이다.
+   갈린다면 2,486자가 12,072자보다 같은 행동을 더 잘 유도한다는 뜻이고, 그것도 발표할 값이다.
 2. **`BEH-GUI-07`은 양쪽 다 계속 실패한다.** A13이 대역에 그대로 있으므로, 정책이 이 행동을
    유도하지 못하는 것이 텍스트 문제가 아니라는 기존 진단이 옳다면 대역도 못 유도한다.
 3. **`BEH-SAFE-02`는 대역만으로도 가드가 보존된다.** P18이 대역에 있다. LeanClarity가 없어도
