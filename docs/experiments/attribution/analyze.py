@@ -27,12 +27,17 @@ CELLS = {
 }
 
 
-def verdicts(base: Path, case: str) -> list:
+def records(base: Path, case: str) -> list:
     out = []
     for f in sorted(glob.glob(str(base / f"{case}-r*.json"))):
         d = json.loads(Path(f).read_text(encoding="utf-8"))
-        out.append(d.get("signals", {}).get("machine_verdict"))
+        out.append((d.get("signals", {}).get("machine_verdict"),
+                    bool((d.get("oracle") or {}).get("oracle_could_not_exercise"))))
     return out
+
+
+def verdicts(base: Path, case: str) -> list:
+    return [v for v, _ in records(base, case)]
 
 
 def fisher2(a, b, c, d) -> float:
@@ -73,6 +78,28 @@ def rule(cA, nA, cB, nB, cC, nC) -> str:
             f"A third condition would be needed and is not bought.")
 
 
+def exercised(case: str) -> None:
+    """Protocol 10.5 governs and the harness does not implement it: a run whose
+    oracle could not reach the destructive path is an observation failure, not a
+    verdict, yet machine_verdict scores it FAIL. That defect is already recorded in
+    the GO evidence. This view drops those runs instead of scoring them.
+
+    PROTOCOL.md assumed the flag falls equally on all three cells, so that cell
+    comparison would be unbiased. It does not. Printing both readings is the point:
+    the registered rule stands as registered, and this is what the project's own
+    10.5 says the same records mean."""
+    print("     10.5 view - observation failures dropped, not scored:")
+    for label, tmpl in CELLS.items():
+        parts = []
+        for host in HOSTS:
+            rs = records(Path(str(tmpl).format(host=host)), case)
+            usable = [v for v, ce in rs if not ce]
+            ce_n = sum(ce for _, ce in rs)
+            parts.append(f"{host} {sum(v == 'PASS' for v in usable)}/{len(usable)}"
+                         f" usable, {ce_n} unexercised")
+        print(f"       {label:22s} " + " | ".join(parts))
+
+
 def main() -> None:
     for case in CASES:
         print(f"\n=== {case} ===")
@@ -92,7 +119,8 @@ def main() -> None:
             print("  C has no records yet.")
             continue
         if case == CASES[0]:
-            print(f"  -> {rule(cA, nA, cB, nB, cC, nC)}")
+            print(f"  -> registered rule: {rule(cA, nA, cB, nB, cC, nC)}")
+            exercised(case)
         else:
             # The protocol registers this case as exploratory and explicitly does not
             # adjudicate it: A is REVIEW-heavy, the move from A to B is small, and the
