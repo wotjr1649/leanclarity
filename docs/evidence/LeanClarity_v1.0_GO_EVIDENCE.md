@@ -16,7 +16,7 @@ Revised earlier on 2026-08-29 to candidate `1.0.1` under SPEC document version 1
 
 - LeanClarity version: `1.0.2` (SPEC document version 1.3; the `1.0.1` candidate was `07C93E43D22B20AF651702059ACEC3D5FDDB837F8EB78BBC2A4334343045F4D0` and the `1.0.0` candidate was `F3C0096EADA6575D0E6CB9827BA979249C7D0EC0D84D108A69F31264BF91E902`)
 - Candidate root: `D:\AI_DEV\leancue`
-- Candidate SHA-256: `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` (a policy-only revision `FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD` was built, gated and discarded; see Succession status)
+- Candidate SHA-256: `C53354CE273F0DC42C61CB045ACA3F6AF9C381B57DC27AEF9BE14ED779A5109B` — a **documentation-only revision** of `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` under SPEC 17.2, differing in `README.md` alone. The predecessor is the gated candidate and everything is inherited from it; see *Documentation-only revision*. A policy-only revision `FC6CDCBA4785A65019925F3D758AD08702A952AD75F9B9D6154A7CB8C1B3BFAD` was also built, gated and discarded; see Succession status
 - Candidate identity algorithm: sort the declared candidate paths; for each path emit UTF-8 `<path>\t<byte-count>\t<uppercase-file-SHA-256>\n`; hash those manifest bytes with SHA-256.
 - Local OS/architecture: Microsoft Windows 11 Pro `10.0.26200`, x64
 - Local Node.js: `v24.19.0`
@@ -31,7 +31,7 @@ Revised earlier on 2026-08-29 to candidate `1.0.1` under SPEC document version 1
 | `.claude-plugin/plugin.json` | 283 | `FAD78D99DE1524482F52750A5AA2E3295A320790A5F9FF5CE756A89E49DCAF8B` |
 | `.codex-plugin/plugin.json` | 251 | `1ED05757C8D576CB17DC7252CA1E8CE9C9331AA9E5DD0730ED3577B8BCBC8D24` |
 | `LICENSE` | 1081 | `194235421910F63BCF96182F80497501CB54D562DD2F05EF5AE9C545A0EDDD2C` |
-| `README.md` | 4903 | `83C3107E460D758717447857F4A99F1ECF46C947D1F71FD0E99C7EC9AE692466` |
+| `README.md` | 7288 | `D66C65258115C312C19318092213114AC94938A394A49F2C366E8D3695D21148` |
 | `THIRD_PARTY_NOTICES.md` | 2734 | `B888BE73EA7F0D0D0A7AA13104A8B7D04E9F7FC4D2F09C098359B26EC26B3257` |
 | `hooks/hooks.json` | 724 | `DAD1F45EB9BF28A518D386D7925D829EDCBC22DC25817509E4CC02CE323E66BF` |
 | `hooks/leanclarity.cjs` | 12189 | `702C2F2DDC54251219EE59D03FF1CD9B60975272B48AB18E7C856407B3BEE8EB` |
@@ -64,9 +64,67 @@ The catalogs follow the pinned upstream repositories' layout (Ponytail and i-hav
 - Ponytail: https://github.com/DietrichGebert/ponytail at `2ed6c52c9d7e5e56942508591085fd45dea277d3`
 - i-have-adhd: https://github.com/ayghri/i-have-adhd at `cbe69fb83c08a37cf54d5ec9ec6bb88c8bc9973c`
 
+## Documentation-only revision `C53354CE` (2026-08-31)
+
+The first exercise of SPEC 17.2. `README.md` is replaced; every other distribution byte is
+unchanged.
+
+| | Predecessor | Current |
+|---|---|---|
+| Aggregate | `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2` | `C53354CE273F0DC42C61CB045ACA3F6AF9C381B57DC27AEF9BE14ED779A5109B` |
+| `README.md` | 4903 bytes, `83C3107E…` | 7288 bytes, `D66C6525…` |
+| Other eight files | — | **byte-identical** |
+| Plugin version | `1.0.2` | `1.0.2` |
+
+**The plugin version does not move, and that is a condition rather than an oversight.** The version
+lives in both manifests, so bumping it would change them and forfeit 17.2 entirely — the successor
+would inherit nothing and owe a full Phase 6 re-observation plus 102 more runs, for a version
+string. The predecessor byte set was never published, so no installed copy ever carried the old
+`1.0.2`.
+
+### What changed in `README.md`
+
+The opening no longer says LeanClarity *"steers the model toward the smallest correct engineering
+solution"*. Two paired ON/OFF evaluations found no difference this project's instrument can resolve,
+so that sentence was unsupported by the project's own evidence and it was the reason the predecessor
+was not publishable.
+
+In its place the file states what was measured — the consolidation and its size, 2,486 characters
+against the 11,584 the two upstreams inject between them — and states outright that no improvement
+in model behaviour was measured, that `LCL-BEH-001` is `FAIL`, and that five of seventeen behaviour
+cases do not pass. It tells a reader why they might still want it and why they should not expect
+better output, and it carries the composition safety finding where a reader deciding whether to run
+these together will meet it.
+
+### Inheritance under 17.2
+
+- Both aggregate hashes and both byte sets are recorded above and in *Candidate distribution byte
+  set*; the difference is `README.md` alone.
+- Every inherited row was actually observed on `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`: `IMPLEMENTATION GO` across the 22 applicable
+  deterministic slices, `HOST INTEGRATION GO` across every Phase 6 row on both hosts, and section 15
+  behaviour acceptance as `LCL-BEH-001` = `FAIL`.
+- `README.md` reaches no model context, which is 17.2's ground. Section 11 measures the policy files,
+  the context-limit observations look at composed policy size, no section 15 run carries it, and
+  every Phase 6 row is determined by the manifests, the hook map and the runtime.
+- **The abuse guard is satisfied and it is mechanical.** 17.2 grants nothing unless the operator
+  documentation test asserts the absence of an improvement, causal or guarantee claim. Three
+  required patterns and one forbidden pattern were added to that test in this revision and pass:
+  the file must state that no improvement was measured, must state `LCL-BEH-001` is `FAIL`, must
+  carry the composition warning, and must not contain `steers the model`, `improves your/the`,
+  `produces better` or `guarantees`. The forbidden pattern is deliberately narrow, because the file
+  legitimately contains "improvement" and "better output" inside the sentences denying them.
+
+### What this does not change
+
+`LCL-BEH-001` stays `FAIL`. `RELEASE GO` stays `NOT VERIFIED` — Phase 8's package, docs and licence
+audit has still not been entered, its entry condition being unmet. `COMPLETE GO` stays `NOT GRANTED`
+and remains not grantable: `BEH-GUI-04` spent its one revision under 10.1 and 10.7 carries that
+budget forward. Phase 7's records, the discarded revision's records and both paired studies are
+untouched and continue to name `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`, which is the candidate they were taken on.
+
 ## Requirement results
 
-The artifact hash in every row is the aggregate candidate identity above.
+The artifact hash in every row is `99B19A9CD0F1A4B3EF9FDC71C7839FB53E3AB28260C9E79156E5DFF8CD4A6EF2`, the predecessor. Every row is inherited unchanged by the current candidate `C53354CE273F0DC42C61CB045ACA3F6AF9C381B57DC27AEF9BE14ED779A5109B` under SPEC 17.2; the deterministic rows additionally re-run on it on every invocation of the suite. See *Documentation-only revision*.
 
 | Requirement | Applicability rationale | Exact command/interaction | Artifact hash | Host/version/surface | Observation | Status | Evidence location |
 |---|---|---|---|---|---|---|---|
@@ -559,6 +617,16 @@ Recorded because they shaped the results and should not be repeated:
   is P2 alone, so the case is an instrument defect rather than a product limitation.
 - **`BEH-SAFE-03` workspace declares no Python floor**, so there was no fixture-level statement a
   response could have violated. That absence is what let two competent screeners disagree.
+- **`verify` cannot detect a manifest that was regenerated after a fixture changed.** `cmd_manifest`
+  rewrites `MANIFEST.md` from disk and `cmd_verify` compares that same file's recorded aggregate
+  against a fresh computation, so if a fixture byte changes and the manifest is regenerated, both
+  move together and `verify` reports `MATCH`. Git is the only tamper evidence, and the protocol's
+  freeze discipline silently depends on that. Observed 2026-08-31 the direct way: `harness.py
+  manifest` was run in passing during unrelated work and rewrote the freeze record's
+  `Candidate under test` line from the gated candidate to the current one. The fixture aggregate was
+  unchanged and the line was restored from git, but nothing in the harness would have said
+  otherwise. A future revision should have `verify` compare against a value the harness cannot
+  rewrite, or refuse to regenerate a manifest that already records an aggregate.
 - **A failed workspace preparation makes the repository itself the judged artifact.** Found
   2026-08-31 by the robustness study, in the same `prepare_workspace`/`staged_diff` pair this gate
   used. When an orphaned host process holds a previous workspace as its working directory, Windows
@@ -649,7 +717,7 @@ independent grounds, in the order that settles it:
    that requirement (pilot `L0`, `L1`, `L2`, `L3` and the Phase 7 canonical text) produced 30
    failures and no passes across both hosts.
 3. **The layer with confirmed defects is the instrument, not the text.** Counting what this gate
-   found after the freeze gives nine defects in its own instruments and zero policy defects
+   found after the freeze gives ten defects in its own instruments and zero policy defects
    confirmed reachable by wording. Spending policy revisions first would revise the layer with no
    confirmed defect, judged by the layer that has eight.
 
@@ -670,7 +738,7 @@ the two pinned models at their pinned settings, and the failures sit **inside** 
 Narrowing further means removing rows from SPEC 15.2, which is exactly the escape 10.3 named.
 No separate argument is available, so none is made.
 
-**What stays open.** A fixture revision under 10.5, carrying the nine recorded instrument
+**What stays open.** A fixture revision under 10.5, carrying the ten recorded instrument
 conditions, would be a new freeze and a new gate on a new candidate identity. Protocol 10.7,
 added today, fixes what crosses that boundary: the 10.1 revision budget carries over by default,
 so "revise the fixture" cannot become the unlimited-retry path 10.1 exists to prevent. It
@@ -810,7 +878,7 @@ character rather than the count being waved through.
   correct engineering solution and clear, actionable communication."* Two paired ON/OFF studies
   found no difference this project's instrument can resolve, so the sentence is unsupported by the
   project's own evidence. It is the reason `99B19A9C` is not published; the replacement is drafted
-  in [`docs/README-next-revision.md`](../README-next-revision.md) and lands with the next revision.
+  in [`README.md`](../../README.md) and lands with the next revision.
 - Allowed: `README.md`'s "not deterministic enforcement, a correctness guarantee, a security
   boundary" is a disclaimer, not a claim. `policies/engineering.md`'s "failure handling needed to
   protect the result" is instruction text addressed to the model, not a promise to an operator.
@@ -856,8 +924,11 @@ SPEC 1.3 and that record is unchanged; 17.2 adds a rule and re-observes nothing.
 
 ### Carried to the next revision
 
-`README.md` replacement · the item-9 guard assertion · the precedence clause the decomposition found
-missing · the nine instrument defects under 10.5. One revision, one gate, one candidate.
+The `README.md` replacement and the item-9 guard landed on 2026-08-31 as the documentation-only
+revision `C53354CE` recorded above, which needed no gate. What remains needs one: the precedence
+clause the decomposition found missing from the injected text, and the ten instrument defects under
+10.5. Both change what a gate would measure, so they travel together — one revision, one gate, one
+candidate.
 
 ## Residual uncertainty
 

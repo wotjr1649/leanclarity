@@ -772,7 +772,19 @@ test('operator documentation matches commands, state, lifecycle, failures, and s
     /Windows 11 x64/i,
     /portable-by-design but not release-validated/i,
     /does not detect, migrate, disable, or delete LeanCue, Ponytail, or i-have-adhd/i,
+    // Phase 8 item 9 had no automated guard: LCL-PROD-001 passes on the presence of
+    // the non-enforcement boundary, and nothing checked that no improvement claim was
+    // made, which is how a sentence contradicted by two paired ON/OFF studies survived
+    // every run of this suite. SPEC 17.2 makes these assertions a precondition of
+    // documentation-only inheritance, so they are required rather than advisory.
+    /Not measured: any improvement in what the model does/i,
+    /`LCL-BEH-001` is `FAIL`/,
+    /Guidance does not compose safely/i,
   ]) assert.match(readme, required);
+  // Claim-shaped phrasings. Deliberately narrow: the file legitimately contains
+  // "improvement" and "better output" inside the sentences that deny them, so a
+  // blunt keyword match would fire on the honest text.
+  assert.doesNotMatch(readme, /steers the model|improves (?:your|the)|produces better|guarantees\b/i);
   assert.doesNotMatch(readme, /HOST INTEGRATION GO\s*=\s*GO|RELEASE GO\s*=\s*GO|COMPLETE GO\s*=\s*GO/i);
   assert.doesNotMatch(readme, /function dispatch|require\(['"]node:fs/);
 });
