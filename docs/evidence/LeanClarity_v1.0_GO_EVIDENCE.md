@@ -137,6 +137,23 @@ Two things were edited, and both are recorded here rather than done quietly.
 
 Every JSON record still parses, the suite is 51/51 and the fixture freeze still verifies `MATCH`.
 
+### Published 2026-08-31
+
+The repository was made public and the annotated tag `v1.0.2` was pushed onto candidate
+`C53354CE`. The tag annotation carries the gate table verbatim — `LCL-BEH-001` `FAIL`, `RELEASE GO`
+`NOT VERIFIED`, `COMPLETE GO` `NOT GRANTED` and not grantable — together with the statement that no
+improvement in model behaviour was measured and that two paired ON/OFF evaluations found none.
+
+**Nothing was published that the evidence does not support, and nothing was hidden to make
+publication possible.** The gate still fails, Phase 8 is still unentered, and both facts are the
+first thing a reader meets in `README.md`. What is claimed is the consolidation and its size.
+
+The visibility change itself was executed by the operator rather than by the assistant: the local
+tool guard treats a repository visibility change as a remote-destructive operation and refused it,
+and routing around a guard through another shell or the API is precisely what the guard exists to
+prevent. The push and the tag were assistant actions under explicit authorization; the irreversible
+one was not.
+
 ### What this does not change
 
 `LCL-BEH-001` stays `FAIL`. `RELEASE GO` stays `NOT VERIFIED` — Phase 8's package, docs and licence
@@ -978,7 +995,7 @@ candidate.
 - Codex provides no required official local validator in the frozen PLAN; actual discovery/trust remains a Phase 6 observation.
 - The isolated Claude validator temp directory was removed after validation. It was outside the candidate distribution, and no generated file content was inspected or copied.
 - A marketplace install from the repository root copies the whole repository (Claude: the catalogs, `INSTALL.md`, `docs/`, `tests/`; Codex local-path installs additionally `.git/`), so an installed copy is a superset of the nine-file candidate. The release packaging source that ships exactly the candidate byte set is a Phase 8 decision.
-- The repository `https://github.com/wotjr1649/leanclarity` is private for Phase 6–7 installs; public visibility, release tags, and any registry listing are Phase 8 release actions. Marketplace installs from it need host git access to the private repository.
+- The repository `https://github.com/wotjr1649/leanclarity` was private for the Phase 6–7 installs, which therefore needed host git access. **It was made public on 2026-08-31 and tagged `v1.0.2`** on candidate `C53354CE`; marketplace installs no longer need credentials. Publication happened without `RELEASE GO` and without `COMPLETE GO`, deliberately and with both stated in `README.md` and in the tag annotation. No registry listing exists.
 - A second Codex data-directory defect was found on 2026-08-29 on a fresh isolated profile: Codex creates `<CODEX_HOME>/plugins/` but not `plugins/data/`, and SPEC 7.1 and 10.3 make a missing parent unavailable, so candidate `1.0.1` neither injects nor accepts `leanclarity on` there. Resolving it needed a SPEC revision and a new candidate identity, the same path `1.0.1` took: SPEC `1.3` and candidate `1.0.2` read a missing data root as absent at any depth and create it recursively on write only. Verified resolved on a real fresh profile, and Codex `HOST INTEGRATION GO` is now `GO`.
 - The first Codex data-directory defect was the first host-driven SPEC revision: candidate `1.0.0` (`F3C0096EADA6575D0E6CB9827BA979249C7D0EC0D84D108A69F31264BF91E902`) could not pass the Codex host matrix as specified; candidate `1.0.1` (`07C93E43D22B20AF651702059ACEC3D5FDDB837F8EB78BBC2A4334343045F4D0`) carries the revised contract, and the Phase 6 host observations recorded for `1.0.0` do not transfer to it until rerun.
 
