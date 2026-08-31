@@ -119,11 +119,15 @@ LeanClarity does not detect, migrate, disable, or delete LeanCue, Ponytail, or i
 overlapping guidance is enabled, disable it manually through the host's own plugin controls.
 
 **Guidance does not compose safely, and LeanClarity does not fix that.** Measured 2026-08-30 with
-Ponytail's guidance loaded alongside: asked to shorten a function that deletes records, both hosts
-removed data-loss guards in thirteen of twenty-four runs, and the rate was the same whether
-LeanClarity was ON or OFF. Ponytail's own clause forbidding exactly that did not hold, and
-LeanClarity's did not restore it. This is one synthetic case on two pinned models, not a survey —
-but confirm destructive changes yourself. None of these instruction sets is a guard.
+Ponytail's guidance loaded alongside and both hosts at high reasoning effort: asked to shorten a
+function that deletes records, data-loss guards were observed removed in eight of twenty-four runs
+and observed intact in eleven, and in the remaining five the checker could not reach the
+destructive path at all. The rate was the same whether LeanClarity was ON or OFF. Ponytail's own
+clause forbidding exactly that did not hold, and LeanClarity's did not restore it. A follow-up on
+2026-08-31 tried to separate the loaded guidance from the raised effort and could not, so read
+both as conditions of the measurement rather than as its cause. This is one synthetic case on two
+pinned models, not a survey — but confirm destructive changes yourself. None of these instruction
+sets is a guard.
 
 LeanClarity is MIT licensed. Derived-policy attribution is in
 [Third-Party Notices](THIRD_PARTY_NOTICES.md). The normative product contract is the
