@@ -764,6 +764,73 @@ ponytail skills carried at zero, persistence and mode machinery moved from prose
   stacked unverified on a frozen candidate, which is 10.5's own reasoning applied to the policy.
 - **`99B19A9C` is what ships.** It is the only byte set with complete behaviour evidence.
 
+## Phase 8 pre-audit, non-gating (2026-08-31)
+
+PLAN Phase 8's entry condition is that the applicable Phase 0–7 rows are `PASS`, and they are not,
+so Phase 8 is **not entered** and nothing here grants `RELEASE GO`. What ran is the subset whose
+findings feed the next revision. The rest is deliberately skipped: items 1 and 2 materialize and
+hash the candidate, items 3 and 4 re-observe the host rows, and all four are bound to a candidate
+identity that is about to change, so auditing them against `99B19A9C` would audit an artifact that
+is not going to ship.
+
+| Item | Ran | Result |
+|---|---|---|
+| 1 materialize and hash the candidate | no | bound to the changing candidate identity |
+| 2 re-run deterministic tests and scans | continuously | 51/51 on every invocation |
+| 3–4 host manifest, hook map, Codex discovery | no | Phase 6 rows observed on `1.0.2`; re-observed by the next candidate |
+| 5 README against observed behavior | continuously | `operator documentation matches commands, state, lifecycle, failures, and support scope` |
+| 6 MIT license and both pinned notices | yes | present and complete; scan found nothing else |
+| **7 stale and prohibited vocabulary** | **yes** | **0 prohibited; 5 occurrences reviewed and allowed** |
+| 8 macOS/Linux portable, not verified | yes | stated in `README.md` and in residual uncertainty |
+| **9 no improvement or security-guarantee claim** | **yes** | **1 defect, already drafted out; 2 allowed** |
+| 10 traceability matrix with evidence links | yes | 24 rows, every row carries an evidence location |
+
+### Item 7 — every occurrence reviewed, none prohibited
+
+PLAN asks for review rather than blind zero counts. Across the nine candidate files, both
+marketplace catalogs and `INSTALL.md`, five occurrences match the prohibited list and all five are
+in the allowed classes.
+
+| Where | Term | Ruling |
+|---|---|---|
+| `README.md` coexistence | `LeanCue` | explicit migration statement, and a deterministic test requires this exact sentence |
+| `README.md` control prompts | `/leanclarity` | documents that the slash form is **not** a command. SPEC 7 chose bare prompts over slash aliases; this records that choice rather than shipping one |
+| `README.md` how it applies | `defaults` | the ordinary verb, "defaults to `ON`", not the retired mode-defaults vocabulary |
+| `README.md` privacy | `telemetry`, `analytics` | negative statements, and a deterministic test requires them |
+
+The manifests, the runtime, both policies, `LICENSE`, `THIRD_PARTY_NOTICES.md`, both catalogs and
+`INSTALL.md` carry none. A first pass reported eight more and all eight were the substring
+`/leanclarity` inside `hooks/leanclarity.cjs` and `wotjr1649/leanclarity` — a path and a repository
+slug, not slash aliases. The pattern was corrected to exclude a preceding path or identifier
+character rather than the count being waved through.
+
+### Item 9 — one real defect, and it has no automated guard
+
+- **Defect: `README.md` opens with an effect claim.** *"It steers the model toward the smallest
+  correct engineering solution and clear, actionable communication."* Two paired ON/OFF studies
+  found no difference this project's instrument can resolve, so the sentence is unsupported by the
+  project's own evidence. It is the reason `99B19A9C` is not published; the replacement is drafted
+  in [`docs/README-next-revision.md`](../README-next-revision.md) and lands with the next revision.
+- Allowed: `README.md`'s "not deterministic enforcement, a correctness guarantee, a security
+  boundary" is a disclaimer, not a claim. `policies/engineering.md`'s "failure handling needed to
+  protect the result" is instruction text addressed to the model, not a promise to an operator.
+- **Gap: nothing tests for this.** `LCL-PROD-001` passes on the *presence* of the non-enforcement
+  boundary; no assertion checks for the *absence* of an improvement claim, which is why a sentence
+  contradicted by two studies survived every run of the suite. The next revision adds one alongside
+  the README swap, in the shape the file already uses:
+
+  ```js
+  assert.doesNotMatch(readme, /steers the model|improves|makes .{0,20}better|more correct output/i);
+  ```
+
+  It is not added now because it would be red against the shipped `README.md`, and leaving
+  verification red to record an intention is the failure mode this project spent Phase 7 avoiding.
+
+### Carried to the next revision
+
+`README.md` replacement · the item-9 guard assertion · the precedence clause the decomposition found
+missing · the nine instrument defects under 10.5. One revision, one gate, one candidate.
+
 ## Residual uncertainty
 
 - macOS/Linux: portable-by-design, not release-validated.
