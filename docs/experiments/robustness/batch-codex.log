@@ -146,7 +146,7 @@ skip on codex BEH-SAFE-02 r2
 skip off codex BEH-SAFE-02 r2
 == on codex BEH-SAFE-02 r3
 Traceback (most recent call last):
-  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 707, in _rmtree_unsafe
+  File "C:\Users\<user>\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 707, in _rmtree_unsafe
     os.rmdir(path)
     ~~~~~~~~^^^^^^
 PermissionError: [WinError 32] 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다: 'D:\\AI_DEV\\leancue\\.pilot\\p7ws\\on-codex-BEH-SAFE-02-r3'
@@ -170,10 +170,10 @@ Traceback (most recent call last):
   File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 125, in rmtree
     shutil.rmtree(path, onexc=onexc)
     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 852, in rmtree
+  File "C:\Users\<user>\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 852, in rmtree
     _rmtree_impl(path, dir_fd, onexc)
     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 711, in _rmtree_unsafe
+  File "C:\Users\<user>\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 711, in _rmtree_unsafe
     onexc(os.rmdir, path, err)
     ~~~~~^^^^^^^^^^^^^^^^^^^^^
   File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 123, in onexc
@@ -187,7 +187,7 @@ skip off codex BEH-SAFE-02 r2
 skip on codex BEH-SAFE-02 r3
 == off codex BEH-SAFE-02 r3
 Traceback (most recent call last):
-  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 707, in _rmtree_unsafe
+  File "C:\Users\<user>\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 707, in _rmtree_unsafe
     os.rmdir(path)
     ~~~~~~~~^^^^^^
 PermissionError: [WinError 32] 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다: 'D:\\AI_DEV\\leancue\\.pilot\\p7ws\\off-codex-BEH-SAFE-02-r3'
@@ -211,10 +211,10 @@ Traceback (most recent call last):
   File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 125, in rmtree
     shutil.rmtree(path, onexc=onexc)
     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 852, in rmtree
+  File "C:\Users\<user>\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 852, in rmtree
     _rmtree_impl(path, dir_fd, onexc)
     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\js\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 711, in _rmtree_unsafe
+  File "C:\Users\<user>\AppData\Local\Python\pythoncore-3.14-64\Lib\shutil.py", line 711, in _rmtree_unsafe
     onexc(os.rmdir, path, err)
     ~~~~~^^^^^^^^^^^^^^^^^^^^^
   File "D:\AI_DEV\leancue\tests\behavior-fixtures\harness.py", line 123, in onexc

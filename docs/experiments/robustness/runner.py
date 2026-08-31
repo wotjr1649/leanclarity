@@ -12,7 +12,7 @@ Stand-in delivery, both measured on 2026-08-30:
           10,000 characters, and at 12,072 the model reports "only a 2KB preview is
           visible and the full text is truncated". Project memory is unavailable
           too - it needs `--setting-sources project,local`, which also loads the
-          operator's own ~/.claude/CLAUDE.md (probed: "Claude Code Host Adapter"
+          operator's own ~/.claude/CLAUDE.md (probed with a phrase found only in that file
           HIT under project,local, NONE under local alone).
   Codex   workspace AGENTS.md, committed into the baseline so it never appears in
           a judged diff.

@@ -114,6 +114,29 @@ these together will meet it.
   `produces better` or `guarantees`. The forbidden pattern is deliberately narrow, because the file
   legitimately contains "improvement" and "better output" inside the sentences denying them.
 
+### Redaction before publication (2026-08-31)
+
+The repository was scanned before being made public, because publication is not reversible in
+effect: content can be cached, forked and indexed regardless of what happens afterwards. 774 tracked
+files were scanned for credential-shaped strings, secret-named assignments, email addresses and
+session identifiers, and all four categories returned zero.
+
+Two things were edited, and both are recorded here rather than done quietly.
+
+- **Twenty-five occurrences of the operator's home path** — `C:\Users\<name>` — inside captured
+  `stderr_tail` text, one Python traceback in a batch log, and one recorded command line for a
+  supplemental check that was `BLOCKED`. The username was replaced with `<user>`; every surrounding
+  byte, exit code and message is exactly as recorded. No gate depends on these bytes: run records
+  are outside the fixture freeze and outside the candidate distribution. This is the eleventh
+  instrument entry above, since SPEC 15.3 already forbids an environment dump in evidence and the
+  capture path let fragments through anyway.
+- **Four quotations of an exact phrase from the operator's own `CLAUDE.md`**, used to document the
+  probe that showed `--setting-sources project,local` loads that file while `local` alone does not.
+  The method is what the record needs and it survives generalisation; the private string does not
+  need publishing. The finding is unchanged: the gate's `local` configuration is clean.
+
+Every JSON record still parses, the suite is 51/51 and the fixture freeze still verifies `MATCH`.
+
 ### What this does not change
 
 `LCL-BEH-001` stays `FAIL`. `RELEASE GO` stays `NOT VERIFIED` — Phase 8's package, docs and licence
@@ -177,7 +200,7 @@ The host test guard rejected uncapped `node --test tests/leanclarity.test.cjs` b
 
 ### Supplemental non-gating tool check
 
-`python C:\Users\js\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py D:\AI_DEV\leancue` could not start because that external helper's `yaml` module is absent. Status: `BLOCKED`. It is not a SPEC/PLAN gate, no project or global dependency was installed, and the current official Claude strict validator plus project packaging checks passed. Its required-field checks (for example `interface.displayName` and `interface.defaultPrompt`) mirror the ChatGPT plugin-ingestion schema; the Codex CLI local install accepted the minimal candidate manifest without them (see Codex host results).
+`python C:\Users\<user>\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py D:\AI_DEV\leancue` could not start because that external helper's `yaml` module is absent. Status: `BLOCKED`. It is not a SPEC/PLAN gate, no project or global dependency was installed, and the current official Claude strict validator plus project packaging checks passed. Its required-field checks (for example `interface.displayName` and `interface.defaultPrompt`) mirror the ChatGPT plugin-ingestion schema; the Codex CLI local install accepted the minimal candidate manifest without them (see Codex host results).
 
 ## Claude host results
 
@@ -617,6 +640,13 @@ Recorded because they shaped the results and should not be repeated:
   is P2 alone, so the case is an instrument defect rather than a product limitation.
 - **`BEH-SAFE-03` workspace declares no Python floor**, so there was no fixture-level statement a
   response could have violated. That absence is what let two competent screeners disagree.
+- **`stderr_tail` copies environment fragments into the record.** SPEC 15.3 forbids evidence from
+  copying an environment dump, and the runner does not copy one deliberately — but it stores a
+  failing child process's stderr verbatim, and a failing interpreter prints its own path. Twenty-one
+  fragments of the operator's home directory reached the records that way across all four record
+  sets and two pilot arms, plus one recorded command line. Redacted before publication on
+  2026-08-31, described below. A future revision should filter the captured stderr rather than rely
+  on redaction at the end.
 - **`verify` cannot detect a manifest that was regenerated after a fixture changed.** `cmd_manifest`
   rewrites `MANIFEST.md` from disk and `cmd_verify` compares that same file's recorded aggregate
   against a fresh computation, so if a fixture byte changes and the manifest is regenerated, both
@@ -717,7 +747,7 @@ independent grounds, in the order that settles it:
    that requirement (pilot `L0`, `L1`, `L2`, `L3` and the Phase 7 canonical text) produced 30
    failures and no passes across both hosts.
 3. **The layer with confirmed defects is the instrument, not the text.** Counting what this gate
-   found after the freeze gives ten defects in its own instruments and zero policy defects
+   found after the freeze gives eleven defects in its own instruments and zero policy defects
    confirmed reachable by wording. Spending policy revisions first would revise the layer with no
    confirmed defect, judged by the layer that has eight.
 
@@ -738,7 +768,7 @@ the two pinned models at their pinned settings, and the failures sit **inside** 
 Narrowing further means removing rows from SPEC 15.2, which is exactly the escape 10.3 named.
 No separate argument is available, so none is made.
 
-**What stays open.** A fixture revision under 10.5, carrying the ten recorded instrument
+**What stays open.** A fixture revision under 10.5, carrying the eleven recorded instrument
 conditions, would be a new freeze and a new gate on a new candidate identity. Protocol 10.7,
 added today, fixes what crosses that boundary: the 10.1 revision budget carries over by default,
 so "revise the fixture" cannot become the unlimited-retry path 10.1 exists to prevent. It
@@ -926,8 +956,8 @@ SPEC 1.3 and that record is unchanged; 17.2 adds a rule and re-observes nothing.
 
 The `README.md` replacement and the item-9 guard landed on 2026-08-31 as the documentation-only
 revision `C53354CE` recorded above, which needed no gate. What remains needs one: the precedence
-clause the decomposition found missing from the injected text, and the ten instrument defects under
-10.5. Both change what a gate would measure, so they travel together — one revision, one gate, one
+clause the decomposition found missing from the injected text, and the eleven instrument defects
+under 10.5. Both change what a gate would measure, so they travel together — one revision, one gate, one
 candidate.
 
 ## Residual uncertainty
@@ -940,7 +970,7 @@ candidate.
   a 2KB preview was visible and the rest truncated. The candidate's 2,486 characters are delivered
   whole, so both sides of that boundary are now observed rather than only the near side.
 - The gate's profile isolation was confirmed rather than assumed on 2026-08-31. Probing for the
-  exact phrase `Claude Code Host Adapter`, the operator's own `~/.claude/CLAUDE.md` is loaded under
+  exact phrase that appears only in the operator's own `CLAUDE.md`, that file is loaded under
   `--setting-sources project,local` even with an isolated `CLAUDE_CONFIG_DIR`, and is absent under
   `local` alone. Phase 7 used `local`, so its runs carry no operator instruction text.
 - Lifecycle sources: `startup`, `resume` and `fork` are observed on Claude and `startup` and `resume` on Codex, with `SubagentStart` Engineering-only scope observed on both. The `clear` and `compact` sources were subsequently observed on `1.0.2` on both hosts, so no lifecycle row is left open (see Phase 6 row coverage). Context-limit behavior is observed on both hosts at the candidate's 2486-character composition and is not claimed for any larger composition. Control-prompt blocking is observed on both hosts, and on Codex the interactive `on`/`off` write that creates the data directory and `state.json`, plus cross-session persistence of a saved OFF with no injection, are observed (see Codex host results).

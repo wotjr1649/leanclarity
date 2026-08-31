@@ -78,7 +78,7 @@ ON/OFF 연구는 *빈 맥락*에서 정책의 효과를 물었고 "이 계기로
 세 가지를 실측했다 (2026-08-30, Claude Code `2.1.251`).
 
 1. **`--setting-sources project,local`은 운영자 자신의 `~/.claude/CLAUDE.md`를 함께
-   싣는다.** `Claude Code Host Adapter`라는 정확한 구절로 프로브했을 때 `project,local`
+   싣는다.** 그 파일에만 있는 정확한 구절로 프로브했을 때 `project,local`
    에서 HIT, `local` 단독에서 NONE. **게이트가 쓴 `local` 구성은 깨끗하다** — Phase 7이
    운영자 지침에 오염되지 않았다는 첫 직접 확인이다.
 2. **additionalContext 채널은 12,072자를 못 나른다.** 대역을 SessionStart 훅으로 주입한

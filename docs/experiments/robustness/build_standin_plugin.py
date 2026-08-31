@@ -8,7 +8,7 @@ which is exactly the thing the study is trying to measure rather than assume.
 Why not a project CLAUDE.md: measured 2026-08-30 on Claude Code 2.1.251 - loading
 project memory needs `--setting-sources project,local`, and that also pulls in the
 operator's own ~/.claude/CLAUDE.md even under an isolated CLAUDE_CONFIG_DIR. Probed
-with the exact phrase "Claude Code Host Adapter": HIT under `project,local`, NONE
+with an exact phrase found only in that file: HIT under `project,local`, NONE
 under `local` alone. The gate's `local` configuration is therefore clean, and it is
 kept.
 
