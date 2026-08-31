@@ -20,6 +20,11 @@ Stand-in delivery, both measured on 2026-08-30:
 Usage:
   python docs/experiments/robustness/runner.py --host claude --arm on
   python docs/experiments/robustness/runner.py --host codex  --arm off
+
+The attribution study (docs/experiments/attribution/) reuses this runner for the
+one cell this design left out - no stand-in at effort high - and writes elsewhere:
+  python docs/experiments/robustness/runner.py --host claude --arm on \
+      --standin none --out docs/experiments/attribution/runs --case BEH-SAFE-02
 """
 import argparse
 import json
@@ -34,6 +39,9 @@ sys.path.insert(0, str(ROOT / "tests" / "behavior-fixtures"))
 import harness  # noqa: E402  frozen, imported read-only
 
 HERE = Path(__file__).resolve().parent
+# `--standin none` sets this to None, which is the attribution study's third cell:
+# no stand-in at effort high, against this study's stand-in at effort high and the
+# gate's no stand-in at the profile default. See docs/experiments/attribution/.
 STANDIN = HERE / "standin.md"
 RUNS = HERE / "runs"
 
@@ -63,7 +71,7 @@ def prepare(case: dict, host: str, tag: str) -> Path:
     # has it as its cwd holds it open (WinError 32). Renaming the scratch path
     # avoids both deleting and killing anything.
     ws = harness.prepare_workspace(case, tag + WS_SUFFIX)
-    if host == "codex":
+    if host == "codex" and STANDIN is not None:
         (ws / "AGENTS.md").write_text(STANDIN.read_text(encoding="utf-8"),
                                       encoding="utf-8", newline="\n")
         harness.git(["add", "-A"], ws)
@@ -83,9 +91,10 @@ def run_turn(host, case, text, index, ws, session, tmp, timeout):
                "--model", harness.CLAUDE_MODEL, "--effort", EFFORT,
                "--plugin-dir", str(harness.CANDIDATE.resolve()),
                "--setting-sources", "local",
-               "--append-system-prompt-file", str(STANDIN),
                "--dangerously-skip-permissions",
                "--output-format", "json", "--debug-file", str(debug)]
+        if STANDIN is not None:
+            cmd += ["--append-system-prompt-file", str(STANDIN)]
         if session:
             cmd += ["--resume", session]
     else:
@@ -166,9 +175,11 @@ def one_run(host: str, arm: str, case_id: str, run: int, timeout: int) -> None:
         "candidate": harness.CANDIDATE_ID,
         "model": harness.CLAUDE_MODEL if host == "claude" else harness.CODEX_MODEL,
         "effort": EFFORT,
-        "standin_sha256": harness.sha256(STANDIN.read_bytes()),
-        "standin_chars": len(STANDIN.read_text(encoding="utf-8")),
-        "standin_delivery": "append-system-prompt-file" if host == "claude" else "workspace AGENTS.md",
+        "standin": "full" if STANDIN is not None else "none",
+        "standin_sha256": harness.sha256(STANDIN.read_bytes()) if STANDIN else None,
+        "standin_chars": len(STANDIN.read_text(encoding="utf-8")) if STANDIN else None,
+        "standin_delivery": (("append-system-prompt-file" if host == "claude"
+                              else "workspace AGENTS.md") if STANDIN else None),
         "sampling_controls": "none exposed by this surface at these settings",
         "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "turns": turns,
@@ -208,12 +219,21 @@ def main() -> None:
     # could not remove. Here it costs nothing but a state-file write.
     ap.add_argument("--arm", required=True, choices=("on", "off", "both"))
     ap.add_argument("--case", choices=CASES)
-    ap.add_argument("--run", type=int, choices=RUN_NUMBERS)
+    # No choices bound: the attribution study's expansion clause buys runs 7-8 on a
+    # cell that stays ambiguous at 6. The default loop is still RUN_NUMBERS.
+    ap.add_argument("--run", type=int)
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--redo", action="store_true")
     ap.add_argument("--ws-suffix", default="", help="scratch dir suffix for retries")
+    ap.add_argument("--standin", choices=("full", "none"), default="full",
+                    help="none = deliver no upstream stand-in (attribution study)")
+    ap.add_argument("--out", help="record tree; default is this study's runs/")
     args = ap.parse_args()
     globals()["WS_SUFFIX"] = args.ws_suffix
+    if args.standin == "none":
+        globals()["STANDIN"] = None
+    if args.out:
+        globals()["RUNS"] = Path(args.out)
 
     ids = [args.case] if args.case else list(CASES)
     runs = [args.run] if args.run else list(RUN_NUMBERS)
