@@ -1,0 +1,30 @@
+== on codex BEH-GUI-07 r1
+  turn 1: exit=0 179.1s resp=257ch inj=None
+  turn 2: exit=0 64.3s resp=366ch inj=None
+  turn 3: exit=0 39.5s resp=373ch inj=None
+on-codex-BEH-GUI-07-r1: 282.9s verdict=REVIEW
+== on codex BEH-GUI-07 r2
+  turn 1: exit=0 163.0s resp=247ch inj=None
+  turn 2: exit=0 152.5s resp=337ch inj=None
+  turn 3: exit=0 26.2s resp=333ch inj=None
+on-codex-BEH-GUI-07-r2: 341.7s verdict=PASS
+== on codex BEH-GUI-07 r3
+  turn 1: exit=0 187.4s resp=449ch inj=None
+  turn 2: exit=0 120.3s resp=540ch inj=None
+  turn 3: exit=0 53.1s resp=337ch inj=None
+on-codex-BEH-GUI-07-r3: 360.8s verdict=PASS
+== on codex BEH-GUI-07 r4
+  turn 1: exit=0 143.4s resp=436ch inj=None
+  turn 2: exit=0 158.6s resp=417ch inj=None
+  turn 3: exit=0 142.5s resp=404ch inj=None
+on-codex-BEH-GUI-07-r4: 444.5s verdict=REVIEW
+== on codex BEH-GUI-07 r5
+  turn 1: exit=0 137.0s resp=186ch inj=None
+  turn 2: exit=0 88.1s resp=288ch inj=None
+  turn 3: exit=0 56.4s resp=314ch inj=None
+on-codex-BEH-GUI-07-r5: 281.5s verdict=REVIEW
+== on codex BEH-GUI-07 r6
+  turn 1: exit=0 248.7s resp=413ch inj=None
+  turn 2: exit=0 127.1s resp=383ch inj=None
+  turn 3: exit=0 60.8s resp=393ch inj=None
+on-codex-BEH-GUI-07-r6: 436.6s verdict=REVIEW

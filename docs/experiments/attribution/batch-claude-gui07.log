@@ -1,0 +1,30 @@
+== on claude BEH-GUI-07 r1
+  turn 1: exit=0 49.0s resp=328ch inj=[2486]
+  turn 2: exit=0 47.6s resp=295ch inj=[2486]
+  turn 3: exit=0 30.6s resp=300ch inj=[2486]
+on-claude-BEH-GUI-07-r1: 127.2s verdict=REVIEW
+== on claude BEH-GUI-07 r2
+  turn 1: exit=0 35.4s resp=486ch inj=[2486]
+  turn 2: exit=0 52.7s resp=413ch inj=[2486]
+  turn 3: exit=0 45.0s resp=708ch inj=[2486]
+on-claude-BEH-GUI-07-r2: 133.1s verdict=REVIEW
+== on claude BEH-GUI-07 r3
+  turn 1: exit=0 31.9s resp=437ch inj=[2486]
+  turn 2: exit=0 80.7s resp=546ch inj=[2486]
+  turn 3: exit=0 78.5s resp=681ch inj=[2486]
+on-claude-BEH-GUI-07-r3: 191.1s verdict=REVIEW
+== on claude BEH-GUI-07 r4
+  turn 1: exit=0 55.8s resp=146ch inj=[2486]
+  turn 2: exit=0 22.6s resp=363ch inj=[2486]
+  turn 3: exit=0 19.4s resp=278ch inj=[2486]
+on-claude-BEH-GUI-07-r4: 97.8s verdict=REVIEW
+== on claude BEH-GUI-07 r5
+  turn 1: exit=0 41.9s resp=185ch inj=[2486]
+  turn 2: exit=0 39.3s resp=325ch inj=[2486]
+  turn 3: exit=0 87.1s resp=313ch inj=[2486]
+on-claude-BEH-GUI-07-r5: 168.3s verdict=REVIEW
+== on claude BEH-GUI-07 r6
+  turn 1: exit=0 64.2s resp=86ch inj=[2486]
+  turn 2: exit=0 22.5s resp=138ch inj=[2486]
+  turn 3: exit=0 50.6s resp=212ch inj=[2486]
+on-claude-BEH-GUI-07-r6: 137.3s verdict=REVIEW
